@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="portal.theme">
+
+	<select id="portal.theme.selectThemeList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테마 목록 조회 */
+			SELECT * 
+			  FROM (			
+					SELECT ROW_NUMBER() OVER (ORDER BY TI.INS_DT DESC) RNO,
+						   TI.THEME_NO          ,
+						   TI.THEME_MAIN_TITLE	,
+						   TI.THEME_VIEW_CNT	,
+						   TI.OTHBC_YN          ,
+						   LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#)  AS USER_NM,
+						   CASE WHEN UI.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) 
+						        ELSE '' END                           AS DEPT_NM,				   
+						   LANDSYS_ADM.FN_DECRYPT(TI.INS_USER, #KEY#) AS INS_USER, 
+						   LANDSYS_ADM.FN_DECRYPT(TI.UPD_USER, #KEY#) AS UPD_USER, 
+						   TO_CHAR(TI.INS_DT, 'YYYY/MM/DD') AS INS_DT, 
+						   TO_CHAR(TI.UPD_DT, 'YYYY/MM/DD') AS UPD_DT,				   
+					       FI.FILE_NO			,
+						   FI.FILE_GRP			AS GROUP,
+						   FI.FILE_ORDR		AS ORDER,
+						   FI.FILE_ORIGNL_NM	AS FILE_NAME,
+						   FI.FILE_EXTSN		AS FILE_EXT,
+						   FI.FILE_SAVE_NM		AS SAVE_NAME,
+						   FI.FILE_SAVE_PATH    AS SAVE_PATH
+					  FROM LANDSYS_ADM.TB_THEME_INFO TI,
+					       LANDSYS_ADM.TB_FILE       FI,
+					       LANDSYS_ADM.TB_USER_INFO  UI
+					 WHERE TI.FILE_GRP = FI.FILE_GRP
+					   AND TI.USER_ID  = UI.USER_ID
+					   AND ((TI.USE_YN  = 'Y' AND TI.USER_ID = LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#)) OR 
+					        (TI.USE_YN  = 'Y' AND TI.OTHBC_YN = 'Y' AND TI.USER_ID <> LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#)))
+		]]>
+				<isNotEmpty property="SERCH_NM">
+					<isEqual prepend="AND" property="SERCH_GB" compareValue="user_id">
+					       LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+					</isEqual>
+					<isEqual prepend="AND" property="SERCH_GB" compareValue="user_nm">
+					       LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+					</isEqual>
+					<isEqual prepend="AND" property="SERCH_GB" compareValue="dept_nm">
+					       UI.DEPT_NM IS NOT NULL AND UI.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+					</isEqual>		
+					<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+							(
+								LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+								LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+								( UI.DEPT_NM IS NOT NULL AND UI.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' )
+							)
+					</isEqual>
+				</isNotEmpty>
+		    	   ) AAA
+	    	 WHERE AAA.RNO BETWEEN #FIRST_INDEX# AND #LAST_INDEX#		
+	</select>
+
+	<select id="portal.theme.selectThemeListCount" parameterClass="java.util.HashMap" resultClass="int">
+		<![CDATA[
+			/* 테마 목록 조회 */
+			SELECT COUNT(TI.THEME_NO) AS CNT
+			  FROM LANDSYS_ADM.TB_THEME_INFO TI,
+			       LANDSYS_ADM.TB_FILE       FI,
+			       LANDSYS_ADM.TB_USER_INFO  UI
+			 WHERE TI.FILE_GRP = FI.FILE_GRP
+			   AND TI.USER_ID  = UI.USER_ID
+			   AND ((TI.USE_YN  = 'Y' AND TI.USER_ID = LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#)) OR 
+			        (TI.USE_YN  = 'Y' AND TI.OTHBC_YN = 'Y' AND TI.USER_ID <> LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#)))
+		]]>
+		<isNotEmpty property="SERCH_NM">
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="user_id">
+			       LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="user_nm">
+			       LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="dept_nm">
+			       UI.DEPT_NM IS NOT NULL AND UI.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>		
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+					(
+						LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+						LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+						( UI.DEPT_NM IS NOT NULL AND UI.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' )
+					)
+			</isEqual>
+		</isNotEmpty>
+	</select>
+	
+	<select id="portal.theme.selectThemeInfoDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테마 상세 조회 */
+			SELECT TI.THEME_NO          ,
+				   TI.THEME_MAIN_TITLE	,
+				   TI.THEME_VIEW_CNT	,
+				   TI.OTHBC_YN          ,
+				   LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#)  AS USER_NM,
+				   CASE WHEN UI.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) 
+				        ELSE '' END                           AS DEPT_NM,				   
+				   LANDSYS_ADM.FN_DECRYPT(TI.INS_USER, #KEY#) AS INS_USER, 
+				   LANDSYS_ADM.FN_DECRYPT(TI.UPD_USER, #KEY#) AS UPD_USER, 
+				   TO_CHAR(TI.INS_DT, 'YYYY/MM/DD') AS INS_DT, 
+				   TO_CHAR(TI.UPD_DT, 'YYYY/MM/DD') AS UPD_DT,				   
+			       FI.FILE_NO			,
+				   FI.FILE_GRP			AS GROUP,
+				   FI.FILE_ORDR		AS ORDER,
+				   FI.FILE_ORIGNL_NM	AS FILE_NAME,
+				   FI.FILE_EXTSN		AS FILE_EXT,
+				   FI.FILE_SAVE_NM		AS SAVE_NAME,
+				   FI.FILE_SAVE_PATH    AS SAVE_PATH,
+				   CASE WHEN TI.USER_ID = LANDSYS_ADM.FN_ENCRYPT(#USER_ID#, #KEY#) THEN 'Y'
+				   	    ELSE 'N' END    AS EDIT_ENABLE_YN 
+			  FROM LANDSYS_ADM.TB_THEME_INFO TI,
+			       LANDSYS_ADM.TB_FILE       FI,
+			       LANDSYS_ADM.TB_USER_INFO  UI
+			 WHERE TI.FILE_GRP = FI.FILE_GRP
+			   AND TI.USER_ID  = UI.USER_ID
+			   AND TI.THEME_NO = #THEME_NO#			
+		]]>	
+	</select>
+		
+	<select id="portal.theme.selectThemeLayerList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테마 LAYER 목록 조회 */
+			SELECT LI.LAYER_NO,
+			       LI.LAYER_DP_NM,
+			       LI.LAYER_TP_NM
+			  FROM LANDSYS_ADM.TB_THEME_INFO 		TI,
+			       LANDSYS_ADM.TB_THEME_LAYER_MAPNG LM,			
+			       LANDSYS_ADM.TB_LAYER_INFO        LI
+			 WHERE TI.THEME_NO = LM.THEME_NO	
+			   AND LM.LAYER_NO = LI.LAYER_NO
+			   AND TI.THEME_NO = #THEME_NO#		       
+		]]>	
+	</select>
+	
+	<insert id="portal.theme.insertThemeInfo" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(THEME_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ 
+					  FROM LANDSYS_ADM.TB_THEME_INFO			
+				   ) A
+		</selectKey>
+			
+		<![CDATA[
+			/* 테마 등록 */				
+			INSERT INTO LANDSYS_ADM.TB_THEME_INFO
+			(				
+				THEME_NO			,
+				USER_ID				,
+				THEME_MAIN_TITLE	,
+				THEME_SUB_TITLE		,
+				THEME_ADD_ITEM1		,
+				THEME_ADD_ITEM2		,
+				THEME_DESC			,
+				FILE_GRP			,
+				THEME_VIEW_CNT		,
+				OTHBC_YN			,
+				USE_YN				,
+				INS_USER			,
+				UPD_USER			,
+				INS_DT				,
+				UPD_DT				
+			)
+			VALUES
+			(
+				#SEQ#,
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				#TITLE#,
+				'',
+				'',
+				'',
+				'',
+				#FILE_GRP#,
+				0,
+				#OTHBC_YN#,
+		   		'Y',
+			    LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			    LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			   	CURRENT_TIMESTAMP,
+			   	CURRENT_TIMESTAMP
+			)
+		]]>	
+	</insert>
+	
+    <insert id="portal.theme.insertThemeLayerMapng" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 테마 레이어 매핑 등록 */
+			INSERT INTO LANDSYS_ADM.TB_THEME_LAYER_MAPNG
+			(
+				THEME_NO,
+				LAYER_NO
+			)
+		]]>			
+		<dynamic>
+		<iterate prepend="VALUES" conjunction=", " property="LAYERS">
+			( 
+				#THEME_NO#,
+				#LAYERS[].layer_no#
+			)
+		</iterate>
+		</dynamic>
+	</insert>
+
+    <insert id="portal.theme.insertBackupThemeLayerMapngByNo" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ 
+					  FROM LANDSYS_ADM.TH_THEME_LAYER_MAPNG			
+				   ) A
+		</selectKey>
+		    
+	    <![CDATA[
+			/* 테마 레이어 매핑 백업 */
+	    	INSERT INTO LANDSYS_ADM.TH_THEME_LAYER_MAPNG
+	    	(
+				  LOG_NO
+			    , LOG_INS_USER
+			    , LOG_INS_DT
+			    , THEME_NO
+			    , LAYER_NO
+			)    			
+			 SELECT   #SEQ#
+					, LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#)
+					, CURRENT_TIMESTAMP	
+			    	, THEME_NO
+			    	, LAYER_NO			
+			  FROM LANDSYS_ADM.TB_THEME_LAYER_MAPNG
+			 WHERE THEME_NO = #THEME_NO#			
+		]]>			
+	</insert>
+	
+    <delete id="portal.theme.deleteThemeLayerMapngByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 테마 레이어 매핑 삭제 */
+			DELETE 
+			  FROM LANDSYS_ADM.TB_THEME_LAYER_MAPNG
+			 WHERE THEME_NO = #THEME_NO#
+		]]>				 
+	</delete>
+	
+    <update id="portal.theme.updateThemeInfo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 테마 수정 */
+			UPDATE LANDSYS_ADM.TB_THEME_INFO
+			   SET 
+		]]>
+		<isEmpty prepend="" property="VIEW_CNT">					   
+			<isNotEmpty  prepend="" property="TITLE">
+		       	   THEME_MAIN_TITLE	 = #TITLE#,
+			</isNotEmpty>
+			<isNotEmpty  prepend="" property="FILE_GRP">
+		       	   FILE_GRP	         = #FILE_GRP#,
+			</isNotEmpty>	
+			<isNotEmpty  prepend="" property="OTHBC_YN">
+		       	   OTHBC_YN	         = #OTHBC_YN#,
+			</isNotEmpty>
+			<isNotEmpty  prepend="" property="USE_YN">
+		       	   USE_YN	         = #USE_YN#,
+			</isNotEmpty>					
+	    <![CDATA[					   
+				   UPD_USER           = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+				   UPD_DT             = CURRENT_TIMESTAMP	
+		]]>
+		</isEmpty>
+		<isNotEmpty prepend="" property="VIEW_CNT">
+				   THEME_VIEW_CNT	  = THEME_VIEW_CNT + 1
+		</isNotEmpty>		
+			 WHERE THEME_NO = #THEME_NO#
+		<isNotEmpty prepend="" property="VIEW_CNT">
+			   AND USER_ID  <![CDATA[<>]]> LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#)
+		</isNotEmpty>
+	</update>
+	
+	<select id="portal.theme.selectThemeShapeList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테마 SHAPE 목록 조회 */
+			SELECT SM.SHAPE_NO          ,
+			       FI.FILE_NO			,
+				   FI.FILE_GRP			AS GROUP,
+				   FI.FILE_ORDR		AS ORDER,
+				   FI.FILE_ORIGNL_NM	AS FILE_NAME,
+				   FI.FILE_EXTSN		AS FILE_EXT,
+				   FI.FILE_SAVE_NM		AS SAVE_NAME,
+				   FI.FILE_SAVE_PATH    AS SAVE_PATH
+			  FROM LANDSYS_ADM.TB_THEME_INFO 		TI,
+			       LANDSYS_ADM.TB_THEME_SHAPE_MAPNG SM,			
+			       LANDSYS_ADM.TB_USER_SHAPE        LI,
+			       LANDSYS_ADM.TB_FILE              FI
+			 WHERE TI.THEME_NO = SM.THEME_NO	
+			   AND SM.SHAPE_NO = LI.SHAPE_NO
+			   AND LI.FILE_GRP = FI.FILE_GRP
+			   AND TI.THEME_NO = #THEME_NO#		       
+		]]>	
+	</select>
+		
+	<insert id="portal.theme.insertShapeInfo" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(SHAPE_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ 
+					  FROM LANDSYS_ADM.TB_USER_SHAPE			
+				   ) A
+		</selectKey>
+			
+		<![CDATA[
+			/* SHAPE 등록 */				
+			INSERT INTO LANDSYS_ADM.TB_USER_SHAPE
+			(				
+				SHAPE_NO			,
+				USER_ID				,
+				FILE_GRP			,
+				THEME_VIEW_CNT		,
+				rls_yn				,
+				USE_YN				,
+				INS_USER			,
+				UPD_USER			,
+				INS_DT				,
+				UPD_DT				
+			)
+			VALUES
+			(
+				#SEQ#,
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				#FILE_GRP#,
+				0,
+				#OTHBC_YN#,
+		   		'Y',
+			    LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			    LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			   	CURRENT_TIMESTAMP,
+			   	CURRENT_TIMESTAMP
+			)
+		]]>	
+	</insert>
+		
+    <insert id="portal.theme.insertThemeShapeMapng" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 테마 SHAPE 매핑 등록 */
+			INSERT INTO LANDSYS_ADM.TB_THEME_SHAPE_MAPNG
+			(
+				THEME_NO,
+				SHAPE_NO
+			)
+		]]>			
+		<dynamic>
+		<iterate prepend="VALUES" conjunction=", " property="SHAPES">
+			( 
+				#THEME_NO#,
+				#SHAPES[].shape_no#
+			)
+		</iterate>
+		</dynamic>
+	</insert>	
+		
+    <insert id="portal.theme.insertBackupThemeShapeMapngByNo" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ 
+					  FROM LANDSYS_ADM.TH_THEME_SHAPE_MAPNG			
+				   ) A
+		</selectKey>
+		    
+	    <![CDATA[
+			/* 테마 레이어 매핑 백업 */
+	    	INSERT INTO LANDSYS_ADM.TH_THEME_SHAPE_MAPNG
+	    	(
+				  LOG_NO
+			    , LOG_INS_USER
+			    , LOG_INS_DT
+			    , THEME_NO
+			    , SHAPE_NO
+			)    			
+			 SELECT   #SEQ#
+					, LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#)
+					, CURRENT_TIMESTAMP	
+			    	, THEME_NO
+			    	, SHAPE_NO			
+			  FROM LANDSYS_ADM.TB_THEME_SHAPE_MAPNG
+			 WHERE THEME_NO = #THEME_NO#			
+		]]>			
+	</insert>
+			
+    <delete id="portal.theme.deleteThemeShapeMapngByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 테마 SHAPE 매핑 삭제 */
+			DELETE 
+			  FROM LANDSYS_ADM.TB_THEME_SHAPE_MAPNG
+			 WHERE THEME_NO = #THEME_NO#
+		]]>				 
+	</delete>
+			
+    <update id="portal.theme.updateShapeInfo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* SHPAE 수정 */
+			UPDATE LANDSYS_ADM.TB_USER_SHAPE
+			   SET 
+		]]>	
+		<isEmpty prepend="" property="SHAPE_VIEW_CNT">		   
+			<isNotEmpty  prepend="" property="FILE_GRP">
+		       	   FILE_GRP	         = #FILE_GRP#,
+			</isNotEmpty>	
+			<isNotEmpty  prepend="" property="OTHBC_YN">
+		       	   rls_yn	         = #OTHBC_YN#,
+			</isNotEmpty>
+			<isNotEmpty  prepend="" property="USE_YN">
+		       	   USE_YN	         = #USE_YN#,
+			</isNotEmpty>					
+	    <![CDATA[					   
+				   UPD_USER           = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+				   UPD_DT             = CURRENT_TIMESTAMP	
+		]]>
+		</isEmpty>
+		<isNotEmpty prepend="" property="SHAPE_VIEW_CNT">
+				   SHAPE_VIEW_CNT	  = SHAPE_VIEW_CNT + 1
+		</isNotEmpty>
+			 WHERE SHAPE_NO = #SHAPE_NO#
+	</update>
+
+</sqlMap>

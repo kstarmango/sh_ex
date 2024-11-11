@@ -1,0 +1,2355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="portal.gis">
+
+	<select id="portal.gis.selectBuildLandSiteDataList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 용지 목록 조회 */
+			SELECT A.shet_code			   	 ,
+				   A.BSNS_CODE               ,
+				   A.BSNS_NM                 ,
+				   A.PRPOS_CODE              ,
+				   A.PRPOS_NM                ,
+				   A.sn                  ,
+				   O.LCLAS AS LCLAS_CODE     ,
+				   O.MLSFC AS MLSFC_CODE     ,
+				   O.SCLAS AS SCLAS_CODE     ,
+				   A.LNDPCL_BLCK             ,
+				   A.LC_LNM                  ,
+				   A.STTUS                   ,
+				   A.SPFC                    ,
+				   A.LNDCGR                  ,
+				   A.FRST_OPRTN_PLAN_CONFM   ,
+				   A.BSNS_COMPET_DE          ,
+				   A.ownship_before_rgist_de      ,
+				   A.ownship_prsrv_rgist_de     ,
+				   A.RM						 ,
+				   CASE WHEN M.shet_code <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json AS GEOM
+			  FROM LANDSYS_GIS.tb_land A
+			  	   LEFT JOIN(
+			  	   		select
+							a1.shet_code,
+							a1.shet_sn,
+							a2.the_geom
+			  	   		from LANDSYS_GIS.tb_shet_atrb_dgm_mapng a1
+			  	   		inner join LANDSYS_GIS.tg_land_manage a2
+			  	   		on a1.shet_sn = a2.shet_sn
+			  	   )M 
+			  	   ON A.shet_code = M.shet_code 
+			  	   --LANDSYS_GIS.tb_shet_atrb_dgm_mapng M ON A.shet_code = M.shet_code 
+			       LEFT JOIN LANDSYS_ADM.TC_BRMP O ON A.LCLAS_CODE::TEXT = O.LCLAS_CODE::TEXT
+				                                  AND A.MLSFC_CODE::TEXT = O.MLSFC_CODE::TEXT
+												  AND A.SCLAS_CODE::TEXT = O.SCLAS_CODE::TEXT
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEqual property="CONDITIONS.BSNS_NM" prepend="AND" compareValue="">
+				   BSNS_NM LIKE '%' || #CONDITIONS.BSNS_NM# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+				   BSNS_CODE = #CONDITIONS.BSNS_CODE#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.LC_LNM" prepend="AND" compareValue="">
+				   LC_LNM LIKE '%' || #CONDITIONS.LC_LNM# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.LNDPCL_BLCK" prepend="AND" compareValue="">
+				   LNDPCL_BLCK = #CONDITIONS.LNDPCL_BLCK#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.PRPOS_NM" prepend="AND" compareValue="">
+				   TRIM(PRPOS_NM) = #CONDITIONS.PRPOS_NM#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.STTUS" prepend="AND" compareValue="">
+				   TRIM(STTUS) = #CONDITIONS.STTUS#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.LNDCGR" prepend="AND" compareValue="">
+				   TRIM(LNDCGR) = #CONDITIONS.LNDCGR#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.SPFC" prepend="AND" compareValue="">
+				   TRIM(SPFC)   = #CONDITIONS.SPFC#
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectSiteBsnsNm" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 용지 - 1. 사업명 조회 */
+			SELECT DISTINCT TRIM(BSNS_NM) AS BSNS_NM
+			  FROM LANDSYS_GIS.tb_land
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectSitePrposNm" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 용지 - 2. 용도명 조회 */
+			SELECT DISTINCT TRIM(PRPOS_NM) AS PRPOS_NM
+			  FROM LANDSYS_GIS.tb_land
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectSiteSttus" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 용지 - 3. 상태 조회 */
+			SELECT DISTINCT TRIM(STTUS) AS STTUS
+			  FROM LANDSYS_GIS.tb_land
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectSiteSpfc" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 용지 - 4. 용도지역 조회 */
+			SELECT DISTINCT TRIM(SPFC) AS SPFC
+			  FROM LANDSYS_GIS.tb_land
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectSiteLndcgr" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 용지 - 5. 지목 조회 */
+			SELECT DISTINCT TRIM(LNDCGR) AS LNDCGR
+			  FROM LANDSYS_GIS.tb_land
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectBuildLandLicensList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 인허가 목록 조회 */
+			SELECT A.cnfm_prmisn_manage_code				,
+				   A.BSNS_CODE           		,
+				   A.BSNS_NM             		,
+				   A.SE                  		,
+				   A.SUPLY_TY            		,
+				   A.PRPOS               		,
+				   A.LNDPCL              		,
+				   O.LCLAS AS LCLAS_CODE   		,
+				   O.MLSFC AS MLSFC_CODE   		,
+				   O.SCLAS AS SCLAS_CODE   		,
+				   A.SN                  		,
+				   A.TOT_AR              		,
+				   A.CMPNS_AR            		,
+				   A.GRTS_AR             		,
+				   A.BSNS_COMPET_DE      		,
+				   A.blck_nm             		,
+				   A.RM							,
+				   CASE WHEN M.cnfm_prmisn_manage_code <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.tb_cnfm_prmisn A
+			  	   LEFT JOIN (
+			  	   		select
+							a1.cnfm_prmisn_manage_code,
+							a1.cnfm_prmisn_sn,
+							a2.the_geom
+			  	   		from LANDSYS_GIS.tb_cnfm_prmisn_atrb_dgm_mapng a1
+			  	   		inner join LANDSYS_GIS.tg_cnfm_prmisn_manage a2
+			  	   		on a1.cnfm_prmisn_sn = a2.cnfm_prmisn_sn
+			  	   )M ON A.cnfm_prmisn_manage_code = M.cnfm_prmisn_manage_code
+			  	   --LANDSYS_GIS.tb_cnfm_prmisn_atrb_dgm_mapng M ON A.cnfm_prmisn_manage_code = M.cnfm_prmisn_manage_code
+				   LEFT JOIN LANDSYS_ADM.TC_BRMP O ON A.LCLAS_CODE::TEXT = O.LCLAS_CODE::TEXT
+				                                  AND A.MLSFC_CODE::TEXT = O.MLSFC_CODE::TEXT
+												  AND A.SCLAS_CODE::TEXT = O.SCLAS_CODE::TEXT
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEqual property="CONDITIONS.BSNS_NM" prepend="AND" compareValue="">
+				   BSNS_NM LIKE '%' || #CONDITIONS.BSNS_NM# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.SE" prepend="AND" compareValue="">
+				   SE LIKE '%' || #CONDITIONS.SE# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.LNDPCL" prepend="AND" compareValue="">
+				   LNDPCL LIKE '%' || #CONDITIONS.LNDPCL# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.SUPLY_TY" prepend="AND" compareValue="">
+				   TRIM(SUPLY_TY) = #CONDITIONS.SUPLY_TY#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.PRPOS" prepend="AND" compareValue="">
+				   TRIM(PRPOS) = #CONDITIONS.PRPOS#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.TOT_AR1" prepend="AND" compareValue="">
+				   TOT_AR::integer BETWEEN #CONDITIONS.TOT_AR1#::integer AND #CONDITIONS.TOT_AR2#::integer
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectLicensBsnsNm" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 용지 - 1. 사업명 조회 */
+			SELECT DISTINCT TRIM(BSNS_NM) AS BSNS_NM
+			  FROM LANDSYS_GIS.tb_cnfm_prmisn
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLicensSuplyTy" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 인허가 - 2. 공급유형 조회 */
+			SELECT DISTINCT TRIM(SUPLY_TY) AS SUPLY_TY
+			  FROM LANDSYS_GIS.tb_cnfm_prmisn
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLicensPrpos" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 인허가 - 3. 용도 조회 */
+			SELECT DISTINCT TRIM(PRPOS) AS PRPOS
+			  FROM LANDSYS_GIS.tb_cnfm_prmisn
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectBuildLandUnSalePaprList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 미매각지 목록 조회 */
+			SELECT A.ID							,
+				   A.un_sale_plot_code			,
+				   A.SN                       	,
+				   A.DSTRC_NM                 	,
+				   A.LNDPCL_NM                	,
+				   O.LCLAS AS LCLAS_CODE		,
+					O.MLSFC AS MLSFC_CODE		,
+				   O.SCLAS AS SCLAS_CODE		,
+				   A.LC                       	,
+				   A.SALE_TRGET_AT            	,
+				   A.sale_at                 	,
+				   A.TRGET_AR                 	,
+				   A.SALE_AR                  	,
+				   A.RTENT_AR                 	,
+				   A.plnprc,
+				A.sale_amount,
+				A.scsbid_pc_rt,
+				A.cntrct_de,
+				A.frst_buyer,
+				A.now_nmlpsn,
+				A.sale_mth,
+				A.cntrct_relis_de,
+				A.progrs_sittn,
+				A.sale_trget_amount,
+				   A.PC_STDR                  	,
+				   A.SUPLY_TRGET_STDR         	,
+				   A.SPFC                     	,
+				   A.BDTLDR                   	,
+			   A.measrmt_rt                   	,
+			   A.FLOOR_CO_LMTT            	,
+				   A.LTTOT_PBLANC_DSCSS_HIST    ,
+				   CASE WHEN M.un_sale_plot_code <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				    ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json As GEOM
+			 	 FROM LANDSYS_GIS.tb_un_sale_area A
+			  	   LEFT JOIN (
+			  	   		select
+							a1.un_sale_plot_code,
+							a1.sale_sn,
+							a2.the_geom
+			  	   		from LANDSYS_GIS.tb_un_sale_area_atrb_dgm_mapng a1
+			  	   		inner join LANDSYS_GIS.tg_un_sale_area a2
+			  	   		on a1.sale_sn = a2.sale_sn
+			  	   )M ON A.un_sale_plot_code = M.un_sale_plot_code
+			  	   --LANDSYS_GIS.tb_un_sale_area_atrb_dgm_mapng M ON A.un_sale_plot_code = M.un_sale_plot_code
+			       LEFT JOIN LANDSYS_ADM.TC_BRMP O ON A.LCLAS_CODE::TEXT = O.LCLAS_CODE::TEXT
+												  AND A.MLSFC_CODE::TEXT = O.MLSFC_CODE::TEXT
+												  AND A.SCLAS_CODE::TEXT = O.SCLAS_CODE::TEXT
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEqual property="CONDITIONS.DSTRC_NM" prepend="AND" compareValue="">
+				   TRIM(A.DSTRC_NM) = #CONDITIONS.DSTRC_NM#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.LC" prepend="AND" compareValue="">
+				   LC LIKE '%' || #CONDITIONS.LC# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.SLE_MTH" prepend="AND" compareValue="">
+				   TRIM(SALE_MTH) = #CONDITIONS.SLE_MTH#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.PC_STDR" prepend="AND" compareValue="">
+				   TRIM(PC_STDR) = #CONDITIONS.PC_STDR#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.SUPLY_TRGET_STDR" prepend="AND" compareValue="">
+				   TRIM(SUPLY_TRGET_STDR) = #CONDITIONS.SUPLY_TRGET_STDR#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.SPFC" prepend="AND" compareValue="">
+				   TRIM(SPFC) = #CONDITIONS.SPFC#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.TRGET_AR1" prepend="AND" compareValue="">
+			CAST(COALESCE(NULLIF(REGEXP_REPLACE(TRGET_AR, '[^0-9.]', '', 'g'), ''), '0') AS DECIMAL) BETWEEN #CONDITIONS.TRGET_AR1#:: INTEGER AND #CONDITIONS.TRGET_AR2#:: INTEGER
+				 <!--   TRGET_AR BETWEEN #CONDITIONS.TRGET_AR1# AND #CONDITIONS.TRGET_AR2# -->
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.SALE_AR1" prepend="AND" compareValue="">
+			CAST(COALESCE(NULLIF(REGEXP_REPLACE(SALE_AR, '[^0-9.]', '', 'g'), ''), '0') AS DECIMAL) BETWEEN #CONDITIONS.SALE_AR1#:: INTEGER AND #CONDITIONS.SALE_AR2#:: INTEGER
+				 <!--   SALE_AR BETWEEN #CONDITIONS.SALE_AR1# AND #CONDITIONS.SALE_AR2# -->
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectUnSalePaprDstrcNm" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 미매각지 - 0. 지구명 조회 */
+			SELECT DISTINCT TRIM(DSTRC_NM) AS DSTRC_NM
+			  FROM LANDSYS_GIS.tb_un_sale_area
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectUnSalePaprSleMth" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 미매각지 - 1. 판매방법 조회 */
+			SELECT DISTINCT TRIM(SALE_MTH) AS SLE_MTH
+			  FROM LANDSYS_GIS.tb_un_sale_area
+			  where TRIM(SALE_MTH) <> ''
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectUnSalePaprPcStdr" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 미매각지 - 2. 가격기준 조회 */
+			SELECT DISTINCT TRIM(PC_STDR) AS PC_STDR
+			  FROM LANDSYS_GIS.tb_un_sale_area
+			   where TRIM(PC_STDR) <> ''
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectUnSalePaprSuplyTrgetStdr" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 미매각지 - 3. 공급대상기준 조회 */
+			SELECT DISTINCT TRIM(SUPLY_TRGET_STDR) AS SUPLY_TRGET_STDR
+			  FROM LANDSYS_GIS.tb_un_sale_area
+			   where TRIM(SUPLY_TRGET_STDR) <> ''
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectUnSalePaprSpfc" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 미매각지 - 4. 용도지역 조회 */
+			SELECT DISTINCT TRIM(SPFC) AS SPFC
+			  FROM LANDSYS_GIS.tb_un_sale_area
+			   where TRIM(SPFC) <> ''
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectBuildLandRemndrPaprList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 잔여지 목록 조회 */
+			SELECT A.ID						,
+				   A.PNU					,
+				   A.SN             		,
+				   A.CMPTNC_GU       		,
+				   A.adres,
+				   A.LNM             		,
+				   A.LNDCGR         		,
+				   A.AR              		,
+				   A.CMPTNC_CNTER    		,
+				   A.PARTCLR_MATTER  		,
+				   A.RM                     ,
+				   A.frst_cnstc_de                     ,
+				   A.last_updt_de                     ,
+				   CASE WHEN M.PNU <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.tb_remndr_area A
+			   LEFT JOIN LANDSYS_GIS.tb_remndr_area_atrb_dgm_mapng b ON A.id = b.id
+			  	   LEFT JOIN LANDSYS_GIS.tg_remndr_area_manage M ON b.pnu = M.pnu
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEqual property="CONDITIONS.CMPTNC_GU" prepend="AND" compareValue="">
+				   TRIM(CMPTNC_GU) = #CONDITIONS.CMPTNC_GU#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.CMPTNC_CNTER" prepend="AND" compareValue="">
+				   TRIM(CMPTNC_CNTER) = #CONDITIONS.CMPTNC_CNTER#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.LNDCGR" prepend="AND" compareValue="">
+				   TRIM(LNDCGR) = #CONDITIONS.LNDCGR#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.LNM" prepend="AND" compareValue="">
+				   LNM LIKE '%' || #CONDITIONS.LNM# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.TRGET_AR1" prepend="AND" compareValue="">
+			CAST(COALESCE(NULLIF(REGEXP_REPLACE(AR, '[^0-9.]', '', 'g'), ''), '0') AS DECIMAL) BETWEEN #CONDITIONS.TRGET_AR1#:: INTEGER AND #CONDITIONS.TRGET_AR2#:: INTEGER
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectRemndrPaprCmptncGu" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 잔여지 - 1. 관할 구 조회 */
+			SELECT DISTINCT TRIM(CMPTNC_GU) AS CMPTNC_GU
+			  FROM LANDSYS_GIS.tb_remndr_area
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRemndrPaprLndcgr" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 잔여지 - 2. 지목 조회 */
+			SELECT DISTINCT TRIM(LNDCGR) AS LNDCGR
+			  FROM LANDSYS_GIS.tb_remndr_area
+			   where TRIM(LNDCGR) <> ''
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRemndrPaprCmptncCnter" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 택지 잔여지 - 3. 관할센터 조회 */
+			SELECT DISTINCT TRIM(CMPTNC_CNTER) AS CMPTNC_CNTER
+			  FROM LANDSYS_GIS.tb_remndr_area
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalAptList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 아파트 목록 조회 */
+			SELECT A.BSNS_CODE				     ,
+			       A.ID							 ,
+				   O.LCLAS AS RENT_SE		     ,
+				   O.MLSFC AS RENT_TY		     ,
+				   A.SE                          ,
+				 	A.MANAGE_MTH,
+					A.HSMP_NM,
+					A.CNTER,
+					A.ATDRC,
+					A.SUPLY_DE,
+					A.USE_CONFM_DE,
+					A.mvn_begin_de,
+					A.HSMP_CO,
+					A.APTCMPL_CO,
+					A.RENT_HSHLD_CO,
+					A.LTTOT_HSHLD_CO,
+					A.SM,
+					A.rent_subsum,
+					A.PRMANENT_RENT,
+					A.PUBLIC_RENT,
+					A.REDEVP,
+					A.RESIDE_ENVRN,
+					A.MRFN_RENT,
+					A.LNGTR_LFSTS,
+					A.REBIDNG_LNGTR,
+					A.hapins_house_cntrwk_cnstrc_ty,
+					A.hapins_house_redevp_puchas_ty,
+					A.hapins_house_rebidng_puchas_ty,
+					A.hapins_house_reits_cnstrc_ty,
+					A.subway_area_ygmn,
+					A.ETC_RENT,
+					A.FRGNR_RENT,
+					A.MLTDWL,
+					A.LFSTS_RENT,
+					A.LNGTR_SAFETY,
+					A.CTY_TY,
+					A.owner_accto_subsum,
+					A.owner_accto_pblgrp,
+					A.owner_accto_su,
+					A.owner_accto_su_reits_1,
+					A.owner_accto_su_reits_2,
+					A.owner_accto_su_reits_3,
+					A.owner_accto_prvate,
+					A.zip,
+					A.ADRES,
+					A.parkng_alge,
+					A.ELVTR_CO,
+					A.expens_gurpost,
+					A.TOT_FLOOR_CO,
+					A.HEAT_MTHD,
+					A.CRRDPR_TY,
+					A.RM,
+					A.ADMINIST_NO,
+					A.TELNO,
+					A.FXNUM,
+					A.HSHLD_USE,
+					A.SPUSE_SPCE,
+					A.dvr_ar_a,
+					A.reside_cmnuse_ar_b,
+					A.etc_cmnuse_ar_c,
+					A.SUPLY_AR,
+					A.CNTRCT_AR,
+					A.RENT_RATE,
+					A.LTTOT_DVR_AR,
+					A.RENT_DVR_AR,
+					A.aptcmpl_sm_aptcmpl,
+					A.lttot_aptcmpl_co,
+					A.RENT_APTCMPL_CO,
+					A.mixtr_aptcmpl_rent_lttot,
+					A.MIXTR_APTCMPL_MARK,
+					A.elvtr_spuse_use_at,
+					A.MIXTR_TY,
+					A.CNSGN_CNVRSDE,
+					A.reits_cnvrsde,
+					A.CNSGN_MANAGE_CNTRCT_AR,
+					A.cnsgn_fee_pyeong_untpc,
+					A.MT_CNSGN_FEE,
+					A.cnsgn_fee_tot_cntrct_amount,
+					A.cnsgn_fee_un_rqest_resn,
+					A.MANAGE_SERVC_ENTRPS_NM,
+					A.MANAGE_SERVC_BIZRNO,
+					A.MANAGE_SERVC_RPRSNTV_NM,
+					A.MANAGE_SERVC_CNTRCT_MTH,
+					A.MANAGE_SERVC_CNTRCT_CNCLS_DE,
+					A.MANAGE_SERVC_BGNDE,
+					A.MANAGE_SERVC_ENDDE,
+					A.MANAGE_SERVC_CNTRCTPD,
+					A.MANAGE_SERVC_FYER_AMOUNT,
+					A.manage_servc_tot_cntrct_amount,
+					A.MANAGE_SERVC_NMPR_SM,
+					A.MANAGE_SERVC_CNSGN_HDCH,
+					A.MANAGE_SERVC_ACCNT,
+					A.MANAGE_SERVC_TCHNLGY_EMP,
+					A.manage_servc_mt_avrg_pymnt_am,
+					A.manage_servc_psnby_mt_avrg_pymnt_am,
+					A.MANAGE_SERVC_RM,
+					A.EXPENS_SERVC_ENTRPS_NM,
+					A.EXPENS_SERVC_BIZRNO,
+					A.EXPENS_SERVC_RPRSNTV_NM,
+					A.EXPENS_SERVC_CNTRCT_MTH,
+					A.expens_servc_extn_co,
+					A.EXPENS_SERVC_CNTRCT_CNCLS_DE,
+					A.EXPENS_SERVC_BGNDE,
+					A.EXPENS_SERVC_ENDDE,
+					A.EXPENS_SERVC_CNTRCTPD,
+					A.EXPENS_SERVC_FYER_AMOUNT,
+					A.expens_servc_tot_cntrct_amount,
+					A.EXPENS_SERVC_GUARD_CO,
+					A.CLN_SERVC_ENTRPS_NM,
+					A.CLN_SERVC_BIZRNO,
+					A.CLN_SERVC_RPRSNTV_NM,
+					A.CLN_SERVC_CNTRCT_MTH,
+					A.cln_servc_extn_co,
+					A.CLN_SERVC_CNTRCT_CNCLS_DE,
+					A.CLN_SERVC_BGNDE,
+					A.CLN_SERVC_ENDDE,
+					A.cln_servc_cntrctpd,
+					A.CLN_SERVC_FYER_AMOUNT,
+					A.cln_servc_tot_cntrct_amount,
+					A.CLN_SERVC_CLN_NMPR,
+				   CASE WHEN M.BSNS_CODE <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.tb_apt_hsmp A
+			  	   LEFT JOIN(
+			  	   		select
+							a1.bsns_code,
+							a2.the_geom
+			  	   		from LANDSYS_GIS.tb_apt_eqb_atrb_dgm_mapng a1
+			  	   		inner join LANDSYS_GIS.tg_apt_hsmp_eqb_manage a2
+			  	   		on a1.bsns_code = a2.bsns_code
+			  	   )M ON A.BSNS_CODE = M.BSNS_CODE
+			  	    --LANDSYS_GIS.tb_apt_eqb_atrb_dgm_mapng M ON A.BSNS_CODE = M.BSNS_CODE
+				   LEFT JOIN LANDSYS_ADM.TC_BRMP O ON A.SE::TEXT = O.LCLAS_CODE::TEXT
+				                                  AND A.RENT_TY::TEXT = O.MLSFC_CODE::TEXT
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="CONDITIONS.BSNS_CODE" prepend="">
+				<isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+				   A.BSNS_CODE = #CONDITIONS.BSNS_CODE#
+				</isNotEqual>
+			</isNotEmpty>
+			<isEmpty property="CONDITIONS.bsns_code" prepend="">
+				<isEqual property="CONDITIONS.HSMP_NM_OPT" prepend="" compareValue="">
+					<isNotEqual property="CONDITIONS.HSMP_NM" prepend="AND" compareValue="">
+						TRIM(HSMP_NM) LIKE '%' || #CONDITIONS.HSMP_NM# || '%'
+					</isNotEqual>
+				</isEqual>
+				<isNotEqual property="CONDITIONS.HSMP_NM_OPT" prepend="AND" compareValue="">
+					TRIM(HSMP_NM) = #CONDITIONS.HSMP_NM_OPT#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.RENT_TY" prepend="AND" compareValue="">
+				   RENT_TY = #CONDITIONS.RENT_TY#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.RENT_SE" prepend="AND" compareValue="">
+				   SE = #CONDITIONS.RENT_SE#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.SE" prepend="AND" compareValue="">
+				   SE = #CONDITIONS.SE#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.ATDRC" prepend="AND" compareValue="">
+				   TRIM(ATDRC) = #CONDITIONS.ATDRC#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.CNTER" prepend="AND" compareValue="">
+				   TRIM(CNTER) = #CONDITIONS.CNTER#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.SUPLY_DE1" prepend="AND" compareValue="">
+				  <!--  SUPLY_DE   = TO_DATE(#CONDITIONS.SUPLY_DE1#, 'YYYY-MM-DD') -->
+				  TO_DATE(SUPLY_DE, 'YYYY-MM-DD') = TO_DATE(#CONDITIONS.SUPLY_DE1#, 'YYYY-MM-DD')
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.APTCMPL_SM1" prepend="AND" compareValue="">
+				CAST(COALESCE(NULLIF(REGEXP_REPLACE(aptcmpl_sm_aptcmpl, '[^0-9]', '', 'g'), ''), '0') AS INTEGER) BETWEEN #CONDITIONS.APTCMPL_SM1# :: INTEGER AND #CONDITIONS.APTCMPL_SM2# :: INTEGER
+				</isNotEqual>
+				   <!-- 231130 기존소스 주석 APTCMPL_SM BETWEEN #CONDITIONS.APTCMPL_SM1# AND #CONDITIONS.APTCMPL_SM2# -->
+				<isNotEqual property="CONDITIONS.RENT_HSHLD_CO1" prepend="AND" compareValue="">
+				CAST(COALESCE(NULLIF(REGEXP_REPLACE(RENT_HSHLD_CO, '[^0-9]', '', 'g'), ''), '0') AS INTEGER) BETWEEN #CONDITIONS.RENT_HSHLD_CO1# :: INTEGER AND #CONDITIONS.RENT_HSHLD_CO2# :: INTEGER
+				</isNotEqual>
+				 <!-- 231130 기존소스 주석  RENT_HSHLD_CO BETWEEN #CONDITIONS.RENT_HSHLD_CO1# AND #CONDITIONS.RENT_HSHLD_CO2# -->
+			</isEmpty>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectRentAptRentSe" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 아파트 - 1. 임대구분 조회 */
+			SELECT DISTINCT
+				   LCLAS_CODE,
+				   LCLAS
+			  FROM LANDSYS_ADM.TC_BRMP B
+			 WHERE LCLAS_CODE IN ('RET001','RET003','RET005','RET006')
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentAptHsmpNm" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 아파트 - 2.단지명 조회 */
+			SELECT DISTINCT  TRIM(HSMP_NM) AS HSMP_NM
+			  FROM LANDSYS_GIS.tb_apt_hsmp
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentAptRentTy" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 아파트 - 3. 임대유형 조회 */
+			SELECT MLSFC,
+			       MLSFC_CODE
+			  FROM LANDSYS_ADM.TC_BRMP
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="RENT_SE" prepend="">
+				LCLAS_CODE = #RENT_SE#
+			</isNotEmpty>
+			<isEmpty property="RENT_SE" prepend="">
+				LCLAS_CODE = 'RET001'
+			</isEmpty>
+		</dynamic>
+		  ORDER BY 2
+	</select>
+
+	<select id="portal.gis.selectRentAptSe" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 아파트 - 4. 구분 조회 */
+			SELECT DISTINCT  TRIM(SE) AS SE
+			  FROM LANDSYS_GIS.tb_apt_hsmp
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentAptAtdrc" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 아파트 - 5. 자치구 조회 */
+			SELECT DISTINCT TRIM(ATDRC) AS ATDRC
+			  FROM LANDSYS_GIS.tb_apt_hsmp
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentAptCnter" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 아파트 - 6. 센터 조회 */
+			SELECT DISTINCT TRIM(CNTER) AS CNTER
+			  FROM LANDSYS_GIS.tb_apt_hsmp
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalMltdwlList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 다가구 목록 조회 */
+			SELECT A.ID                         ,
+				   A.MLTDWL_CODE				,
+				   A.BSNS_CODE	            	,
+				   A.aptcmpl	                	,
+				   A.ATDRC	                	,
+				   A.CNTER	                	,
+				   A.RDNMADR	                ,
+				   A.HOUSE_NM	            	,
+				   A.LNM_ADRES	            	,
+				   A.dvr_ar	            	,
+				   A.PLOT_AR	                ,
+				   A.BILDNG_TOTAR	        	,
+				   A.COMPET_DE,
+				   A.all_hshld_co	        	,
+				   A.MLTDWL_HOPE_EXCL	    	,
+				   A.hope_housng_ho_co	    	,
+				   A.HOPE_HOUSNG_ROOM_CO	    ,
+				   A.dmand_fixes_ty_aptcmpl_co		,
+				   A.dmand_fixes_ty_ho_co	    	,
+				   A.mltdwl_aptcmpl_co	        	,
+				   A.HOPE_EXCL_APTCMPL_CO	    ,
+				   A.HOPE_HOUSNG_APTCMPL_CO		,
+				   A.FIXES_TY                 	,
+				   A.BULD_STRCT					,
+				   CASE WHEN M.MLTDWL_CODE <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.TB_MLTDWL A
+			  	   LEFT JOIN (
+			  	   		select
+							a1.mltdwl_code,
+							a2.the_geom
+			  	   		from LANDSYS_GIS.tb_mltdwl_atrb_dgm_mapng a1
+			  	   		inner join LANDSYS_GIS.TG_MLTDWL_MANAGE a2
+			  	   		on a1.before_buld_manage_no = a2.before_buld_manage_no
+			  	   )M ON A.MLTDWL_CODE = M.MLTDWL_CODE
+			  	   --LANDSYS_GIS.tb_mltdwl_atrb_dgm_mapng M ON A.MLTDWL_CODE = M.MLTDWL_CODE
+		]]>
+		<dynamic prepend="WHERE">
+			<!-- <isNotEmpty property="CONDITIONS.MLTDWL_CODE" prepend="">
+				<isNotEqual property="CONDITIONS.MLTDWL_CODE" prepend="AND" compareValue="">
+				   A.MLTDWL_CODE = #CONDITIONS.MLTDWL_CODE#
+				</isNotEqual>
+			</isNotEmpty> -->
+			<isNotEmpty property="CONDITIONS.BSNS_CODE" prepend="">
+				<isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+				   A.BSNS_CODE = #CONDITIONS.BSNS_CODE#
+				</isNotEqual>
+			</isNotEmpty>
+			<isEmpty property="CONDITIONS.bsns_code" prepend="">
+				<isNotEqual property="CONDITIONS.ADRES" prepend="AND" compareValue="">
+					   ( RDNMADR LIKE '%' || #CONDITIONS.ADRES# || '%' OR LNM_ADRES LIKE '%' || #CONDITIONS.ADRES# || '%' )
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.DONG" prepend="AND" compareValue="">
+					   TRIM(aptcmpl) = #CONDITIONS.DONG#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.ATDRC" prepend="AND" compareValue="">
+					   TRIM(ATDRC) = #CONDITIONS.ATDRC#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.CNTER" prepend="AND" compareValue="">
+					   TRIM(CNTER) = #CONDITIONS.CNTER#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.BULD_STRCT" prepend="AND" compareValue="">
+					   TRIM(BULD_STRCT) = #CONDITIONS.BULD_STRCT#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.BILDNG_TOTAR1" prepend="AND" compareValue="">
+				CAST(COALESCE(NULLIF(REGEXP_REPLACE(BILDNG_TOTAR, '[^0-9.]', '', 'g'), ''), '0') AS DECIMAL) BETWEEN #CONDITIONS.BILDNG_TOTAR1#:: INTEGER AND #CONDITIONS.BILDNG_TOTAR2#:: INTEGER
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.PRVUSE_AR1" prepend="AND" compareValue="">
+				CAST(COALESCE(NULLIF(REGEXP_REPLACE(dvr_ar, '[^0-9.]', '', 'g'), ''), '0') AS DECIMAL) BETWEEN #CONDITIONS.PRVUSE_AR1#:: INTEGER AND #CONDITIONS.PRVUSE_AR2#:: INTEGER
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.PLOT_AR1" prepend="AND" compareValue="">
+				CAST(COALESCE(NULLIF(REGEXP_REPLACE(PLOT_AR, '[^0-9.]', '', 'g'), ''), '0') AS DECIMAL) BETWEEN #CONDITIONS.PLOT_AR1#:: INTEGER AND #CONDITIONS.PLOT_AR2#:: INTEGER
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.HSHLD_CO1" prepend="AND" compareValue="">
+				CAST(COALESCE(NULLIF(REGEXP_REPLACE(all_hshld_co, '[^0-9]', '', 'g'), ''), '0') AS INTEGER) BETWEEN #CONDITIONS.HSHLD_CO1# :: INTEGER AND #CONDITIONS.HSHLD_CO2# :: INTEGER
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.COMPET_DE2" prepend="AND" compareValue="">
+				TO_DATE(COMPET_DE, 'YYYY-MM-DD') = TO_DATE(#CONDITIONS.COMPET_DE2#, 'YYYY-MM-DD')
+				</isNotEqual>
+			</isEmpty>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectMltdwBsnsNm" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 다가구 - 0.사업명 조회 */
+			SELECT DISTINCT  TRIM(BSNS_CODE) AS BSNS_NM
+			  FROM LANDSYS_GIS.TB_MLTDWL
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectMltdwlBsnsCode" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 다가구 - 1. 사업코드 조회 */
+			SELECT DISTINCT TRIM(BSNS_CODE) AS BSNS_CODE
+			  FROM LANDSYS_GIS.TB_MLTDWL
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectMltdwlDong" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 다가구 - 2. 동 조회 */
+			SELECT DISTINCT TRIM(aptcmpl) AS DONG
+			  FROM LANDSYS_GIS.TB_MLTDWL
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectMltdwlAtdrc" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 다가구 - 3. 자치구 조회 */
+			SELECT DISTINCT TRIM(ATDRC) AS ATDRC
+			  FROM LANDSYS_GIS.TB_MLTDWL
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectMltdwlCnter" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 다가구 - 4. 센터 조회 */
+			SELECT DISTINCT TRIM(CNTER) AS CNTER
+			  FROM LANDSYS_GIS.TB_MLTDWL
+			  where  TRIM(CNTER) <> ''
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectMltdwlBuldStrct" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 다가구 - 5. 건물구조 조회 */
+			SELECT DISTINCT TRIM(BULD_STRCT) AS BULD_STRCT
+			  FROM LANDSYS_GIS.TB_MLTDWL
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalCityLvlhList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 도시형생활주택 목록 조회 */
+			SELECT A.ID							   ,
+				   A.cty_ty_code				   	   ,
+				   A.BSNS_CODE               	   ,
+				   A.aptcmpl                    	   ,
+				   A.ATDRC                   	   ,
+				   A.CNTER                   	   ,
+				   A.RDNMADR                 	   ,
+				   A.LNM_ADRES               	   ,
+				   A.COMPET_DE               	   ,
+				   A.PUCHAS_DE               	   ,
+				   A.all_hshld_co            	   ,
+				   A.all_aptcmpl_co          	   ,
+				   A.cty_ty_aptcmpl_co          	   ,
+				   A.CTY_TY                  	   ,
+				   A.HOPE_HOUSNG_APTCMPL_CO  	   ,
+				   A.hope_housng_ho_co       	   ,
+				   A.HOPE_HOUSNG_ROOM_CO     	   ,
+				   A.dmand_fixes_ty_aptcmpl_co  	   ,
+				   A.dmand_fixes_ty_room_co           ,
+				   CASE WHEN M.cty_ty_code <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house A
+			  	   LEFT JOIN(
+			  	   		select
+							a1.cty_ty_code,
+							a2.the_geom
+			  	   		from LANDSYS_GIS.tb_cty_lvlh_house_atrb_dgm_mapng a1
+			  	   		inner join LANDSYS_GIS.tg_cty_lvlh_house_manage a2
+			  	   		on a1.before_buld_manage_no = a2.before_buld_manage_no
+			  	   )M ON A.cty_ty_code = M.cty_ty_code
+			  	    --LANDSYS_GIS.tb_cty_lvlh_house_atrb_dgm_mapng M ON A.cty_ty_code = M.cty_ty_code
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="CONDITIONS.BSNS_CODE" prepend="">
+				<isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+				   A.BSNS_CODE = #CONDITIONS.BSNS_CODE#
+				</isNotEqual>
+			</isNotEmpty>
+			<isEmpty property="CONDITIONS.bsns_code" prepend="">
+				<isNotEqual property="CONDITIONS.ADRES" prepend="AND" compareValue="">
+					   ( RDNMADR LIKE '%' || #CONDITIONS.ADRES# || '%' OR LNM_ADRES LIKE '%' || #CONDITIONS.ADRES# || '%' )
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.DONG" prepend="AND" compareValue="">
+					   TRIM(aptcmpl) = #CONDITIONS.DONG#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.ATDRC" prepend="AND" compareValue="">
+					   TRIM(ATDRC) = #CONDITIONS.ATDRC#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.CNTER" prepend="AND" compareValue="">
+					   TRIM(CNTER) = #CONDITIONS.CNTER#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.TOT_HSHLD_CO1" prepend="AND" compareValue="">
+					   CAST(COALESCE(NULLIF(REGEXP_REPLACE(all_hshld_co, '[^0-9]', '', 'g'), ''), '0') AS INTEGER) BETWEEN #CONDITIONS.TOT_HSHLD_CO1# :: INTEGER AND #CONDITIONS.TOT_HSHLD_CO2# :: INTEGER
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.TOT_APTCMPL_CO1" prepend="AND" compareValue="">
+				 CAST(COALESCE(NULLIF(REGEXP_REPLACE(all_aptcmpl_co, '[^0-9]', '', 'g'), ''), '0') AS INTEGER) BETWEEN #CONDITIONS.TOT_APTCMPL_CO1# :: INTEGER AND #CONDITIONS.TOT_APTCMPL_CO2# :: INTEGER
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.COMPET_DE3" prepend="AND" compareValue="">
+					 <!--   COMPET_DE = TO_DATE(#CONDITIONS.COMPET_DE3#, 'YYYY-MM-DD') -->
+					   TO_DATE(COMPET_DE, 'YYYY-MM-DD') = TO_DATE(#CONDITIONS.COMPET_DE3#, 'YYYY-MM-DD')
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.PUCHAS_DE3" prepend="AND" compareValue="">
+					 <!--   PUCHAS_DE = TO_DATE(#CONDITIONS.PUCHAS_DE3#, 'YYYY-MM-DD') -->
+					   TO_DATE(PUCHAS_DE, 'YYYY-MM-DD') = TO_DATE(#CONDITIONS.PUCHAS_DE3#, 'YYYY-MM-DD')
+				</isNotEqual>
+				<!-- <isNotEqual property="CONDITIONS.SUPLY_DE3" prepend="AND" compareValue="">
+					   TO_DATE(SUPLY_DE, 'YYYY-MM-DD') = TO_DATE(#CONDITIONS.SUPLY_DE3#, 'YYYY-MM-DD')
+				</isNotEqual> -->
+			</isEmpty>
+		</dynamic>
+	</select>
+
+
+	<select id="portal.gis.selectCityLvlhBsnsNm" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 도시형생활주택 - 0.사업명 조회 */
+			SELECT DISTINCT  TRIM(BSNS_CODE) AS BSNS_NM
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectCityLvlhBsnsCode" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 도시형생활주택 - 1. 사업코드 조회 */
+			SELECT DISTINCT TRIM(BSNS_CODE) AS BSNS_CODE
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectCityLvlhDong" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 도시형생활주택 - 2. 동 조회 */
+			SELECT DISTINCT TRIM(aptcmpl) AS DONG
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectCityLvlhAtdrc" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 도시형생활주택 - 3. 자치구 조회 */
+			SELECT DISTINCT TRIM(ATDRC) AS ATDRC
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectCityLvlhCnter" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 도시형생활주택 - 4. 센터 조회 */
+			SELECT DISTINCT TRIM(CNTER) AS CNTER
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalLfstsRentList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 전새임대 목록 조회 */
+			SELECT A.OGC_FID					,
+				   A.LFSTS_RENT		   		   	,
+				   A.BSNS_CODE           		,
+				   A.SN                  		,
+				   A.aptcmpl                		,
+				   A.ATDRC               		,
+				   A.CNTER               		,
+				   A.ADRES               		,
+				   A.LESSEE               		,
+				   A.CNTRCT_DE           		,
+				   A.MVN_DE              		,
+				   A.AR                  		,
+				   A.LVHS_DE             		,
+				   A.HSHLD_CO            		,
+				   A.SUPLY_AT                  	,
+				   CASE WHEN A.LFSTS_RENT <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(A.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.TG_LFSTS_RENT_MANAGE A
+			  	  -- LEFT JOIN LANDSYS_GIS.TG_LFSTS_RENT_MANAGE M ON A.LFSTS_RENT = M.LFSTS_RENT
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="CONDITIONS.LFSTS_RENT" prepend="">
+				<isNotEqual property="CONDITIONS.LFSTS_RENT" prepend="AND" compareValue="">
+				   A.LFSTS_RENT = #CONDITIONS.LFSTS_RENT#
+				</isNotEqual>
+			</isNotEmpty>
+			<isEmpty property="CONDITIONS.LFSTS_RENT" prepend="">
+				<isNotEqual property="CONDITIONS.ADRES" prepend="AND" compareValue="">
+					   ADRES LIKE '%' || #CONDITIONS.ADRES# || '%'
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.ATDRC" prepend="AND" compareValue="">
+					   TRIM(A.ATDRC) = #CONDITIONS.ATDRC#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.CNTER" prepend="AND" compareValue="">
+					   TRIM(A.CNTER) = #CONDITIONS.CNTER#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.AR1" prepend="AND" compareValue="">
+					   AR BETWEEN #CONDITIONS.AR1# AND #CONDITIONS.AR2#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.HSHLD_CO1" prepend="AND" compareValue="">
+					   HSHLD_CO BETWEEN #CONDITIONS.HSHLD_CO1# AND #CONDITIONS.HSHLD_CO2#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.CNTRCT_DE4" prepend="AND" compareValue="">
+				TO_DATE(CNTRCT_DE, 'YYYYMMDD') = TO_DATE(#CONDITIONS.CNTRCT_DE4#, 'YYYY-MM-DD')
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.MVN_DE4" prepend="AND" compareValue="">
+				TO_DATE(MVN_DE, 'YYYY-MM-DD') = TO_DATE(#CONDITIONS.MVN_DE4#, 'YYYY-MM-DD')
+				</isNotEqual>
+			</isEmpty>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectLfstsBsnsCode" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 전새임대 - 1. 사업코드 조회 */
+			SELECT DISTINCT TRIM(BSNS_CODE) AS BSNS_CODE
+			  FROM LANDSYS_GIS.TG_LFSTS_RENT_MANAGE
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLfstsDong" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 전새임대 - 2. 동 조회 */
+			SELECT DISTINCT TRIM(aptcmpl) AS DONG
+			  FROM LANDSYS_GIS.TG_LFSTS_RENT_MANAGE
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLfstsAtdrc" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 전새임대 - 3. 자치구 조회 */
+			SELECT DISTINCT TRIM(ATDRC) AS ATDRC
+			  FROM LANDSYS_GIS.TG_LFSTS_RENT_MANAGE
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLfstsCnter" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 전새임대 - 4. 센터 조회 */
+			SELECT DISTINCT TRIM(CNTER) AS CNTER
+			  FROM LANDSYS_GIS.TG_LFSTS_RENT_MANAGE
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalLngtrSafetyList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 장기안심임대 목록 조회 */
+			SELECT A.OGC_FID		   			,
+				   A.lngtr_safety				   	,
+				   A.BSNS_CODE           		,
+				   A.aptcmpl                		,
+				   A.SN                  		,
+				   A.ATDRC               		,
+				   A.CNTER               		,
+				   A.ADRES               		,
+				   A.blnc					,
+				   A.AR                  		,
+				   A.CNTRCT_DE           		,
+				   A.SUPLY_DE            		,
+				   A.MVN_DE              		,
+				   A.HSHLD_CO            		,
+				   A.SUPLY_AT                   ,
+				   CASE WHEN A.lngtr_safety <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(A.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.TG_LNGTR_SAFETY_MANAGE A
+			  	--   LEFT JOIN LANDSYS_GIS.TG_LNGTR_SAFETY_MANAGE M ON A.lngtr_safety = M.LNGTR_SAF
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="CONDITIONS.BSNS_CODE" prepend="">
+				<isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+				   A.BSNS_CODE = #CONDITIONS.BSNS_CODE#
+				</isNotEqual>
+			</isNotEmpty>
+			<isEmpty property="CONDITIONS.bsns_code" prepend="">
+				<!-- <isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+					   TRIM(A.BSNS_CODE) = #CONDITIONS.BSNS_CODE#
+				</isNotEqual> -->
+				<isNotEqual property="CONDITIONS.ADRES" prepend="AND" compareValue="">
+					   ADRES LIKE '%' || #CONDITIONS.ADRES# || '%'
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.DONG" prepend="AND" compareValue="">
+					   TRIM(aptcmpl) = #CONDITIONS.DONG#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.ATDRC" prepend="AND" compareValue="">
+					   TRIM(A.ATDRC) = #CONDITIONS.ATDRC#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.CNTER" prepend="AND" compareValue="">
+					   TRIM(A.CNTER) = #CONDITIONS.CNTER#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.AR1" prepend="AND" compareValue="">
+					   AR BETWEEN #CONDITIONS.AR1# AND #CONDITIONS.AR2#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.HSHLD_CO1" prepend="AND" compareValue="">
+					   HSHLD_CO BETWEEN #CONDITIONS.HSHLD_CO1# AND #CONDITIONS.HSHLD_CO2#
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.CNTRCT_DE5" prepend="AND" compareValue="">
+					   TO_DATE(CNTRCT_DE, 'YYYY-MM-DD') = TO_DATE(#CONDITIONS.CNTRCT_DE5#, 'YYYY-MM-DD')
+				</isNotEqual>
+				<isNotEqual property="CONDITIONS.MVN_DE5" prepend="AND" compareValue="">
+					   TO_DATE(MVN_DE, 'YYYY-MM-DD') = TO_DATE(#CONDITIONS.MVN_DE5#, 'YYYY-MM-DD')
+				</isNotEqual>
+			</isEmpty>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectLngtrSafetyBsnsCode" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 장기안심임대 - 1. 사업코드 조회 */
+			SELECT DISTINCT TRIM(BSNS_CODE) AS BSNS_CODE
+			  FROM LANDSYS_GIS.TG_LNGTR_SAFETY_MANAGE
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLngtrSafetyDong" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 장기안심임대 - 2. 동 조회 */
+			SELECT DISTINCT TRIM(aptcmpl) AS DONG
+			  FROM LANDSYS_GIS.TG_LNGTR_SAFETY_MANAGE
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLngtrSafetyAtdrc" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 장기안심임대 - 3. 자치구 조회 */
+			SELECT DISTINCT TRIM(ATDRC) AS ATDRC
+			  FROM LANDSYS_GIS.TG_LNGTR_SAFETY_MANAGE
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLngtrSafetyCnter" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 장기안심임대 - 4. 센터 조회 */
+			SELECT DISTINCT TRIM(CNTER) AS CNTER
+			  FROM LANDSYS_GIS.TG_LNGTR_SAFETY_MANAGE
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectBsnsNmByCode" parameterClass="java.util.HashMap" resultClass="String">
+		<![CDATA[
+			/* 임대 사업명 조회 */
+			SELECT BSNS_NM
+			  FROM LANDSYS_GIS.tb_dong_table
+			 WHERE BSNS_CODE = #BSNS_CODE#
+			 LIMIT 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalAptkList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 K-APT 목록 조회 */
+			SELECT A.BSNS_CODE               	   ,
+				   A.K_APT_CODE              	   ,
+				   A.ctprvn                    	   ,
+				   A.signgu_nm               	   ,
+				   A.HSMP_NM                 	   ,
+				   A.ADRES                   	   ,
+				   A.dvr_ar               	   ,
+				   A.TOTAR                   	   ,
+				   A.APTCMPL_CO              	   ,
+				   A.HSHLD_CO                	   ,
+				   A.SUPLY_TY                	   ,
+				   A.occrrnc_ym           	   ,
+				   A.cmnuse_managect_sm     	   ,
+				   A.cmnuse_managect_untpc  	   ,
+				   A.similr_hsmp_untpc             	   ,
+				   A.LBCST_TOTAMT            	   ,
+				   A.UNTPC
+			  FROM LANDSYS_GIS.TB_K_APT A
+			 WHERE BSNS_CODE = #BSNS_CODE#
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalDongHoList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 동호 목록 조회 */
+			SELECT A.aptcmpl_ho_code				,
+				   A.bsns_aptcmpl_code	    	,
+				   A.BSNS_CODE	            ,
+				   A.HOUSE_TY_CODE	        ,
+				   A.SUPLY_SE_CODE	        ,
+				   A.HO_SE_CODE	       		,
+				   A.sn	            	,
+				   A.BSNS_NM	            ,
+				   A.ADRES	                ,
+				   A.before_buld_manage_no	            ,
+				   A.HOUSE_TY	            ,
+				   A.SUPLY_SE	            ,
+				   A.HO_SE	                ,
+				   A.aptcmpl	                ,
+				   A.issno	                	,
+				   A.MARK_HO	            ,
+				   A.mark_rl	            ,
+				   A.sexdstn	                ,
+				   A.hshld_dvr_ar	    ,
+				   A.aptcmpl_ho_sttus
+			  FROM LANDSYS_GIS.tb_dong_table A
+			 WHERE BSNS_CODE = #BSNS_CODE#
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalAptDongHoList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 아파트 동호 목록 조회 */
+			SELECT E.aptcmpl_ho_code				,
+				   E.bsns_aptcmpl_code	    	,
+				   E.BSNS_CODE	            ,
+				   E.HOUSE_TY_CODE	        ,
+				   E.SUPLY_SE_CODE	        ,
+				   E.HO_SE_CODE	       		,
+				   E.sn	            	,
+				   E.BSNS_NM	            ,
+				   E.ADRES	                ,
+				   E.before_buld_manage_no	            ,
+				   E.HOUSE_TY	            ,
+				   E.SUPLY_SE	            ,
+				   E.HO_SE	                ,
+				   E.aptcmpl	                ,
+				   E.issno	                	,
+				   E.MARK_HO	            ,
+				   E.mark_rl	            ,
+				   E.sexdstn	                ,
+				   E.hshld_dvr_ar	    ,
+				   E.aptcmpl_ho_sttus          ,
+			       ST_X(ST_Centroid(ST_Transform(D.the_geom, 900913))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(D.the_geom, 900913))) AS Y,
+				   ST_AsText(D.the_geom)                               AS THE_GEOM
+			  FROM LANDSYS_GIS.tb_apt_hsmp 					A,
+				   LANDSYS_GIS.tb_apt_eqb_atrb_dgm_mapng     B,
+				   LANDSYS_GIS.tb_apt_buld_atrb_dgm_mapng    C,
+				   LANDSYS_GIS.tg_apt_hsmp_buld_manage       D,
+				   LANDSYS_GIS.tb_dong_table				E
+			 WHERE A.BSNS_CODE = B.BSNS_CODE
+			   AND B.EQB_CODE  = C.EQB_CODE
+			   AND C.BD_MGT_SN = D.before_buld_manage_no
+			   AND D.before_buld_manage_no = E.before_buld_manage_no
+			   AND A.BSNS_CODE = #BSNS_CODE#
+			]]>
+	</select>
+
+	<select id="portal.gis.selectRentalMltdwlDongHoList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 다가구 동호 목록 조회 */
+			SELECT D.aptcmpl_ho_code				,
+				   D.bsns_aptcmpl_code	    	,
+				   D.BSNS_CODE	            ,
+				   D.HOUSE_TY_CODE	        ,
+				   D.SUPLY_SE_CODE	        ,
+				   D.HO_SE_CODE	       		,
+				   D.sn	            	,
+				   D.BSNS_NM	            ,
+				   D.ADRES	                ,
+				   D.before_buld_manage_no	            ,
+				   D.HOUSE_TY	            ,
+				   D.SUPLY_SE	            ,
+				   D.HO_SE	                ,
+				   D.aptcmpl	                ,
+				   D.issno	                	,
+				   D.MARK_HO	            ,
+				   D.mark_rl	            ,
+				   D.sexdstn	                ,
+				   D.hshld_dvr_ar	    ,
+				   D.aptcmpl_ho_sttus          ,
+			       ST_X(ST_Centroid(ST_Transform(C.the_geom, 900913))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(C.the_geom, 900913))) AS Y,
+				   ST_AsText(C.the_geom)                               AS THE_GEOM
+			  FROM LANDSYS_GIS.TB_MLTDWL A ,
+				   LANDSYS_GIS.tb_mltdwl_atrb_dgm_mapng B,
+				   LANDSYS_GIS.TG_MLTDWL_MANAGE C,
+				   LANDSYS_GIS.tb_dong_table D
+			 WHERE A.MLTDWL_CODE = B.MLTDWL_CODE
+			   AND B.before_buld_manage_no = C.before_buld_manage_no
+			   AND A.MLTDWL_CODE = D.bsns_aptcmpl_code
+			   AND A.MLTDWL_CODE = #MLTDWL_CODE#
+			]]>
+	</select>
+
+  	<select id="portal.gis.selectRentalCtyLvlhDongHoList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 도시형생활주택 동호 목록 조회 */
+			SELECT D.aptcmpl_ho_code				,
+				   D.bsns_aptcmpl_code	    	,
+				   D.BSNS_CODE	            ,
+				   D.HOUSE_TY_CODE	        ,
+				   D.SUPLY_SE_CODE	        ,
+				   D.HO_SE_CODE	       		,
+				   D.sn	            	,
+				   D.BSNS_NM	            ,
+				   D.ADRES	                ,
+				   D.before_buld_manage_no	            ,
+				   D.HOUSE_TY	            ,
+				   D.SUPLY_SE	            ,
+				   D.HO_SE	                ,
+				   D.aptcmpl	                ,
+				   D.issno	                	,
+				   D.MARK_HO	            ,
+				   D.mark_rl	            ,
+				   D.sexdstn	                ,
+				   D.hshld_dvr_ar	    ,
+				   D.aptcmpl_ho_sttus          ,
+			       ST_X(ST_Centroid(ST_Transform(C.the_geom, 900913))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(C.the_geom, 900913))) AS Y,
+				   ST_AsText(C.the_geom)                               AS THE_GEOM
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house A ,
+				   LANDSYS_GIS.tb_cty_lvlh_house_atrb_dgm_mapng B,
+				   LANDSYS_GIS.tg_cty_lvlh_house_manage C,
+				   LANDSYS_GIS.tb_dong_table D
+			 WHERE A.cty_ty_code  = B.cty_ty_code
+			   AND B.before_buld_manage_no = C.before_buld_manage_no
+			   AND A.cty_ty_code  = D.bsns_aptcmpl_code
+			   AND A.cty_ty_code  = #CTY_CODE#
+			]]>
+	</select>
+
+	<select id="portal.gis.selectRentalAptStat" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 - 아파트 통계 조회 */
+			SELECT A.*, RENT_HSHLD_CNT + LTTOT_HSHLD_CNT AS HSHLD_SUM
+			FROM (
+			    SELECT 
+			        SUM(CAST(COALESCE(NULLIF(REGEXP_REPLACE(HSMP_CO, '[^0-9]', '', 'g'), ''), '0') AS INTEGER)) AS HSMP_CNT,
+			        SUM(CAST(COALESCE(NULLIF(REGEXP_REPLACE(APTCMPL_CO, '[^0-9]', '', 'g'), ''), '0') AS INTEGER)) AS APTCMPL_CNT,
+			        SUM(CAST(COALESCE(NULLIF(REGEXP_REPLACE(RENT_HSHLD_CO, '[^0-9]', '', 'g'), ''), '0') AS INTEGER)) AS RENT_HSHLD_CNT,
+			        SUM(CAST(COALESCE(NULLIF(REGEXP_REPLACE(LTTOT_HSHLD_CO, '[^0-9]', '', 'g'), ''), '0') AS INTEGER)) AS LTTOT_HSHLD_CNT
+			    FROM LANDSYS_GIS.tb_apt_hsmp
+			) A;
+		]]>
+	</select>
+			<!-- 231130 기존소스 주석
+			/* 임대 - 아파트 통계 조회 */
+			SELECT A.*, RENT_HSHLD_CNT + LTTOT_HSHLD_CNT AS HSHLD_SUM
+			  FROM (
+					SELECT SUM(CAST(HSMP_CO        AS INTEGER))  AS HSMP_CNT,
+						   SUM(CAST(APTCMPL_CO     AS INTEGER))  AS APTCMPL_CNT,
+						   SUM(CAST(RENT_HSHLD_CO  AS INTEGER))  AS RENT_HSHLD_CNT,
+						   SUM(CAST(LTTOT_HSHLD_CO AS INTEGER))  AS LTTOT_HSHLD_CNT
+					  FROM LANDSYS_GIS.TB_APT
+				  ) A -->
+
+	<select id="portal.gis.selectRentalMltdwlStat" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 - 다가구 통계 조회 */
+			SELECT SUM(CAST(mltdwl_aptcmpl_co AS INTEGER)) AS MLTDWL_APTCMPL_CNT,
+			       SUM(CAST(all_hshld_co   AS INTEGER)) AS TOT_HSHLD_CNT
+			  FROM LANDSYS_GIS.TB_MLTDWL
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalCityLvlhStat" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 - 도시형생활주택 통계 조회 */
+			SELECT SUM(CAST(all_aptcmpl_co AS INTEGER)) TOT_APTCMPL_CNT,
+				   SUM(CAST(all_hshld_co   AS INTEGER))
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalLfstsRentStat" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 - 전세임대 통계 조회 */
+			SELECT COUNT(aptcmpl) DONG_CNT
+			  FROM LANDSYS_GIS.TG_LFSTS_RENT_MANAGE
+		]]>
+	</select>
+
+	<select id="portal.gis.selectRentalLngtrSafetyStat" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 임대 - 장기안심 통계 조회 */
+			SELECT COUNT(HSHLD_CO) DONG_CNT
+			  FROM LANDSYS_GIS.TG_LNGTR_SAFETY_MANAGE
+			 WHERE HSHLD_CO IS NOT NULL
+			   AND HSHLD_CO <> ''
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetApt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 이파트 조회 */
+			SELECT A.ID           		       ,
+				   A.ASSETS_NO           		   ,
+				   A.ASSETS_SE_CODE      		   ,
+				   A.ASSETS_CL_NO        		   ,
+				   A.assets_cl_detail_no   		   ,
+				   A.ASSETS_REGSTR_CODE  		   ,
+				   --O.LCLAS_code AS ASSETS_CL			   ,
+				   O.LCLAS AS ASSETS_CL			   ,
+				   --O.MLSFC_code AS trfclsf			   ,
+				   O.MLSFC AS trfclsf			   , 
+				   A.BSNS_CODE           		   ,
+				   A.BSNS_NM             		   ,
+				   A.ASSETS_NM           		   ,
+				   A.STNDRD              		   ,
+				   A.assets_change_se       		   ,
+				   A.change_dcsn_de         		   ,
+				   A.ACQS_DE                       ,
+				   CASE WHEN A.acqs_amount_buld  <> '' THEN cast(cast( A.acqs_amount_buld  as money) as TEXT) ELSE '' END AS acqs_amount_buld  ,
+				   CASE WHEN A.acqs_amount_lad   <> '' THEN cast(cast( A.acqs_amount_lad   as money) as TEXT) ELSE '' END AS acqs_amount_lad	,
+				   CASE WHEN A.GOVSUBY_BULD <> '' THEN cast(cast( A.GOVSUBY_BULD as money) as TEXT) ELSE '' END AS GOVSUBY_BULD	,
+				   CASE WHEN A.GOVSUBY_LAD  <> '' THEN cast(cast( A.GOVSUBY_LAD  as money) as TEXT) ELSE '' END AS GOVSUBY_LAD	,
+				   A.MANAGE_DEPT				   ,
+				   CASE WHEN M.ASSETS_NO <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.tb_assets_regstr_apt A
+			  	   LEFT JOIN(
+			  	   		select
+							a1.assets_no,
+							a2.the_geom
+			  	   		from LANDSYS_GIS.tb_assets_regstr_apt_atrb_dgm_mapng a1
+			  	   		inner join LANDSYS_GIS.tg_assets_regstr_apt_manage a2
+			  	   		on a1.ogc_fid = a2.ogc_fid
+			  	   )M ON A.assets_no = M.ASSETS_NO
+			  	    --LANDSYS_GIS.tb_assets_regstr_apt_atrb_dgm_mapng M ON A.assets_no = M.ASSETS_NO
+			       LEFT JOIN LANDSYS_ADM.TC_BRMP O ON A.ASSETS_CL::TEXT = O.LCLAS_CODE::TEXT
+												  AND A.trfclsf::TEXT = O.MLSFC_CODE::TEXT
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEqual property="CONDITIONS.ASSETS_NM" prepend="AND" compareValue="">
+				   ASSETS_NM LIKE '%' || #CONDITIONS.ASSETS_NM# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ASSETS_CL" prepend="AND" compareValue="">
+				   ASSETS_CL = #CONDITIONS.ASSETS_CL#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.PRDLST_CL" prepend="AND" compareValue="">
+				   trfclsf = #CONDITIONS.PRDLST_CL#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+				   BSNS_CODE = #CONDITIONS.BSNS_CODE#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.STNDRD" prepend="AND" compareValue="">
+				   STNDRD = #CONDITIONS.STNDRD#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ASSETS_CHANGE" prepend="AND" compareValue="">
+				   assets_change_se = #CONDITIONS.ASSETS_CHANGE#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.CHANGE_DCSN" prepend="AND" compareValue="">
+				   TO_CHAR(TO_DATE(change_dcsn_de,'YYYYMMDD'), 'YYYY') = #CONDITIONS.CHANGE_DCSN#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ACQS_DE" prepend="AND" compareValue="">
+				   TO_CHAR(TO_DATE(ACQS_DE,'YYYYMMDD'), 'YYYY') = #CONDITIONS.ACQS_DE#
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectAssetAptAssetsClass" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 1. 자산분류 조회 */
+			SELECT DISTINCT
+				   LCLAS_CODE,
+				   LCLAS
+			  FROM LANDSYS_ADM.TC_BRMP B
+			 WHERE LCLAS_CODE IN ('ASC001','PRC001')
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetAptPrdlstClass" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 2. 품목분류 조회 */
+			SELECT MLSFC,
+			       MLSFC_CODE
+			  FROM LANDSYS_ADM.TC_BRMP
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="ASSETS_CL" prepend="">
+				LCLAS_CODE = #ASSETS_CL#
+			</isNotEmpty>
+			<isEmpty property="ASSETS_CL" prepend="">
+				LCLAS_CODE = 'ASC001'
+			</isEmpty>
+		</dynamic>
+		  ORDER BY 2
+	</select>
+
+	<select id="portal.gis.selectAssetAptBsnsCode" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 3. 사업코드 조회 */
+			SELECT DISTINCT TRIM(BSNS_CODE) AS BSNS_CODE
+			  FROM LANDSYS_GIS.tb_assets_regstr_apt
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetAptStndrd" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 4. 규격 조회 */
+			SELECT DISTINCT TRIM(STNDRD) AS STNDRD
+			  FROM LANDSYS_GIS.tb_assets_regstr_apt
+             WHERE STNDRD <> ''
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetAptAssetsChange" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 5. 자산변동구분 조회 */
+			SELECT DISTINCT TRIM(assets_change_se) AS ASSETS_CHANGE
+			  FROM LANDSYS_GIS.tb_assets_regstr_apt
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetAptChangeDcsn" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 6. 변동확정일자 조회 */
+			SELECT YEAR
+			  FROM  (
+						SELECT DISTINCT TO_CHAR(TO_DATE(change_dcsn_de,'YYYYMMDD'), 'YYYY') AS YEAR
+				  		  FROM LANDSYS_GIS.tb_assets_regstr_apt
+			  		) A WHERE YEAR > '1900'
+		   ORDER BY YEAR DESC
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetAptAcqsDe" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 7. 취득일자 조회 */
+			SELECT YEAR
+			  FROM (
+						SELECT DISTINCT TO_CHAR(TO_DATE(ACQS_DE,'YYYYMMDD'), 'YYYY') AS YEAR
+						  FROM LANDSYS_GIS.tb_assets_regstr_apt
+			  	   ) A WHERE YEAR > '1900'
+		  ORDER BY YEAR DESC
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetMltdwl" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 다가구 조회 */
+			SELECT A.ID							   ,
+				   A.ASSETS_NO           		   ,
+				   A.ASSETS_SE_CODE      		   ,
+				   A.ASSETS_CL_NO        		   ,
+				   A.assets_cl_detail_no    		   ,
+				   A.ASSETS_REGSTR_CODE		   	   ,
+				   --O.LCLAS_code AS ASSETS_CL			   ,
+				    O.LCLAS AS ASSETS_CL			   ,
+				   --O.MLSFC_code AS trfclsf			   ,
+				  	O.MLSFC AS trfclsf			   ,
+				   A.BSNS_CODE           		   ,
+				   A.BSNS_NM             		   ,
+				   A.ASSETS_NM           		   ,
+				   A.STNDRD              		   ,
+				   A.assets_change_se       		   ,
+				   A.change_dcsn_de         		   ,
+				   A.ACQS_DE                       ,
+				   CASE WHEN A.acqs_amount_buld  <> '' THEN cast(cast( A.acqs_amount_buld  as money) as TEXT) ELSE '' END AS acqs_amount_buld  ,
+				   CASE WHEN A.acqs_amount_lad   <> '' THEN cast(cast( A.acqs_amount_lad   as money) as TEXT) ELSE '' END AS acqs_amount_lad	,
+				   CASE WHEN A.GOVSUBY_BULD <> '' THEN cast(cast( A.GOVSUBY_BULD as money) as TEXT) ELSE '' END AS GOVSUBY_BULD	,
+				   CASE WHEN A.GOVSUBY_LAD  <> '' THEN cast(cast( A.GOVSUBY_LAD  as money) as TEXT) ELSE '' END AS GOVSUBY_LAD	,
+				   A.MANAGE_DEPT				   ,
+				   CASE WHEN M.ASSETS_NO <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsGeoJSON(ST_Transform(M.the_geom,3857))::json As GEOM
+			  FROM LANDSYS_GIS.tb_assets_regstr_mltdwl A
+			  	   LEFT JOIN(
+			  	   		select
+							a1.ASSETS_NO,
+							a2.the_geom
+			  	   		from LANDSYS_GIS.tb_assets_regstr_mltdwl_atrb_dgm_mapng a1
+			  	   		inner join LANDSYS_GIS.tg_assets_regstr_mltdwl_manage a2
+			  	   		on a1.ogc_fid = a2.ogc_fid
+			  	   )M ON A.ASSETS_NO = M.ASSETS_NO
+			  	   --LANDSYS_GIS.tb_assets_regstr_mltdwl_atrb_dgm_mapng M ON A.ASSETS_NO = M.ASSETS_NO
+			       LEFT JOIN LANDSYS_ADM.TC_BRMP O ON A.ASSETS_CL::TEXT = O.LCLAS_CODE::TEXT
+												  AND A.trfclsf::TEXT = O.MLSFC_CODE::TEXT
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEqual property="CONDITIONS.ASSETS_NM" prepend="AND" compareValue="">
+				   ASSETS_NM LIKE '%' || #CONDITIONS.ASSETS_NM# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ASSETS_CL" prepend="AND" compareValue="">
+				   ASSETS_CL = #CONDITIONS.ASSETS_CL#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.PRDLST_CL" prepend="AND" compareValue="">
+				   trfclsf = #CONDITIONS.PRDLST_CL#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+				   BSNS_CODE = #CONDITIONS.BSNS_CODE#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.STNDRD" prepend="AND" compareValue="">
+				   STNDRD = #CONDITIONS.STNDRD#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ASSETS_CHANGE" prepend="AND" compareValue="">
+				   assets_change_se = #CONDITIONS.ASSETS_CHANGE#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.CHANGE_DCSN" prepend="AND" compareValue="">
+				   TO_CHAR(TO_DATE(change_dcsn_de,'YYYYMMDD'), 'YYYY') = #CONDITIONS.CHANGE_DCSN#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ACQS_DE" prepend="AND" compareValue="">
+				   TO_CHAR(TO_DATE(ACQS_DE,'YYYYMMDD'), 'YYYY') = #CONDITIONS.ACQS_DE#
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectAssetMltdwlAssetsClass" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 1. 자산분류 조회 */
+			SELECT DISTINCT
+				   LCLAS_CODE,
+				   LCLAS
+			  FROM LANDSYS_ADM.TC_BRMP B
+			 WHERE LCLAS_CODE IN ('ASC001','PRC001')
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetMltdwlPrdlstClass" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 2. 품목분류 조회 */
+			SELECT MLSFC,
+			       MLSFC_CODE
+			  FROM LANDSYS_ADM.TC_BRMP
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="ASSETS_CL" prepend="">
+				LCLAS_CODE = #ASSETS_CL#
+			</isNotEmpty>
+			<isEmpty property="ASSETS_CL" prepend="">
+				LCLAS_CODE = 'ASC001'
+			</isEmpty>
+		</dynamic>
+		  ORDER BY 2
+	</select>
+
+	<select id="portal.gis.selectAssetMltdwlBsnsCode" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 3. 사업코드 조회 */
+			SELECT DISTINCT TRIM(BSNS_CODE) AS BSNS_CODE
+			  FROM LANDSYS_GIS.tb_assets_regstr_mltdwl
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetMltdwlStndrd" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 4. 규격 조회 */
+			SELECT DISTINCT TRIM(STNDRD) AS STNDRD
+			  FROM LANDSYS_GIS.tb_assets_regstr_mltdwl
+             WHERE STNDRD <> ''
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetMltdwlAssetsChange" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 5. 자산변동구분 조회 */
+			SELECT DISTINCT TRIM(assets_change_se) AS ASSETS_CHANGE
+			  FROM LANDSYS_GIS.tb_assets_regstr_mltdwl
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetMltdwlChangeDcsn" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 6. 변동확정일자 조회 */
+			SELECT YEAR
+			  FROM  (
+						SELECT DISTINCT TO_CHAR(TO_DATE(change_dcsn_de,'YYYYMMDD'), 'YYYY') AS YEAR
+				  		  FROM LANDSYS_GIS.tb_assets_regstr_mltdwl
+			  		) A WHERE YEAR > '1900'
+		   ORDER BY YEAR DESC
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetMltdwlAcqsDe" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 7. 취득일자 조회 */
+			SELECT YEAR
+			  FROM (
+						SELECT DISTINCT TO_CHAR(TO_DATE(ACQS_DE,'YYYYMMDD'), 'YYYY') AS YEAR
+						  FROM LANDSYS_GIS.tb_assets_regstr_mltdwl
+			  	   ) A WHERE YEAR > '1900'
+		  ORDER BY YEAR DESC
+		]]>
+	</select>
+	
+	<select id="portal.gis.selectAssetEtc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 기타 조회 */
+			select *,ST_AsGeoJSON(a.geomtxt)::json as geom from (
+			SELECT A.ID           		       ,
+				   A.ASSETS_NO           		   ,
+				   A.ASSETS_SE_CODE      		   ,
+				   A.ASSETS_CL_NO        		   ,
+				   A.assets_cl_detail_no    		   ,
+				   A.ASSETS_REGSTR_CODE  		   ,
+				   --O.LCLAS_code AS ASSETS_CL			   ,
+				   O.LCLAS AS ASSETS_CL			   ,
+				   --O.MLSFC_code AS trfclsf			   ,
+				   O.MLSFC AS trfclsf			   ,
+				   A.BSNS_CODE           		   ,
+				   A.BSNS_NM             		   ,
+				   A.ASSETS_NM           		   ,
+				   CASE WHEN A.STNDRD  <> '...' THEN A.STNDRD ELSE '' END AS STNDRD  ,
+				   A.assets_change_se       		   ,
+				   A.change_dcsn_de         		   ,
+				   A.ACQS_DE                       ,
+				   CASE WHEN A.acqs_amount_buld  <> '' THEN cast(cast( A.acqs_amount_buld  as money) as TEXT) ELSE '' END AS acqs_amount_buld  ,
+				   CASE WHEN A.acqs_amount_lad   <> '' THEN cast(cast( A.acqs_amount_lad   as money) as TEXT) ELSE '' END AS acqs_amount_lad	,
+				   CASE WHEN A.GOVSUBY_BULD <> '' THEN cast(cast( A.GOVSUBY_BULD as money) as TEXT) ELSE '' END AS GOVSUBY_BULD	,
+				   CASE WHEN A.GOVSUBY_LAD  <> '' THEN cast(cast( A.GOVSUBY_LAD  as money) as TEXT) ELSE '' END AS GOVSUBY_LAD	,
+				   A.MANAGE_DEPT				   ,
+				   CASE WHEN M.ASSETS_NO <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))As geomtxt
+			  FROM LANDSYS_GIS.tb_assets_regstr_etc A
+			  	    JOIN LANDSYS_GIS.tb_assets_regstr_etc_eqb_atrb_dgm_mapng M ON A.assets_no = M.ASSETS_NO
+				    JOIN landsys_gis.tg_assets_regstr_etc_eqb_manage b ON M.ogc_fid::bpchar = b.ogc_fid::bpchar
+			        JOIN LANDSYS_ADM.TC_BRMP O ON A.ASSETS_CL::TEXT = O.LCLAS_CODE::TEXT
+												  AND A.trfclsf::TEXT = O.MLSFC_CODE::TEXT	
+												  union
+												  SELECT A.ID           		       ,
+				   A.ASSETS_NO           		   ,
+				   A.ASSETS_SE_CODE      		   ,
+				   A.ASSETS_CL_NO        		   ,
+				   A.assets_cl_detail_no    		   ,
+				   A.ASSETS_REGSTR_CODE  		   ,
+				   --O.LCLAS_code AS ASSETS_CL			   ,
+				    O.LCLAS AS ASSETS_CL			   ,
+				   --O.MLSFC_code AS trfclsf			   ,
+				   O.MLSFC AS trfclsf			   ,
+				   A.BSNS_CODE           		   ,
+				   A.BSNS_NM             		   ,
+				   A.ASSETS_NM           		   ,
+				   CASE WHEN A.STNDRD  <> '...' THEN A.STNDRD ELSE '' END AS STNDRD  ,
+				   A.assets_change_se       		   ,
+				   A.change_dcsn_de         		   ,
+				   A.ACQS_DE                       ,
+				   CASE WHEN A.acqs_amount_buld  <> '' THEN cast(cast( A.acqs_amount_buld  as money) as TEXT) ELSE '' END AS acqs_amount_buld  ,
+				   CASE WHEN A.acqs_amount_lad   <> '' THEN cast(cast( A.acqs_amount_lad   as money) as TEXT) ELSE '' END AS acqs_amount_lad	,
+				   CASE WHEN A.GOVSUBY_BULD <> '' THEN cast(cast( A.GOVSUBY_BULD as money) as TEXT) ELSE '' END AS GOVSUBY_BULD	,
+				   CASE WHEN A.GOVSUBY_LAD  <> '' THEN cast(cast( A.GOVSUBY_LAD  as money) as TEXT) ELSE '' END AS GOVSUBY_LAD	,
+				   A.MANAGE_DEPT				   ,
+				   CASE WHEN M.ASSETS_NO <> '' THEN 'Y' ELSE 'N' END AS GEOM_YN,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))As geomtxt
+			  FROM LANDSYS_GIS.tb_assets_regstr_etc A
+			  	    JOIN LANDSYS_GIS.tb_assets_regstr_etc_buld_atrb_dgm_mapng M ON A.assets_no = M.ASSETS_NO
+				    JOIN landsys_gis.tg_assets_regstr_etc_buld_manage b ON M.ogc_fid::bpchar = b.ogc_fid::bpchar
+			        JOIN LANDSYS_ADM.TC_BRMP O ON A.ASSETS_CL::TEXT = O.LCLAS_CODE::TEXT
+												  AND A.trfclsf::TEXT = O.MLSFC_CODE::TEXT	) a
+	  		
+	  		
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEqual property="CONDITIONS.ASSETS_NM" prepend="AND" compareValue="">
+				   ASSETS_NM LIKE '%' || #CONDITIONS.ASSETS_NM# || '%'
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ASSETS_CL" prepend="AND" compareValue="">
+				   ASSETS_CL = #CONDITIONS.ASSETS_CL#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.PRDLST_CL" prepend="AND" compareValue="">
+				   trfclsf = #CONDITIONS.PRDLST_CL#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.BSNS_CODE" prepend="AND" compareValue="">
+				   BSNS_CODE = #CONDITIONS.BSNS_CODE#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.STNDRD" prepend="AND" compareValue="">
+				   STNDRD = #CONDITIONS.STNDRD#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ASSETS_CHANGE" prepend="AND" compareValue="">
+				   assets_change_se = #CONDITIONS.ASSETS_CHANGE#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.CHANGE_DCSN" prepend="AND" compareValue="">
+				   TO_CHAR(TO_DATE(change_dcsn_de,'YYYYMMDD'), 'YYYY') = #CONDITIONS.CHANGE_DCSN#
+			</isNotEqual>
+			<isNotEqual property="CONDITIONS.ACQS_DE" prepend="AND" compareValue="">
+				   TO_CHAR(TO_DATE(ACQS_DE,'YYYYMMDD'), 'YYYY') = #CONDITIONS.ACQS_DE#
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+	<select id="portal.gis.selectAssetEtcAssetsClass" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 1. 자산분류 조회 */
+			SELECT DISTINCT
+				   LCLAS_CODE,
+				   LCLAS
+			  FROM LANDSYS_ADM.TC_BRMP B
+			 WHERE LCLAS_CODE IN ('ASC001','PRC001')
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetEtcPrdlstClass" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 2. 품목분류 조회 */
+			SELECT MLSFC,
+			       MLSFC_CODE
+			  FROM LANDSYS_ADM.TC_BRMP
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="ASSETS_CL" prepend="">
+				LCLAS_CODE = #ASSETS_CL#
+			</isNotEmpty>
+			<isEmpty property="ASSETS_CL" prepend="">
+				LCLAS_CODE IN ('ASC001','PRC001')
+			</isEmpty>
+		</dynamic>
+		  ORDER BY 2
+	</select>
+
+	<select id="portal.gis.selectAssetEtcBsnsCode" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 3. 사업코드 조회 */
+			SELECT DISTINCT TRIM(BSNS_CODE) AS BSNS_CODE
+			  FROM LANDSYS_GIS.tb_assets_regstr_etc
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetEtcStndrd" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 4. 규격 조회 */
+			SELECT DISTINCT TRIM(STNDRD) AS STNDRD
+			 FROM LANDSYS_GIS.tb_assets_regstr_etc
+             WHERE STNDRD <> '' and STNDRD <> '...'
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetEtcAssetsChange" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 5. 자산변동구분 조회 */
+			SELECT DISTINCT TRIM(assets_change_se) AS ASSETS_CHANGE
+			  FROM LANDSYS_GIS.tb_assets_regstr_etc
+		  ORDER BY 1
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetEtcChangeDcsn" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 6. 변동확정일자 조회 */
+			SELECT YEAR
+			  FROM  (
+						SELECT DISTINCT TO_CHAR(TO_DATE(change_dcsn_de,'YYYYMMDD'), 'YYYY') AS YEAR
+				  		  FROM LANDSYS_GIS.tb_assets_regstr_etc
+			  		) A WHERE YEAR > '1900'
+		   ORDER BY YEAR DESC
+		]]>
+	</select>
+
+	<select id="portal.gis.selectAssetEtcAcqsDe" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 자산 - 7. 취득일자 조회 */
+			SELECT YEAR
+			  FROM (
+						SELECT DISTINCT TO_CHAR(TO_DATE(ACQS_DE,'YYYYMMDD'), 'YYYY') AS YEAR
+						  FROM LANDSYS_GIS.tb_assets_regstr_etc
+				  		where ACQS_DE not in ('2019-0730')
+			  	   ) A WHERE YEAR > '1900'
+		  ORDER BY YEAR DESC
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLayerDescList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 레이어 검색 조회 */
+			WITH RECURSIVE TB_GROUP_INFO(GRP_NO, P_GRP_NO, GRP_ORDR, GRP_NM, GRP_DC, LEVEL, PATH, CYCLE) AS
+			(
+				SELECT G.GRP_NO,
+					   G.P_GRP_NO,
+				       G.GRP_ORDR,
+					   G.GRP_NM,
+					   G.GRP_DC,
+					   0,
+					   ARRAY[G.GRP_ORDR],
+					   FALSE
+				  FROM LANDSYS_ADM.TB_GROUP_INFO G
+				 WHERE (G.P_GRP_NO = '' OR G.P_GRP_NO IS NULL)
+
+				UNION ALL
+
+				SELECT G.GRP_NO,
+				       G.P_GRP_NO,
+					   G.GRP_ORDR,
+					   G.GRP_NM,
+				       G.GRP_DC,
+				       LEVEL + 1,
+				       ARRAY_APPEND(PATH, G.GRP_ORDR),
+				       G.GRP_ORDR = ANY(PATH)
+				  FROM LANDSYS_ADM.TB_GROUP_INFO G, TB_GROUP_INFO SB
+				 WHERE G.P_GRP_NO = SB.GRP_NO
+				   AND NOT CYCLE
+			)
+				SELECT LM.LAYER_NO    				 AS LAYER_NO,
+				       ROW_NUMBER() OVER(ORDER BY PATH, LM.layer_ordr) AS NO,
+					   (SELECT GRP_NM FROM (SELECT UNNEST(PATH)::varchar AS GRP LIMIT 1) A, LANDSYS_ADM.TB_GROUP_INFO B WHERE A.GRP = B.GRP_NO) AS GRP_NM,
+				       LPAD('', 2*6*CAST(LEVEL AS INT), '&nbsp;') || ' > ' || COALESCE(GI.GRP_NM, '') AS GRP_PATH,
+					   COALESCE(LI.LAYER_DP_NM,'')   AS LAYER_NM,
+					   COALESCE(LI.LAYER_TP_NM,'')   AS LAYER_TP_NM,
+					   LI.LAYER_DC
+				  FROM TB_GROUP_INFO GI
+				       LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_GROUP_LAYER_MAPNG LM ON GI.GRP_NO = LM.GRP_NO
+					   LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_LAYER_INFO LI        ON LM.LAYER_NO = LI.LAYER_NO
+					   LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_LAYER_AUTH_MAPNG AM  ON LM.MAPNG_NO = AM.MAPNG_NO AND AM.L_AUTH_NO = ( SELECT L_AUTH_NO
+																											   FROM LANDSYS_ADM.TB_USER_INFO
+																											  WHERE USER_ID = LANDSYS_ADM.FN_ENCRYPT(#USER_ID#, #KEY#))
+				 WHERE LI.LAYER_DP_NM LIKE  '%' || #LAYER_NM# || '%'
+			  ORDER BY PATH, LM.layer_ordr
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLayerMyDataList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* MY Data 목록 */
+			SELECT LOWER(MAIN_TITLE) as MAIN_TITLE,
+						 LOWER(TABLE_NM) as TABLE_NM
+			  FROM LANDSYS_ADM.TB_USER_SHAPE
+			 WHERE MAIN_TITLE =  #MAIN_TITLE#
+		]]>
+	</select>
+
+		<select id="portal.gis.selectLayerMyDataCommentList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* MY Data의 컬림 및 설명 목록 */
+			SELECT LOWER(COLUMN_NAME) as COLUMN_NAME
+		  FROM INFORMATION_SCHEMA.COLUMNS
+			WHERE TABLE_CATALOG = 'shgis'
+			  AND TABLE_NAME    = #TABLE_NAME#
+			ORDER BY ORDINAL_POSITION;
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLayerAuthList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 레이어 권한 조회 */
+			WITH RECURSIVE TB_GROUP_INFO(GRP_NO, P_GRP_NO, GRP_ORDR, GRP_NM, GRP_DC, LEVEL, PATH, CYCLE) AS
+			(
+				SELECT G.GRP_NO,
+					   G.P_GRP_NO,
+				       G.GRP_ORDR,
+					   G.GRP_NM,
+					   G.GRP_DC,
+					   0,
+					   ARRAY[G.GRP_ORDR],
+					   FALSE
+				  FROM LANDSYS_ADM.TB_GROUP_INFO G
+				 WHERE (G.P_GRP_NO = '' OR G.P_GRP_NO IS NULL)
+
+				UNION ALL
+
+				SELECT G.GRP_NO,
+				       G.P_GRP_NO,
+					   G.GRP_ORDR,
+					   G.GRP_NM,
+				       G.GRP_DC,
+				       LEVEL + 1,
+				       ARRAY_APPEND(PATH, G.GRP_ORDR),
+				       G.GRP_ORDR = ANY(PATH)
+				  FROM LANDSYS_ADM.TB_GROUP_INFO G, TB_GROUP_INFO SB
+				 WHERE G.P_GRP_NO = SB.GRP_NO
+				   AND NOT CYCLE
+			)
+				SELECT ROW_NUMBER() OVER(ORDER BY PATH) AS NO,
+					   LEVEL                            AS LEVEL,
+					   GI.GRP_NO						AS GRP_NO,
+					   COALESCE(GI.P_GRP_NO,'')			AS P_GRP_NO,
+					   GI.GRP_NM                        AS GRP_NM,
+					   GI.GRP_ORDR                     AS GRP_ORDER,
+					   GI.GRP_DC						AS GRP_DESC,
+				       LPAD('', 2*6*CAST(LEVEL AS INT), '&nbsp;') || ' > ' || COALESCE(GI.GRP_NM, '')
+					   									AS GRP_PATH,
+					   COALESCE(LI.LAYER_DP_NM,'')      AS LAYER_DP_NM,
+					   COALESCE(LI.LAYER_TP_NM,'')      AS LAYER_TP_NM,
+					   COALESCE(LI.STYLES_NM,'')        AS LAYER_STYLE_NM,
+					   COALESCE(LI.TABLE_NM,'')			AS TABLE_NM,
+	                   GC.TYPE AS geom_typ,
+	                   GC.SRID AS SRID,
+					   COALESCE(LI.LAYER_ATTRB_NM,'')	AS LAYER_ATTRB_NM,
+					   LM.layer_ordr                   AS LAYER_ORDER,
+					   COALESCE(LI.LAYER_NO,'')		    AS LAYER_NO,
+					   LI.LAYER_DC                    AS LAYER_DESC,
+					   CASE WHEN COALESCE(LI.TABLE_NM,'') <> '' THEN 'Y' ELSE 'N' END
+					   									AS ATTR_TN,
+					   AM.VIEW_YN						AS VIEW_YN,
+					   AM.ATTR_EDIT_YN					AS EDIT_YN,
+					   AM.SHP_DN_YN                     AS DOWN_YN,
+					   LI.SERVER_NO					    AS SERVER_NO,
+					   SI.SERVER_URL					AS SERVER_URL,
+					   SI.WORKSPACE						AS WORKSPACE,
+					   SI.CNTC_YN                       AS CNTC_YN,
+					   SI.SERVER_CD					    AS SERVER_CD,
+					   (SELECT CODE_NM FROM LANDSYS_ADM.TC_CODE WHERE CODE = SI.SERVER_CD) AS SERVER_NM,
+					   LI.INS_DT						AS INS_DT,
+					   LI.UPD_DT						AS UPD_DT,
+					   LI.CHECK_URL,
+					   LI.DOWNLOAD_URL
+				  FROM TB_GROUP_INFO GI
+				       LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_GROUP_LAYER_MAPNG LM ON GI.GRP_NO = LM.GRP_NO
+					   LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_LAYER_INFO        LI ON LM.LAYER_NO = LI.LAYER_NO
+					   LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_SERVER_INFO       SI ON LI.SERVER_NO = SI.SERVER_NO
+					   LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_LAYER_AUTH_MAPNG  AM ON LM.MAPNG_NO = AM.MAPNG_NO AND AM.L_AUTH_NO = ( SELECT L_AUTH_NO
+																											   FROM LANDSYS_ADM.TB_USER_INFO
+																											  WHERE USER_ID = LANDSYS_ADM.FN_ENCRYPT(#USER_ID#, #KEY#))
+					   LEFT OUTER JOIN
+					   geometry_columns GC ON GC.f_table_schema || '.' || GC.f_table_name = COALESCE(LI.TABLE_NM,'')
+			  WHERE LI.DEL_YN = 'N' AND LI.USE_YN = 'Y' /*  사용여부(USE_YN) : Y(사용함), 삭제여부(DEL_YN) : N(삭제안함)  */
+			]]><isNotEmpty prepend="AND" property="LAYER_NM">	
+					LI.LAYER_DP_NM LIKE  '%' || #LAYER_NM# || '%'
+			</isNotEmpty>
+			  ORDER BY PATH, LM.layer_ordr
+	
+	</select>
+
+	<select id="portal.gis.selectExLayerAuthList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 연계 레이어 조회 */
+			SELECT LI.LAYER_DP_NM,LI.LAYER_TP_NM,LI.TABLE_NM,
+	                   GC.TYPE AS geom_typ,
+	                   GC.SRID AS SRID
+			  FROM LANDSYS_EX.TB_LAYER_INFO AS LI
+			 LEFT OUTER JOIN
+                   geometry_columns GC ON GC.f_table_schema || '.' || GC.f_table_name = COALESCE(LI.TABLE_NM,'')
+			 WHERE 
+			]]><isNotEmpty property="LAYER_NM">	
+					LI.LAYER_DP_NM LIKE  '%' || #LAYER_NM# || '%'
+			</isNotEmpty>
+			ORDER BY LI.LAYER_NO
+			  
+	
+	</select>
+
+	<select id="portal.gis.selectLayerAdditionalByNo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 레이어 추가 목록 */
+			SELECT LAYER_TP_NM
+			  FROM LANDSYS_ADM.TB_LAYER_ADDITIONAL_INFO
+			 WHERE LAYER_NO = #LAYER_NO#
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLayerByApikey" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 레이어 목록 조회 */
+			SELECT LI.LAYER_TP_NM,
+			       SI.SERVER_URL,
+				   LM.BASS_YN,
+				   LM.PARAMTR
+			  FROM LANDSYS_ADM.TB_API_KEY_MNG         KM,
+				   LANDSYS_ADM.TB_API_KEY_LAYER_MAPNG LM,
+				   LANDSYS_ADM.TB_LAYER_INFO		  LI,
+				   LANDSYS_ADM.TB_SERVER_INFO         SI
+			 WHERE KM.CONFM_KEY  = #API_KEY#
+			   AND LM.API_KEY_NO = KM.API_KEY_NO
+			   AND LM.LAYER_NO   = LI.LAYER_NO
+			   AND LI.SERVER_NO  = SI.SERVER_NO
+		]]>
+	</select>
+
+	<select id="portal.gis.selectLayerDesc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 레이어 설명 조회 */
+			SELECT DC_NO,
+				   LAYER_NO,
+				   DATA_NM,
+				   REPLACE(DATA_DC, E'\n', '<br>')      	AS DATA_DESC,
+				   REPLACE(DATA_STDDE, E'\n', '<br>')     	AS DATA_STDDE,
+				   REPLACE(DATA_ORIGIN, E'\n', '<br>')    	AS DATA_ORIGIN,
+				   REPLACE(DATA_RM, E'\n', '<br>')			AS DATA_RM,
+				   REPLACE(DATA_UPD_CYCLE, E'\n', '<br>') 	AS DATA_UPD_CYCLE,
+				   '' LAYER_DESC_EDIT_YN
+			  FROM LANDSYS_ADM.TB_LAYER_DESC A
+			 WHERE A.LAYER_NO = #LAYER_NO#
+		]]>
+	</select>
+
+	<select id="portal.gis.selectTableBuildLandSiteGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 택지 용지 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM
+			  FROM LANDSYS_GIS.tb_shet_atrb_dgm_mapng A, LANDSYS_GIS.tg_land_manage B
+			 WHERE A.shet_sn = B.shet_sn
+			   AND A.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableBuildLandLicensGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 택지 인허가 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM
+			  FROM LANDSYS_GIS.tb_cnfm_prmisn_atrb_dgm_mapng A, LANDSYS_GIS.tg_cnfm_prmisn_manage B
+			 WHERE A.cnfm_prmisn_sn = B.cnfm_prmisn_sn
+			   AND A.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableBuildLandUnSalePaprGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 택지 미매각지 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM
+			 FROM LANDSYS_GIS.tb_un_sale_area_atrb_dgm_mapng A, LANDSYS_GIS.tg_un_sale_area B, LANDSYS_GIS.tb_un_sale_area C
+			 WHERE A.sale_sn = B.sale_sn
+			 and c.un_sale_plot_code = A.un_sale_plot_code
+			   AND C.$PK_KEY$ = #PK_VALUE# :: INTEGER
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableBuildLandRemndrPaprGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 택지 잔여지 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM 
+			  FROM LANDSYS_GIS.tg_remndr_area_manage B, landsys_gis.tb_remndr_area_atrb_dgm_mapng A, landsys_gis.tb_remndr_area C
+			  WHERE A.pnu = B.pnu
+			   AND c.id = A.id
+			 AND C.$PK_KEY$ = #PK_VALUE# :: INTEGER
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableRentalAptGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 임대 아파트 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(a.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(a.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(a.the_geom, 3857))         AS GEOM
+			  FROM LANDSYS_GIS.tg_apt_hsmp_eqb_manage A, LANDSYS_GIS.tb_apt_eqb_atrb_dgm_mapng B, LANDSYS_GIS.tb_apt_hsmp c
+			 WHERE A.bsns_code::text = B.bsns_code::text             
+			   AND b.bsns_code::text = c.bsns_code::text
+			   AND A.$PK_KEY$ = #PK_VALUE#
+   		]]> 
+	</select>
+
+	<select id="portal.gis.selectTableRentalMltdwlGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 임대 다가구 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM 
+			 FROM LANDSYS_GIS.tb_mltdwl_atrb_dgm_mapng A, LANDSYS_GIS.TG_MLTDWL_MANAGE B
+			 WHERE A.before_buld_manage_no = B.before_buld_manage_no
+			   AND A.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableRentalCtyLvlhGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 임대 도시형생활주택 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM
+			  FROM LANDSYS_GIS.tb_cty_lvlh_house_atrb_dgm_mapng A, LANDSYS_GIS.tg_cty_lvlh_house_manage B
+			 WHERE A.before_buld_manage_no = B.before_buld_manage_no
+			   AND A.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableRentalLfstsGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 임대 전세임대 도형 조회 */
+			SELECT ST_X(ST_Transform(b.the_geom, 3857))              AS X,
+			       ST_Y(ST_Transform(b.the_geom, 3857))              AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM 
+			 FROM LANDSYS_GIS.TG_LFSTS_RENT_MANAGE B
+			 WHERE B.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableRentalLngtrSafetyGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 임대 장기안심 도형 조회 */
+			SELECT ST_X(ST_Transform(b.the_geom, 3857))              AS X,
+			       ST_Y(ST_Transform(b.the_geom, 3857))              AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM 
+			  FROM LANDSYS_GIS.TG_LNGTR_SAFETY_MANAGE B
+			 WHERE B.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableAssetAptGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 자산 아파트 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM 
+			  FROM LANDSYS_GIS.tb_assets_regstr_apt_atrb_dgm_mapng A, LANDSYS_GIS.tg_assets_regstr_apt_manage B
+			 WHERE A.ogc_fid = B.ogc_fid
+			   AND A.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableAssetMltdwlGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 테이블 자산 다가구 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM
+			  FROM LANDSYS_GIS.tb_assets_regstr_mltdwl_atrb_dgm_mapng A, LANDSYS_GIS.tg_assets_regstr_mltdwl_manage B
+			 WHERE A.ogc_fid :: character varying = B.ogc_fid :: character varying
+			   AND A.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+	
+	<select id="portal.gis.selectTableAssetEtcGeometry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+		/* 테이블 자산 기타 도형 조회 */
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM
+			  FROM LANDSYS_GIS.tb_assets_regstr_etc_eqb_atrb_dgm_mapng A, LANDSYS_GIS.tg_assets_regstr_etc_eqb_manage B, LANDSYS_GIS.tb_assets_regstr_etc C
+			 WHERE A.ogc_fid = B.ogc_fid
+			 and A.assets_no = C.assets_no
+			 AND A.$PK_KEY$ = #PK_VALUE#
+			 union
+			SELECT ST_X(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS X,
+			       ST_Y(ST_Centroid(ST_Transform(b.the_geom, 3857))) AS Y,
+				   ST_AsText(ST_Transform(b.the_geom, 3857))         AS GEOM 
+			  FROM LANDSYS_GIS.tb_assets_regstr_etc_buld_atrb_dgm_mapng A, LANDSYS_GIS.tg_assets_regstr_etc_buld_manage B, LANDSYS_GIS.tb_assets_regstr_etc C
+			 WHERE A.ogc_fid = B.ogc_fid
+			 and A.assets_no = C.assets_no
+			 AND A.$PK_KEY$ = #PK_VALUE#
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTableAttrEditAuth" parameterClass="java.util.HashMap" resultClass="String">
+		<![CDATA[
+			/* 테이블 수정 권한 조회 */
+			SELECT AM.ATTR_EDIT_YN
+			  FROM LANDSYS_ADM.TB_GROUP_LAYER_MAPNG LM,
+				   LANDSYS_ADM.TB_LAYER_AUTH_MAPNG  AM,
+				   LANDSYS_ADM.TB_LAYER_INFO        LI
+			 WHERE LM.MAPNG_NO = AM.MAPNG_NO
+			   AND AM.L_AUTH_NO = ( SELECT L_AUTH_NO
+				  					  FROM LANDSYS_ADM.TB_USER_INFO
+								     WHERE USER_ID = LANDSYS_ADM.FN_ENCRYPT(#USER_ID#, #KEY#))
+			   AND LM.LAYER_NO = LI.LAYER_NO
+			   AND UPPER(LI.TABLE_NM) = UPPER(#TABLE_SPACE# || '.' ||#TABLE_NM#)
+			 LIMIT 1
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectTablePkColumn" parameterClass="java.util.HashMap" resultClass="String">
+		<![CDATA[
+			/* 테이블 PK 조회 */
+			SELECT CC.COLUMN_NAME AS COLUMN_NAME
+			  FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS       TC
+			      ,INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE CC
+			 WHERE UPPER(TC.TABLE_SCHEMA)    = UPPER(#TABLE_SPACE#)
+			   AND UPPER(TC.TABLE_NAME)      = UPPER(#TABLE_NM#)
+			   AND TC.CONSTRAINT_TYPE 		 = 'PRIMARY KEY'
+			   AND TC.TABLE_CATALOG   		 = CC.TABLE_CATALOG
+			   AND TC.TABLE_SCHEMA    		 = CC.TABLE_SCHEMA
+			   AND TC.TABLE_NAME      		 = CC.TABLE_NAME
+			   AND TC.CONSTRAINT_NAME 		 = CC.CONSTRAINT_NAME
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectColumnCommentList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 내부 테이블 컬럼 주석 목록 조회 */
+			  SELECT ROW_NUMBER() OVER(ORDER BY PA.ATTNUM)             			 AS COLUMN_SEQ,
+			         COALESCE(LOWER(PA.ATTNAME),'')                              AS COLUMN_NM,
+			         COALESCE(PG_CATALOG.COL_DESCRIPTION(ATTRELID, ATTNUM),'')   AS COLUMN_COMMENT,
+					 PG_CATALOG.FORMAT_TYPE(ATTTYPID, ATTTYPMOD)    			 AS COLUMN_TYPE
+			    FROM PG_CATALOG.PG_ATTRIBUTE PA, PG_STAT_USER_TABLES PS
+			   WHERE PA.ATTRELID = PS.RELID
+			     AND PS.RELNAME IN (
+									 SELECT RELNAME
+									   FROM PG_STAT_USER_TABLES
+									  WHERE UPPER(SCHEMANAME) = UPPER(#TABLE_SPACE#)
+										AND UPPER(RELNAME) = UPPER(#TABLE_NM#)
+									)
+			     AND PA.ATTNUM > 0
+			     AND UPPER(SCHEMANAME) = UPPER(#TABLE_SPACE#)
+				 AND UPPER(PA.ATTNAME) NOT LIKE '%FID%'
+				 AND UPPER(PA.ATTNAME) NOT LIKE '%OBJECT%'
+				 AND UPPER(PA.ATTNAME) NOT LIKE '%GEOM%'
+			     AND NOT PA.ATTISDROPPED
+			ORDER BY PS.RELNAME, PA.ATTNUM
+		]]>
+	</select>
+
+	<select id="portal.gis.selectCntcColumnCommentList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 외부 테이블 컬럼 주석 목록 조회 */
+			  SELECT COLUMN_ORDR as COLUMN_SEQ,
+			   		 COLUMN_NM,
+			   		 COLUMN_COMMENT,
+			   		 '' AS COLUMN_TYPE
+			    FROM LANDSYS_ADM.TB_LAYER_COLUMN_MAPNG
+			   WHERE USE_YN = 'Y'
+			     AND LAYER_NO = #LAYER_NO#
+			ORDER BY COLUMN_ORDR
+		]]>
+	</select>
+	
+	<select id="portal.gis.selectViewColumnCommentList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			select * from 
+			(select t.table_schema as schema_name,
+			       t.table_name as view_name,
+			       c.column_name as column_nm,
+			       c.data_type as column_type,
+			       case when c.character_maximum_length is not null
+			            then c.character_maximum_length
+			            else c.numeric_precision end as max_length,
+			       is_nullable,
+			   cl.oid
+			       from information_schema.tables t
+			    left join information_schema.columns c 
+			              on t.table_schema = c.table_schema 
+			              and t.table_name = c.table_name
+			   left join pg_catalog.pg_class cl
+			         on t.table_name = cl.relname
+			where table_type = 'VIEW' 
+			      and t.table_schema not in ('information_schema', 'pg_catalog')
+			   	and t.table_name not in ('geometry_columns', 'geography_columns')
+	 	]]>
+			 	<isNotEmpty property="TABLE_SPACE">
+			    	and t.table_schema = LOWER(#TABLE_SPACE#)
+			    </isNotEmpty>
+			 	<isNotEmpty property="TABLE_NM">
+			    	and t.table_name = LOWER(#TABLE_NM#)
+			    </isNotEmpty>
+	    <![CDATA[
+			 	and c.column_name != 'ogc_fid'
+			 	
+				order by schema_name,
+				         view_name) t1 left join ( SELECT attname,
+				    pg_catalog.col_description(attrelid, attnum) as column_comment, attrelid
+				FROM
+				    pg_catalog.pg_attribute
+				WHERE
+				    attnum > 0 AND
+				    NOT attisdropped
+				   
+				       ) t2 on t1.oid = t2.attrelid and t1.column_nm = t2.attname
+		]]>
+	</select>
+
+	<select id="portal.gis.selectTableGeomTypeInfo" parameterClass="java.util.HashMap" resultClass="String">
+		<![CDATA[
+			/* GIS 유형 조회 */
+			SELECT GeometryType(the_geom)
+			  FROM $TABLE_SPACE$.$LAYER_TP_NM$
+			 LIMIT 1
+   		]]>
+	</select>
+
+	<select id="portal.gis.selectGeocoingEpsgList" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 지오코딩 EPSG 목록 조회 */
+			  SELECT ROW_NUMBER() OVER(ORDER BY SRID)               AS SEQ,
+					 SRID                                           AS SRID,
+					 SRTEXT                                         AS SRTEXT,
+					 PROJ4TEXT                                      AS PROJ4TEXT
+				FROM SPATIAL_REF_SYS
+			   WHERE (SRTEXT LIKE '%Korea%' AND SRID >= 5179)
+				  OR SRID = 4326
+				  OR SRID = 3857
+				  OR SRID = 900913
+		]]>
+	</select>
+
+	<select id="portal.gis.selectGeocoingEpsgToProj4" parameterClass="java.util.HashMap" resultClass="String">
+		<![CDATA[
+			/* 지오코딩 EPSG 목록 조회 */
+			SELECT PROJ4TEXT
+			  FROM SPATIAL_REF_SYS
+			 WHERE AUTH_NAME || ':' || AUTH_SRID = #EPSG#
+		]]>
+	</select>
+
+	<select id="portal.gis.selectShapeUploadEpsgList" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* SHAPE EPSG 목록 조회 */
+			SELECT ROW_NUMBER() OVER(ORDER BY SRID)               AS SEQ,
+				   SRID                                           AS SRID,
+				   SRTEXT                                         AS SRTEXT,
+				   PROJ4TEXT                                      AS PROJ4TEXT
+			  FROM SPATIAL_REF_SYS
+			 WHERE (SRTEXT LIKE '%Korea%' AND SRID >= 5173)
+			       OR SRID = 4326
+			       OR SRID = 3857
+			       OR SRID = 900913
+		]]>
+	</select>
+
+</sqlMap>

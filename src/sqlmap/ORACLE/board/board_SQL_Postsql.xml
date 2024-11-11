@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="board">
+
+    <typeAlias alias="BoardVO" type="egovframework.zaol.board.service.BoardVO" />
+    
+    
+    <!-- 공지사항 조회  -->
+    <select id="boardDAO.noticeListPageCnt" parameterClass="BoardVO" resultClass="int">
+	    select count(*) as CNT
+	    from  boad_data
+	    where board_gubun = #board_gubun# AND use_at = 'Y'
+	    <isNotEmpty property="s_sjt"> and board_sjt LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	    <isNotEmpty property="s_ctn">  and board_contents LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+	</select>
+    <select id="boardDAO.noticeListPage" parameterClass="BoardVO"  resultClass="java.util.HashMap">
+    
+              select * from (
+               	select (ROW_NUMBER() OVER()) AS rno , A.* from(
+               	 select
+					 seq,
+					 board_gubun,
+					 board_sjt, 
+					 board_contents, 
+					 board_cnt, 
+					 regest_id, 
+					 regest_date,  
+					 udpate_date,
+					 use_at,
+					 <![CDATA[ CASE 
+					 WHEN to_date(open_start_date, 'YYYY-MM-DD') <= now() AND to_date(close_end_date, 'YYYY-MM-DD') >= now() THEN 'NEW'
+					 ELSE 'OLD' ]]>
+					 END asnew_flg,
+					 open_start_date,
+					  close_end_date
+              from boad_data 
+              where board_gubun = #board_gubun# AND use_at = 'Y'
+              <isNotEmpty property="s_sjt"> and board_sjt LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	          <isNotEmpty property="s_ctn">  and board_contents LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+               order by  asnew_flg asc, regest_date desc  ) A
+			) as A1
+          WHERE rno BETWEEN #firstIndex# AND #lastIndex#
+      
+    </select> 	
+    
+    
+    <!-- 공지사항 상세보기  -->
+    <select id="boardDAO.noticeDetail" parameterClass="BoardVO" resultClass="java.util.HashMap">
+	    select *
+	    from  boad_data
+	    where board_gubun = #board_gubun# AND seq = #seq#::integer
+	</select>
+	 
+	 
+	    <!-- 공지사항 입력  -->
+    <insert id="boardDAO.board_notice_InserteStart" parameterClass="BoardVO">
+    <selectKey resultClass="java.lang.String" keyProperty="seq">
+        /* 일렬번호 생성 */
+        SELECT COALESCE(MAX(seq), 0) + 1 AS seq FROM boad_data 
+    </selectKey>
+    <![CDATA[
+        INSERT INTO boad_data     /* 사용자접속 이력정보 */
+        (
+            seq
+           ,board_gubun
+           ,board_sjt  
+           ,board_contents  
+           ,regest_date   
+           ,regest_id
+           ,use_at
+           ,board_cnt
+           ,open_start_date
+           ,close_end_date
+           ,post_open
+                   
+        )VALUES(
+            (#seq#)::integer
+           ,#board_gubun#
+           ,#board_sjt#  
+           ,#board_contents#  
+           ,to_char(now(),'yyyy-mm-dd HH24:mi:ss')      
+           ,'adminb'    
+           ,#use_at#
+           ,0
+           ,#open_start_date#    
+           ,#close_end_date#
+           ,'g'
+        )
+    ]]>
+    </insert>
+	 
+	 
+	<!-- qna 리스트 조회 -->
+	<select id="boardDAO.qnaListPage" parameterClass="BoardVO"  resultClass="java.util.HashMap">
+	<![CDATA[
+		
+		
+		WITH RECURSIVE SEARCH_QNA(SEQ, RE_GROUP, RE_LEV, BOARD_SJT, BOARD_CONTENTS, BOARD_CNT, REGEST_ID, REGEST_DATE, USE_AT, PATH) AS
+		(
+		  SELECT g.SEQ, g.RE_GROUP, g.RE_LEV, g.BOARD_SJT, g.BOARD_CONTENTS, g.BOARD_CNT, g.REGEST_ID, g.REGEST_DATE, g.USE_AT, ARRAY[g.SEQ] 
+		  FROM BOAD_DATA G
+		  WHERE g.SEQ in (
+		      SELECT distinct a.PATH[1] FROM
+		      (
+		        WITH RECURSIVE SEARCH_QNA(SEQ, RE_GROUP, RE_LEV, BOARD_SJT, BOARD_CONTENTS, BOARD_CNT, REGEST_ID, REGEST_DATE, USE_AT, PATH) AS
+		        (
+		          SELECT g.SEQ, g.RE_GROUP, g.RE_LEV, g.BOARD_SJT, g.BOARD_CONTENTS, g.BOARD_CNT, g.REGEST_ID, g.REGEST_DATE, g.USE_AT, ARRAY[g.SEQ] 
+		          FROM BOAD_DATA G
+		          WHERE g.SEQ = g.RE_GROUP
+		          UNION ALL
+		          SELECT g.SEQ, g.RE_GROUP, g.RE_LEV, g.BOARD_SJT, g.BOARD_CONTENTS, g.BOARD_CNT, g.REGEST_ID, g.REGEST_DATE, g.USE_AT, PATH || g.SEQ
+		          FROM BOAD_DATA G, SEARCH_QNA SQ
+		          WHERE g.RE_GROUP = sq.SEQ
+		          AND BOARD_GUBUN = 'QNA'
+		          AND g.SEQ <> g.RE_GROUP         
+		        )
+		        SELECT SEQ, RE_GROUP, RE_LEV, BOARD_SJT, BOARD_CONTENTS, BOARD_CNT, REGEST_ID, REGEST_DATE, g.USE_AT, PATH  
+		        FROM SEARCH_QNA  
+		      ) A]]>
+		      where 1=1
+		        <isNotEmpty property="s_sjt"> and board_sjt LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	            <isNotEmpty property="s_ctn">  and BOARD_CONTENTS LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+	            <![CDATA[
+		          )  
+		  UNION ALL
+		  SELECT g.SEQ, g.RE_GROUP, g.RE_LEV, g.BOARD_SJT, g.BOARD_CONTENTS, g.BOARD_CNT, g.REGEST_ID, g.REGEST_DATE, g.USE_AT, PATH || g.SEQ
+		  FROM BOAD_DATA G, SEARCH_QNA SQ
+		  WHERE g.RE_GROUP = sq.SEQ
+		  AND BOARD_GUBUN = 'QNA'
+		  AND g.SEQ <> g.RE_GROUP         
+		)
+
+	SELECT * 
+       FROM (
+		SELECT 
+			ROW_NUMBER() OVER(ORDER BY PATH[1] desc, PATH) AS rno, 
+			seq, re_group, board_sjt, board_contents, board_cnt, regest_id, regest_date, re_lev, path, 
+			lpad('',  10*6*CAST(re_lev AS INT), '&nbsp;') as space
+		FROM 
+			SEARCH_QNA
+		WHERE	USE_AT = 'Y'
+		) R 
+       WHERE R.rno BETWEEN #firstIndex# AND #lastIndex#
+			
+		]]>
+	
+	</select>
+
+
+    <!--  qna 조회수 증가 -->
+    <update id="boardDAO.board_cnt_UpdateStart" parameterClass="BoardVO" >
+    <![CDATA[	
+        UPDATE boad_data
+            SET				
+				board_cnt = board_cnt + 1
+            WHERE seq = (#seq#)::integer
+	]]>
+    </update>	 
+	 
+	
+</sqlMap>

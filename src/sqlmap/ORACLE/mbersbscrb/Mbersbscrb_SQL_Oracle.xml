@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mbersbscrbinfo">
+
+    <typeAlias alias="mbersbscrbVO" type="egovframework.zaol.mbersbscrb.service.MbersbscrbVO" />
+    <!-- 아이디 중복체크 -->
+    <select id="mbersbscrbDAO.userIdDplctAjax01" parameterClass="mbersbscrbVO" resultClass="mbersbscrbVO">
+        SELECT user_id 
+        FROM user_info  
+        WHERE user_id  = #user_id# 
+    </select>
+    
+     <!-- 회원 저장  -->
+    <insert id="mbersbscrbDAO.userInfoInsert" parameterClass="mbersbscrbVO" >		
+      <selectKey resultClass="java.lang.String" keyProperty="seq">
+        /* 일렬번호 생성 */
+        SELECT COALESCE(MAX(seq), 0) + 1 AS seq FROM user_info 
+      </selectKey>
+       insert into user_info 
+       (  
+          seq,
+          user_id, 
+          user_pass, 
+          user_name,
+          user_position,
+          user_phone,
+          reg_date 
+          
+	  )values(
+	     (#seq#)::integer,
+	     #user_id#,
+	     #user_pass#,
+	     #user_name#,
+	     #user_position#,
+	     #user_phone#,	     
+	     to_char(now(),'yyyy-mm-dd HH24:mi:ss')
+	  )
+    </insert>
+    
+    <select id="mbersbscrbDAO.selectUserIdList" parameterClass="mbersbscrbVO" resultClass="mbersbscrbVO">
+		SELECT user_id 
+		FROM user_info 
+		WHERE user_name = #user_name#
+		AND user_phone = #user_phone#
+	</select>
+	
+	<!-- 사용자접속 이력정보 등록  -->
+    <insert id="mbersbscrbDAO.selectLoginOutHist" parameterClass="mbersbscrbVO" >
+    <selectKey resultClass="java.lang.String" keyProperty="seq">
+        /* 일렬번호 생성 */
+        SELECT COALESCE(MAX(seq), 0) + 1 AS seq FROM user_log 
+    </selectKey>
+    <![CDATA[
+        INSERT INTO user_log     /* 사용자접속 이력정보 */
+        (
+        	seq
+           ,user_id         
+           ,user_name
+           ,user_position
+           ,reg_date   
+           ,in_out
+                   
+        )VALUES(
+        	#seq#::integer
+           ,#user_id#        
+           ,#user_name#    
+           ,#user_position#
+           ,to_char(now(),'yyyy-mm-dd HH24:mi:ss')      
+           ,#in_out#    
+        )
+    ]]>
+    </insert>
+ 
+</sqlMap>

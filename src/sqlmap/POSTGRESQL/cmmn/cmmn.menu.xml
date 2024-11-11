@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmmn.menu">
+	<select id="menu.selectLeftMenuInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		/* LEFT 메뉴 조회  */
+			WITH RECURSIVE PROGRM(PROGRM_NO, P_PROGRM_NO, PROGRM_NM, PROGRM_URL, PROGRM_ORDR, LEVEL, PATH, CYCLE) AS 
+			(
+				SELECT G.PROGRM_NO, G.P_PROGRM_NO, G.PROGRM_NM, G.PROGRM_URL, G.PROGRM_ORDR, 0, ARRAY[substring(G.PROGRM_NO,7)::int], FALSE, MENU_YN, ADMIN_YN, PROGRM_CLASS, PROGRM_PARAM, POP_YN, POP_FUNC
+				  FROM landsys_adm.TB_PROGRM_MNG G
+				 WHERE (G.P_PROGRM_NO = '' OR G.P_PROGRM_NO IS NULL)
+				   AND G.USE_YN = 'Y'
+				   
+				UNION ALL
+		
+				SELECT G.PROGRM_NO, G.P_PROGRM_NO, G.PROGRM_NM, G.PROGRM_URL, G.PROGRM_ORDR, LEVEL + 1, 
+				CASE 
+	               WHEN level+1 = 2 THEN PATH || G.PROGRM_ORDR::int
+	               ELSE PATH || substring(G.PROGRM_NO, 7)::int
+	           END AS PATH, 
+	           CASE 
+	               WHEN level+1 = 2 THEN G.PROGRM_ORDR::int = ANY(PATH)
+	               ELSE substring(G.PROGRM_NO, 7)::int = ANY(PATH)
+	           END AS CYCLE,
+				G.MENU_YN, G.ADMIN_YN, G.PROGRM_CLASS, G.PROGRM_PARAM, G.POP_YN, G.POP_FUNC
+				  FROM LANDSYS_ADM.TB_PROGRM_MNG G, PROGRM SB
+				 WHERE G.P_PROGRM_NO = SB.PROGRM_NO
+				   AND G.USE_YN = 'Y' 
+				   AND NOT CYCLE
+			)  <!-- LPAD(' ', LEVEL * 5) || PROGRM_NM AS PROGRM_NM --> 
+			 SELECT PROGRM_NO, P_PROGRM_NO, PROGRM_NM, PROGRM_URL, PROGRM_ORDR, LEVEL
+			  , CASE WHEN (SELECT COUNT(*) FROM landsys_adm.TB_PROGRM_MNG WHERE P_PROGRM_NO = PROGRM.PROGRM_NO and MENU_YN = 'Y') > 0 THEN FALSE ELSE TRUE END AS ISLEAF
+			 , ADMIN_YN, PROGRM_CLASS, PROGRM_PARAM, POP_YN, POP_FUNC
+				FROM PROGRM 
+			   WHERE MENU_YN = 'Y'
+			   and path[1] = #lcode#::int
+			   and p_progrm_no != ''
+			   <isNotEmpty prepend="AND" property="USER_ID">
+			       	<![CDATA[			
+				         PROGRM_NO IN ( SELECT PAM.PROGRM_NO 
+									      FROM LANDSYS_ADM.TB_USER_INFO UI,
+									           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+									           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM
+									     WHERE UI.P_AUTH_NO = PA.P_AUTH_NO
+									       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+									       AND LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) = #USER_ID#) 
+			        ]]>			   
+				</isNotEmpty>
+			  order by path
+	</select>
+
+
+    <select id="menu.selectTopMenuInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        <![CDATA[
+            /* TOP 메뉴 조회  */
+			WITH RECURSIVE PROGRM(PROGRM_NO, P_PROGRM_NO, PROGRM_NM, PROGRM_URL, PROGRM_ORDR, LEVEL, PATH, CYCLE) AS 
+			(
+				SELECT G.PROGRM_NO, G.P_PROGRM_NO, G.PROGRM_NM, G.PROGRM_URL, G.PROGRM_ORDR, 0, ARRAY[G.PROGRM_ORDR], FALSE, MENU_YN, ADMIN_YN, PROGRM_CLASS, PROGRM_PARAM, POP_YN, POP_FUNC
+				  FROM LANDSYS_ADM.TB_PROGRM_MNG G
+				 WHERE (G.P_PROGRM_NO = '' OR G.P_PROGRM_NO IS NULL)
+				   AND G.USE_YN = 'Y'
+				   
+				UNION ALL
+		
+				SELECT G.PROGRM_NO, G.P_PROGRM_NO, G.PROGRM_NM, G.PROGRM_URL, G.PROGRM_ORDR, LEVEL + 1, PATH || G.PROGRM_ORDR, G.PROGRM_ORDR = ANY(PATH), G.MENU_YN, G.ADMIN_YN, G.PROGRM_CLASS, G.PROGRM_PARAM, G.POP_YN, G.POP_FUNC
+				  FROM LANDSYS_ADM.TB_PROGRM_MNG G, PROGRM SB
+				 WHERE G.P_PROGRM_NO = SB.PROGRM_NO
+				   AND G.USE_YN = 'Y'
+				   AND NOT CYCLE
+			)
+			  SELECT PROGRM_NO, P_PROGRM_NO, LPAD(' ', LEVEL * 5) || PROGRM_NM AS PROGRM_NM, PROGRM_URL, PROGRM_ORDR, LEVEL, ADMIN_YN, PROGRM_CLASS, PROGRM_PARAM, POP_YN, POP_FUNC
+				FROM PROGRM 
+			   WHERE MENU_YN = 'Y'
+        ]]>			   
+		<isNotEmpty prepend="AND" property="USER_ID">
+       	<![CDATA[			
+			         PROGRM_NO IN ( SELECT PAM.PROGRM_NO 
+								      FROM LANDSYS_ADM.TB_USER_INFO UI,
+								           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+								           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM
+								     WHERE UI.P_AUTH_NO = PA.P_AUTH_NO
+								       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+								       AND LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) = #USER_ID#)
+        ]]>			   
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="API_KEY">
+       	<![CDATA[			
+			         PROGRM_NO IN ( SELECT PAM.PROGRM_NO 
+								      FROM LANDSYS_ADM.TB_API_KEY_MNG KM,
+								      	   LANDSYS_ADM.TB_USER_INFO UI,
+								           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+								           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM
+								     WHERE KM.USER_ID = UI.USER_ID
+								       AND UI.P_AUTH_NO = PA.P_AUTH_NO
+								       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+								       AND KM.CONFM_KEY = #API_KEY#)
+        ]]>			   
+		</isNotEmpty>		
+       	<![CDATA[	
+				AND LEVEL = 0
+			ORDER BY PATH
+    	]]>			
+    </select>
+
+    <select id="menu.selectSubMenuInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        <![CDATA[
+            /* SUB 메뉴 조회 */
+			WITH RECURSIVE PROGRM(PROGRM_NO, P_PROGRM_NO, PROGRM_NM, PROGRM_URL, PROGRM_ORDR, LEVEL, PATH, CYCLE) AS 
+			(
+				SELECT G.PROGRM_NO, G.P_PROGRM_NO, G.PROGRM_NM, G.PROGRM_URL, G.PROGRM_ORDR, 0, ARRAY[G.PROGRM_ORDR], FALSE, MENU_YN, ADMIN_YN, PROGRM_CLASS, PROGRM_PARAM, POP_YN, POP_FUNC
+				  FROM LANDSYS_ADM.TB_PROGRM_MNG G
+				 WHERE (G.P_PROGRM_NO = '' OR G.P_PROGRM_NO IS NULL)
+				   AND G.USE_YN = 'Y'
+				   
+				UNION ALL
+		
+				SELECT G.PROGRM_NO, G.P_PROGRM_NO, G.PROGRM_NM, G.PROGRM_URL, G.PROGRM_ORDR, LEVEL + 1, PATH || G.PROGRM_ORDR, G.PROGRM_ORDR = ANY(PATH), G.MENU_YN, G.ADMIN_YN, G.PROGRM_CLASS, G.PROGRM_PARAM, G.POP_YN, G.POP_FUNC
+				  FROM LANDSYS_ADM.TB_PROGRM_MNG G, PROGRM SB
+				 WHERE G.P_PROGRM_NO = SB.PROGRM_NO
+				   AND G.USE_YN = 'Y'
+				   AND NOT CYCLE
+			)
+			  SELECT PROGRM_NO, P_PROGRM_NO, LPAD(' ', LEVEL * 5) || PROGRM_NM AS PROGRM_NM, PROGRM_URL, PROGRM_ORDR, LEVEL, ADMIN_YN, PROGRM_CLASS, PROGRM_PARAM, POP_YN, POP_FUNC
+				FROM PROGRM 
+			   WHERE MENU_YN = 'Y'
+        ]]>			   
+		<isNotEmpty prepend="AND" property="USER_ID">
+       	<![CDATA[			
+			         PROGRM_NO IN ( SELECT PAM.PROGRM_NO 
+								      FROM LANDSYS_ADM.TB_USER_INFO UI,
+								           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+								           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM
+								     WHERE UI.P_AUTH_NO = PA.P_AUTH_NO
+								       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+								       AND LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) = #USER_ID#)
+        ]]>			   
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="API_KEY">
+       	<![CDATA[			
+			         PROGRM_NO IN ( SELECT PAM.PROGRM_NO 
+								      FROM LANDSYS_ADM.TB_API_KEY_MNG KM,
+								      	   LANDSYS_ADM.TB_USER_INFO UI,
+								           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+								           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM
+								     WHERE KM.USER_ID = UI.USER_ID
+								       AND UI.P_AUTH_NO = PA.P_AUTH_NO
+								       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+								       AND KM.CONFM_KEY = #API_KEY#)
+        ]]>			   
+		</isNotEmpty>		
+       	<![CDATA[
+				AND LEVEL > 0
+			ORDER BY PATH
+        ]]>
+    </select>
+
+	<select id="menu.selectFirstMoveMenuInfo" parameterClass="java.util.HashMap" resultClass="String">
+        <![CDATA[
+            /* 첫번째 이동 메뉴 조회 */
+            SELECT PROGRM_URL
+              FROM (
+				    	WITH RECURSIVE PROGRM(PROGRM_NO, P_PROGRM_NO, PROGRM_NM, PROGRM_URL, PROGRM_ORDR, LEVEL, PATH, CYCLE) AS 
+						(
+							SELECT G.PROGRM_NO, G.P_PROGRM_NO, G.PROGRM_NM, G.PROGRM_URL, G.PROGRM_ORDR, 0, ARRAY[G.PROGRM_ORDR], FALSE, MENU_YN, ADMIN_YN, PROGRM_CLASS, PROGRM_PARAM, POP_YN, POP_FUNC
+							  FROM LANDSYS_ADM.TB_PROGRM_MNG G
+							 WHERE (G.P_PROGRM_NO = '' OR G.P_PROGRM_NO IS NULL)
+							   AND G.USE_YN = 'Y'
+							   
+							UNION ALL
+					
+							SELECT G.PROGRM_NO, G.P_PROGRM_NO, G.PROGRM_NM, G.PROGRM_URL, G.PROGRM_ORDR, LEVEL + 1, PATH || G.PROGRM_ORDR, G.PROGRM_ORDR = ANY(PATH), G.MENU_YN, G.ADMIN_YN, G.PROGRM_CLASS, G.PROGRM_PARAM, G.POP_YN, G.POP_FUNC
+							  FROM LANDSYS_ADM.TB_PROGRM_MNG G, PROGRM SB
+							 WHERE G.P_PROGRM_NO = SB.PROGRM_NO
+							   AND G.USE_YN = 'Y'
+							   AND NOT CYCLE
+						)
+						  SELECT ROW_NUMBER() OVER(ORDER BY PATH) AS RNO, PROGRM_URL
+							FROM PROGRM 
+						   WHERE MENU_YN = 'Y'
+        ]]>
+			     			 AND POP_YN  <![CDATA[<>]]> 'Y'
+		<isNotEmpty prepend="AND" property="USER_ID">
+       	<![CDATA[			
+						         PROGRM_NO IN ( SELECT PAM.PROGRM_NO 
+											      FROM LANDSYS_ADM.TB_USER_INFO UI,
+											           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+											           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM
+											     WHERE UI.P_AUTH_NO = PA.P_AUTH_NO
+											       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+											       AND LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) = #USER_ID#)
+        ]]>			   
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="API_KEY">
+       	<![CDATA[			
+						         PROGRM_NO IN ( SELECT PAM.PROGRM_NO 
+											      FROM LANDSYS_ADM.TB_API_KEY_MNG KM,
+											      	   LANDSYS_ADM.TB_USER_INFO UI,
+											           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+											           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM
+											     WHERE KM.USER_ID = UI.USER_ID
+											       AND UI.P_AUTH_NO = PA.P_AUTH_NO
+											       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+											       AND KM.CONFM_KEY = #API_KEY#)
+        ]]>			   
+		</isNotEmpty>
+				   ) A
+		     WHERE RNO = 1  
+	</select>
+
+	<select id="menu.checkIsAuthMenu" parameterClass="java.util.HashMap" resultClass="String">
+ 		<isNotEmpty prepend="" property="USER_ID">
+       	<![CDATA[			
+      		SELECT CASE WHEN COUNT(PAM.PROGRM_NO) > 0 THEN 'Y' ELSE 'N' END AS CHECK_MENU
+		      FROM LANDSYS_ADM.TB_USER_INFO UI,
+		           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+		           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM,
+		           LANDSYS_ADM.TB_PROGRM_MNG PM
+		     WHERE UI.P_AUTH_NO = PA.P_AUTH_NO
+		       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+		       AND PAM.PROGRM_NO = PM.PROGRM_NO
+		       AND LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) = #USER_ID#
+		       AND PM.PROGRM_URL LIKE '%' || #PROGRM_URL# || '%'
+        ]]>			   
+		</isNotEmpty>
+		<isNotEmpty prepend="" property="API_KEY">
+       	<![CDATA[			
+			SELECT CASE WHEN COUNT(PAM.PROGRM_NO) > 0 THEN 'Y' ELSE 'N' END AS CHECK_MENU  
+		      FROM LANDSYS_ADM.TB_API_KEY_MNG KM,
+		      	   LANDSYS_ADM.TB_USER_INFO UI,
+		           LANDSYS_ADM.TB_PROGRM_AUTH_MNG PA,
+		           LANDSYS_ADM.TB_PROGRM_AUTH_MAPNG PAM,
+		           LANDSYS_ADM.TB_PROGRM_MNG PM
+		     WHERE KM.USER_ID = UI.USER_ID
+		       AND UI.P_AUTH_NO = PA.P_AUTH_NO
+		       AND PA.P_AUTH_NO = PAM.P_AUTH_NO
+		       AND PAM.PROGRM_NO = PM.PROGRM_NO
+		       AND KM.CONFM_KEY = #API_KEY#
+		       AND PM.PROGRM_URL LIKE '%' || #PROGRM_URL# || '%'
+        ]]>			   
+		</isNotEmpty>
+    </select>
+    
+    <select id="menu.selectPortalMenuNm" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+       	<![CDATA[	    
+			SELECT A.PROGRM_NM 
+	          FROM LANDSYS_ADM.TB_PROGRM_MNG A
+	         WHERE A.PROGRM_URL LIKE '%' || #PROGRM_URL# || '%'
+        ]]>			   
+    </select>
+
+    <select id="menu.selectAdminMenuNm" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+       	<![CDATA[	    
+			SELECT B.PROGRM_NM AS P_PROGRM_NM, A.PROGRM_NM 
+	          FROM LANDSYS_ADM.TB_PROGRM_MNG A, 
+	           	   LANDSYS_ADM.TB_PROGRM_MNG B
+	         WHERE A.P_PROGRM_NO = B.PROGRM_NO
+		       AND A.PROGRM_URL LIKE '%' || #PROGRM_URL# || '%'	         
+        ]]>			   
+    </select>
+        
+</sqlMap>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sh</title>
+
+    <link rel="stylesheet" type="text/css" href="css/common/map/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/common/map/common.css" />
+</head>
+
+<body>
+
+<header>
+    <img class="logo" src="../resources/img/map/logo.svg" alt="SH서울주택도시공사 로고" />
+    <nav>
+        <ul>
+            <li class="hover" onclick="">
+                <img src="../resources/img/map/icNav01.svg" alt="지도 아이콘" />
+                <span>지도</span>
+            </li>
+            <li>
+                <img src="../resources/img/map/icNav02.svg" alt="게시판 아이콘" />
+                <span>
+                    게시판
+                </span>
+            </li>
+            <li>
+                <img src="../resources/img/map/icNav03.svg" alt="관리자 아이콘" />
+                <span>
+                    관리자
+                </span>
+            </li>
+            <li>
+                <img src="../resources/img/map/icNav04.svg" alt="MYPAGE 아이콘" />
+                <span>
+                    MYPAGE
+                </span>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div class="mainWrap">
+    <aside class="left">
+        <ul class="leftMenu">
+            <li>
+                <span>업무연계</span>
+            </li>
+            <li class="hover">
+                <span>속성검색</span>
+                <ul class="subMenu">
+                    <li class="hover">택지지구</li>
+                    <li>임대주택</li>
+                    <li>자산대장</li>
+                </ul>
+            </li>
+            <li>
+                <span>토지/건물<br/>검색</span>
+            </li>
+            <li class="hover">
+                <span>대상지<br/>탐색</span>
+            </li>
+            <li>
+                <span>입지분석</span>
+            </li>
+            <li>
+                <span>패턴분석</span>
+            </li>
+            <li>
+                <span>공간분석</span>
+            </li>
+            <li>
+                <span>개발행위<br/>제한</span>
+            </li>
+            <li>
+                <span>MyData</span>
+            </li>
+        </ul>
+    </aside>
+
+    <main>
+        <div class="mapArea">
+            <img src="../resources/img/map/testMap.png" style="object-fit: cover;">
+        </div>
+
+        <div class="addrSearch">
+            <form class="searchTxtInput">
+                <label>
+                    <input type="text" title="주소검색창" placeholder="주소 검색" maxlength="14" />
+                    <button type="submit">
+                        <img src="../resources/img/map/IcSearch.svg" alt="검색"/>
+                    </button>
+                </label>
+            </form>
+
+            <div class="mapModal">
+                <div class="head disFlex">
+                    <h2>"용산구" 검색결과</h2>
+                    <img class="closeBtn" src="../resources/img/map/icClose24.svg" alt="닫기" />
+                </div>
+                <div class="cont">
+                    <div class="tableTop disFlex">
+                        <h4 class="dataNum">총 <span>178,934</span>건</h4>
+                        <select class="selectSM">
+                            <option>전체</option>
+                            <option>전체2</option>
+                            <option>전체3</option>
+                        </select>
+                    </div>
+
+                    <div class="ListWrap">
+                        <div class="tit disFlex">
+                            <h3>도로명</h3>
+                            <h4 class="dataNum"><span>178,934</span>건</h4>
+                        </div>
+                        <ul class="listBox">
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li class="hover" onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        </ul>
+                    </div>
+
+                    <div class="ListWrap">
+                        <div class="tit disFlex">
+                            <h3>지번</h3>
+                            <h4 class="dataNum"><span>3,934</span>건</h4>
+                        </div>
+                        <ul class="listBox">
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        </ul>
+                    </div>
+
+                    <div class="ListWrap">
+                        <div class="tit disFlex">
+                            <h3>지오 코딩</h3>
+                            <h4 class="dataNum"><span>3,934</span>건</h4>
+                        </div>
+                        <ul class="listBox">
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                            <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ///addrSearch -->
+
+
+        <div class="mapTopBtn">
+            <button type="button" class="primaryLine">
+                <img src="../resources/img/map/icDataBtn.svg" alt="데이터추출 아이콘">
+                데이터 추출
+            </button>
+
+            <div class="BtnWrapSM">
+                <button type="button" class="hover">일반</button>
+                <button type="button">위성</button>
+                <button type="button">흑백지도</button>
+                <button type="button">지적도</button>
+                <button type="button">로드뷰</button>
+            </div>
+
+            <button type="button" class="primaryBG">
+                <img src="../resources/img/map/btnLayer24.svg" alt="레이어보기" />
+            </button>
+
+            <div class="mapModal">
+                <div class="tabWrapMD">
+                    <div class="hover">검색어로 찾기</div>
+                    <div>분류별 찾기</div>
+                    <span>
+                        <img src="../resources/img/map/icStar.svg" alt="저장 아이콘" />
+                        저장
+                    </span>
+                </div>
+
+                <div class="contGrayBGInner">
+                    <form class="searchTxtInput">
+                        <label>
+                            <input type="text" title="레이어 검색창" placeholder="레이어명 검색" maxlength="14" />
+                            <button type="submit">
+                                <img src="../resources/img/map/IcSearch.svg" alt="검색"/>
+                            </button>
+                        </label>
+                    </form>
+
+                    <div class="tableTop disFlex">
+                        <h4 class="dataNum"><span class="tit">목록</span>(전체 2건)</h4>
+                        <button type="button" class="primaryBG">
+                            <img src="../resources/img/map/btnLayer24.svg" alt="레이어보기" />
+                            다운로드
+                        </button>
+                    </div>
+    
+                    <ul class="hideList">
+                        <li class="tit">
+                            생태현황도
+                            <img class="arrowBtn" src="../resources/img/map/btnSelectArrow.svg" alt="접기">
+                            <!-- <img class="arrowBtn off" src="../resources/img/map/btnSelectArrow.svg" alt="열기" /> -->
+                        </li>
+                        <ul class="listWrap">
+                            <li>
+                                · 개별비오톱
+                                <button type="button">
+                                    <img src="../resources/img/map/icInfo16.svg" alt="정보보기" />
+                                </button>
+                                <button type="button" class="downloadBtn">
+                                    <img src="../resources/img/map/icDownload16.svg" alt="다운로드" />
+                                </button>
+                                <form class="swichBtn">
+                                    <label>
+                                        <input role="switch" type="checkbox" />
+                                    </label>
+                                </form>
+                            </li>
+                            <li>
+                                · 개별비오톱
+                                <button type="button">
+                                    <img src="../resources/img/map/icInfo16.svg" alt="정보보기" />
+                                </button>
+                                <button type="button" class="downloadBtn">
+                                    <img src="../resources/img/map/icDownload16.svg" alt="다운로드" />
+                                </button>
+                                <form class="swichBtn">
+                                    <label>
+                                        <input role="switch" type="checkbox" />
+                                    </label>
+                                </form>
+                            </li>
+                            <li>
+                                · 개별비오톱
+                                <button type="button">
+                                    <img src="../resources/img/map/icInfo16.svg" alt="정보보기" />
+                                </button>
+                                <button type="button" class="downloadBtn">
+                                    <img src="../resources/img/map/icDownload16.svg" alt="다운로드" />
+                                </button>
+                                <form class="swichBtn">
+                                    <label>
+                                        <input role="switch" type="checkbox" />
+                                    </label>
+                                </form>
+                            </li>
+                        </ul>
+                    </ul>
+                </div>
+            </div>
+            <!-- //mapModal -->
+        </div>
+        <!-- //mapTopBtn -->
+
+
+
+        <div class="mapBTBtn">
+            <div>
+                <button type="button"><img src="../resources/img/map/btnMapBT01.svg" alt="확대" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT02.svg" alt="축소" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT03.svg" alt="새로고침" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT04.svg" alt="정보보기" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT05.svg" alt="크게 보기" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT06.svg" alt="" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT07.svg" alt="" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT08.svg" alt="" /></button>
+            </div>
+            <div class="txtNotice">
+                <p>본 지도서비스는 법적 효력이 없으며, 참고 자료로만 활용 가능합니다.</p>
+                <p>도시연구원/황종아/Tel.02-3410-8504/Copyright ⓒ 2018 서울주택공사 All Rights Reserved.</p>
+            </div>
+
+        </div>
+        <!-- //mapBTBtn -->
+    </main>
+
+    <aside class="right">
+        <div class="rightHideBtn">
+            <img src="../resources/img/map/btnSelectArrow.svg" alt="접기" />
+            <!-- <img class="off" src="../resources/img/map/btnSelectArrow.svg" alt="열기" /> -->
+        </div>
+        <div class="mapModal">
+            <div class="tabWrapMD">
+                <div class="hover">검색어로 찾기</div>
+                <div>분류별 찾기</div>
+                <span>
+                    <img src="../resources/img/map/icStar.svg" alt="저장 아이콘" />
+                    저장
+                </span>
+            </div>
+
+            <div class="contGrayBGInner">
+                <div class="ListWrap">
+                    <h3 class="tit">주소 검색</h3>
+                </div>
+                <form class="searchTxtInput">
+                    <label>
+                        <input type="text" title="레이어 검색창" placeholder="주소 검색" maxlength="14" />
+                        <button type="submit">
+                            <img src="../resources/img/map/IcSearch.svg" alt="검색"/>
+                        </button>
+                    </label>
+                </form>
+                <div class="ListWrap">
+                    <div class="tit disFlex">
+                        <h3>검색 결과</h3>
+                        <h4 class="dataNum"><span>109</span>건</h4>
+                    </div>
+                    <ul class="listBox">
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li class="hover" onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                        <li onclick="">서울특별시 <span class="searchText">용산구</span> 용산동4가 19-4</li>
+                    </ul>
+                </div>
+                <p class="info">
+                    ※ 신규개발가용지를 선택한 경우, 가용지 안에 포함된 지적도 목록이 출력됩니다.
+                </p>
+
+                
+                <div class="ListWrap">
+                    <h3 class="tit">건물</h3>
+                    <table class="TablethGray">
+                        <caption>건물 상세 정보</caption>
+                        <colgroup>
+                            <col width="30%">
+                            <col width="20%">
+                            <col width="30%">
+                            <col width="20%">
+                        </colgroup>
+                        <thead class="thead-hidden">
+                        </thead>
+                        <tobdy>
+                            <tr>
+                                <th scope="col">건축면적(㎡)</th>
+                                <td>448.15 </td>
+                                <th scope="col">건폐율</th>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">건축면적(㎡)</th>
+                                <td>448.15 </td>
+                                <th scope="col">건폐율</th>
+                                <td>0</td>
+                            </tr>
+                        </tobdy>
+                    </table>
+                </div>
+
+                <div class="ListWrap">
+                    <h3 class="tit">토지</h3>
+                    <table class="TablethGray">
+                        <tr>
+                        </tr>
+                    </table>
+                    <table class="TablethGray">
+                        <caption>테이블에 대한 설명</caption>
+                        <colgroup>
+                            <col width="100%">
+                        </colgroup>
+                        <thead class="thead-hidden">
+                        </thead>
+                        <tobdy>
+                            <tr>
+                                <td>해당 지역에 데이터가 없습니다.</td>
+                            </tr>
+                        </tobdy>
+                    </table>
+                    <div class="disFlex buttonWrap">
+                        <button type="button" class="gray100Line">
+                            <img src="../resources/img/map/icExcel.svg" alt="엑셀 다운로드 아이콘">
+                            다운로드
+                        </button>
+                        <button type="button" class="gray100Line">
+                            <img src="../resources/img/map/icExcelAll.svg" alt="엑셀 일괄 다운로드 아이콘">
+                            일괄 다운로드
+                        </button>
+                    </div>
+                    <button type="button" class="gray100Line btn100">
+                        토지이용계획(확인원) 확인하기
+                    </button>
+                    
+                </div>
+            </div>
+            <!-- /// contGrayBGInner -->
+        </div>
+        <!-- /// mapModal -->
+    </aside>
+</div>
+
+
+
+    
+</body>
+</html>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+   
+   <bean id="egov.propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+      <property name="locations">
+          <list>
+              <!-- <value>classpath:/egovProps/globals-${spring.profiles.active}.properties</value> -->
+              <value>classpath:/egovProps/globals-local.properties</value>
+          </list>
+      </property>
+  </bean> 
+  
+   <!-- PostgreSQL JDBC setting -->
+   <bean id="dataSourcePOSTGRESQL" class="org.springframework.jdbc.datasource.SimpleDriverDataSource" destroy-method="close" >
+      <!-- local postgres 정보 -->
+      <!-- <property name="driverClass" value="${g.postgres.DriverClassName}" />
+      <property name="url" value="${g.postgres.Url}" />
+      <property name="username" value="${g.postgres.UserName}" />
+      <property name="password" value="${g.postgres.Password}" /> -->
+      <!-- <property name="driverClass" value="org.postgresql.Driver" /> -->
+      
+      <!-- 일원화 DB 정보 -->
+      <!-- log4j 
+      <property name="driverClass" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"/> 
+      <property name="url" value="jdbc:log4jdbc:postgresql://dev.syesd.co.kr:5466/shgis" /> -->
+      <property name="driverClass" value="org.postgresql.Driver" />
+      <property name="url" value="jdbc:postgresql://dev.syesd.co.kr:5466/shgis" />
+      <property name="username" value="shgis" />
+      <property name="password" value="shgis" /> 
+      
+      <!-- 운영서버 DB 정보 -->
+      <!--<property name="url" value="jdbc:postgresql://localhost:15432/shgis" /> 
+      <property name="username" value="shgis" />
+      <property name="password" value="shgis" /> -->
+   </bean>
+    <!-- Oracle JDBC setting -->
+   <bean id="dataSourceORACLE" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+      <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+      <!-- oracle.jdbc.OracleDriver -->
+<!-- 개발  oracle user 정보 -->
+
+<!--       <property name="url" value="jdbc:oracle:thin:@218.147.90.103:22120:vhbs" />
+      <property name="username" value="guser"/>
+      <property name="password" value="guser!@"/>
+ -->      
+      
+      <!--  08.08 sh 디비 이관 작업6
+      <property name="url" value="jdbc:oracle:thin:@192.168.110.82:SHEDB" />
+      <property name="username" value="SHE-IF-EH"/>
+      <property name="password" value="ifeh123!"/>
+       -->
+      
+
+<!--실서버  oracle user 정보 -->
+<!--
+      <property name="url" value="jdbc:oracle:thin:@db.i-sh.co.kr:1522/smdcdb" />
+      <property name="username" value="lsuser"/>
+      <property name="password" value="lsuser"/>
+-->
+
+        <!-- <property name="url" value="jdbc:oracle:thin:@//localhost:1522/orcl" /> -->
+      <property name="url" value="jdbc:oracle:thin:@localhost:1522/orcl" />
+      <property name="username" value="TEST"/>
+      <property name="password" value="1234"/>
+
+
+
+   </bean>
+
+</beans>

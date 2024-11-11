@@ -1,0 +1,144 @@
+
+/* reset */
+*{margin:0; padding:0; box-sizing: border-box;}
+html{font-size: 10px;}
+body,input,select,textarea,a,button,h1,h2,h3,h4,h5,h6 { font-size:1.6rem; color: #333; text-decoration: none; }
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, button {
+	margin: 0;
+	padding: 0;
+	border: 0;
+    font-family: 'SUIT', "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+	vertical-align: baseline;
+    font-weight: 400;
+}
+
+
+a { text-decoration: none; }
+button {cursor: pointer; background-color: unset; font-size:1.3rem;}
+input[type=button]{cursor: pointer;}
+input[type=checkbox]{margin:0;}
+input[type=text], input[type=num]{  
+    padding:0 0.8rem; 
+    min-width: 12rem;
+    height: 4rem;
+    border: 1px solid #E5E5E5;
+    border-radius: 0.4rem;
+    font-weight: 400;
+    font-size: 1.5rem;
+    color: #222;
+    &::placeholder{
+        color:#B3B3B3;
+		font-size:1.4rem;
+    }
+}
+input[type=file]{
+	font-size: 1.4rem;
+}
+input[type='radio'], input[type=checkbox] {
+    accent-color: #232323;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+
+select {  
+    background: url('../../../img/map/btnSelectArrow.svg') no-repeat 90% 50%; 
+    -webkit-appearance: none; 
+    /* 네이티브 외형 감추기 */ 
+    -moz-appearance: none; 
+    appearance: none;
+    padding:0 0.8rem; 
+    min-width: 12rem;
+    height: 4rem;
+    border: 1px solid #E5E5E5;
+    border-radius: 0.4rem;
+    font-weight: 400;
+    font-size: 1.4rem;
+    color: #777;
+    background-color: #fff;
+}
+
+
+/* 폰트 */
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 100;
+	src: local('Thin'), url('../../../font/SUIT-Thin.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 200;
+	src: local('ExtraLight'), url('../../../font/SUIT-ExtraLight.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 300;
+	src: local('Light'), url('../../../font/SUIT-Light.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 400;
+	src: local('Regular'), url('../../../font/SUIT-Regular.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 500;
+	src: local('Medium'), url('../../../font/SUIT-Medium.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 600;
+	src: local('SemiBold'), url('../../../font/SUIT-SemiBold.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 700;
+	src: local('Bold'), url('../../../font/SUIT-Bold.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 800;
+	src: local('ExtraBold'), url('../../../font/SUIT-ExtraBold.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SUIT';
+	font-weight: 900;
+	src: local('Heavy'), url('../../../font/suit/SUIT-Heavy.woff2') format('woff2');
+}
+

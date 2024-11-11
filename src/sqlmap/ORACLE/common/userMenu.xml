@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="UserMenu">
+    <typeAlias  alias="userMenuVO" type="egovframework.zaol.ad.cms.service.UserMenuVO"/>
+ 
+    <!-- GNB메뉴 조회 -->
+    <select id="userMenuDAO.getTopMenuInfo" resultClass="userMenuVO">
+        <![CDATA[
+            /* GNB메뉴 조회  */
+            SELECT MENU_ID
+                  ,UPPER_MENU_ID
+                  ,MENU_NM
+                  ,MENU_URL
+                  ,MENU_TRGT
+                  ,LEVEL MENU_LEVEL
+                  ,USE_AT
+            FROM TN_MENU_MANAGE
+            WHERE MENU_EPRSS = 'Y'
+              --AND USE_AT = 'Y'
+                START WITH UPPER_MENU_ID = '0'
+                CONNECT BY PRIOR MENU_ID = UPPER_MENU_ID
+                    AND LEVEL < 3
+            ORDER SIBLINGS BY MENU_ORDR
+        ]]>
+    </select>
+
+    <!-- LNB메뉴 조회 -->
+    <select id="userMenuDAO.getLeftMenuInfo" parameterClass="String" resultClass="userMenuVO">
+        <![CDATA[
+            /* LNB메뉴 조회 */
+            SELECT MENU_ID        /* 메뉴ID */
+                  ,UPPER_MENU_ID  /* 상위 메뉴ID */
+                  ,MENU_NM        /* 메뉴명 */
+                  ,MENU_URL       /* 메뉴URL */
+                  ,MENU_TRGT      /* 메뉴표시 TARGET */
+                  ,USE_AT
+                  ,MENU_EPRSS     /* 메뉴 표출여부 2012-01-12 양중목 추가 */
+            FROM TN_MENU_MANAGE /* 메뉴관리 */
+            WHERE UPPER_MENU_ID = (
+                                  SELECT UPPER_MENU_ID /* 상위 메뉴ID */
+                                  FROM TN_MENU_MANAGE /* 메뉴관리 */
+                                  WHERE USE_AT     = 'Y'
+                                    AND MENU_ID    = #snb_id# /* 메뉴ID */
+                                  )
+            --AND USE_AT        = 'Y'
+            ORDER BY MENU_ORDR /* 메뉴 순서 */
+        ]]>
+    </select>
+
+    <!-- 메뉴 내비게이션 조회 -->
+    <select id="userMenuDAO.getNavigationInfo" parameterClass="String" resultClass="userMenuVO">
+        <![CDATA[
+            /* 메뉴 내비게이션 조회 */
+            SELECT MENU_ID
+                 , UPPER_MENU_ID
+                 , MENU_NM
+                 , MENU_URL
+                 , MENU_TRGT
+                  ,USE_AT
+            FROM TN_MENU_MANAGE
+            WHERE MENU_ID IN (
+                SELECT CONNECT_BY_ROOT MENU_ID
+                FROM TN_MENU_MANAGE
+                WHERE MENU_ID = #menu_id# CONNECT BY PRIOR MENU_ID = UPPER_MENU_ID
+            )
+                --AND USE_AT = 'Y'
+            ORDER BY UPPER_MENU_ID, MENU_ORDR
+        ]]>
+    </select>
+
+    <!-- 메뉴 ID 조회 -->
+    <select id="userMenuDAO.getmenu_idfromURI" parameterClass="String" resultClass="String">
+        <![CDATA[
+            /* 메뉴 ID 조회 */
+            SELECT MENU_ID
+            FROM
+                (
+                SELECT MENU_ID
+                FROM TN_MENU_MANAGE
+                WHERE LOWER(MENU_URL) = LOWER(#request_uri#)
+                --AND USE_AT = 'Y'
+                ORDER BY UPPER_MENU_ID DESC
+                )
+            WHERE ROWNUM = 1
+        ]]>
+    </select>
+     <!-- 로그인 액션 -->
+    <select id="userMenuDAO.getmenu_idLoginAuth" parameterClass="String" resultClass="String">
+    <![CDATA[
+       
+        select user_auth
+  		from sh_user_info
+		where user_id = #sh_user_id#
+        ]]>
+    </select>
+</sqlMap>

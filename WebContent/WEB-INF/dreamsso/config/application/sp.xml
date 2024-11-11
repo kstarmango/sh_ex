@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <server>
+        <name>SH_RESOURCE</name>
+        <code>edfc3fcf43153329f152f18be22b6c11fb6bbfe30b5ba6a03c9a137c6c5ae4e3700ae4d64f0695b57e27351916e5d84a</code>
+        <block>12bf897b22f7c054d7dbe141c9c8b95d</block>
+    </server>
+    <sso>
+        <homepath>b1ec39e22e389a4d647187bb13b706e7</homepath>
+    </sso>
+    <cert>
+        <keycode>0e32d8f77162c61369db3b14906a2965</keycode>
+        <signcode>0e32d8f77162c61369db3b14906a2965</signcode>
+    </cert>
+</configuration>

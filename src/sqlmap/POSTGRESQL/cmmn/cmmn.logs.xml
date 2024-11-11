@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmmn.logs">
+
+    <insert id="logs.insertUserProgrmLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGS_PROGRM
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 메뉴 이용 기록	 */
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGS_PROGRM
+	        (
+				LOG_NO,
+				USER_ID,
+				progrm_no,
+				PARAMTR,
+				INS_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				(SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#),
+				(SELECT coalesce(A.progrm_no, '') AS progrm_no
+				 FROM LANDSYS_ADM.TB_PROGRM_MNG A 
+				 RIGHT OUTER JOIN (SELECT '') AS m_dual
+         			ON A.PROGRM_URL LIKE '%' || #PROGRM_URL# || '%'
+				),
+				'',
+				CURRENT_TIMESTAMP
+			)
+	    ]]>
+	    <!-- SELECT PROGRM_NO  FROM LANDSYS_ADM.TB_PROGRM_MNG WHERE PROGRM_URL LIKE '%' || #PROGRM_URL# || '%'), -->
+    </insert>
+
+    <insert id="logs.insertUserLayerLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGS_LAYER
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 레이어 이용 기록 */
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGS_LAYER
+			(
+				LOG_NO,
+				USER_ID,
+				layer_no,
+				INS_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				(SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#),
+				#LAYER_NO#,
+				CURRENT_TIMESTAMP
+			)
+	     ]]>
+    </insert>
+
+    <insert id="logs.insertUserDataLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGS_DATA
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 데이터 이용 기록 */
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGS_DATA
+			(
+				LOG_NO,
+				USER_ID,
+				layer_no,
+				INS_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				(SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#),
+				#LAYER_NO#,
+				CURRENT_TIMESTAMP
+			)
+	     ]]>
+    </insert>
+
+    <insert id="logs.insertUserDownloadLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGS_DWLD
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 데이터 다운로드 기록 */
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGS_DWLD
+			(
+				LOG_NO,
+				USER_ID,
+				layer_no,
+				INS_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				(SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#),
+				#LAYER_NO#,
+				CURRENT_TIMESTAMP
+			)
+	     ]]>
+    </insert>
+
+    <insert id="logs.insertUserCommentLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGS_COMMENT
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 코멘트 이용 기록 */
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGS_COMMENT
+	        (
+				LOG_NO,
+				USER_ID,
+				TRGET_TABLE_NM,
+				TRGET_COLUMN_NM,
+				MEMO,
+				INS_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				(SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#),
+				#TABLE_NM#,
+				#COLUMN_NM#,
+				#COMMENT#,
+				CURRENT_TIMESTAMP
+			)
+	     ]]>
+    </insert>
+
+    <insert id="logs.insertBackupTableCommentLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGS_COMMENT
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 테이블 코멘트 이용 기록 */
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGS_COMMENT
+	        (
+				LOG_NO,
+				USER_ID,
+				TRGET_TABLE_NM,
+				TRGET_COLUMN_NM,
+				MEMO,
+				INS_DT
+			)
+			 SELECT #SEQ#,
+			        (SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#),
+			        COALESCE(UPPER(PG.RELNAME),''),
+			        '',
+					COALESCE(PG_CATALOG.OBJ_DESCRIPTION(PG.OID, 'pg_class'),''),
+					CURRENT_TIMESTAMP
+			   FROM PG_CATALOG.PG_CLASS PG
+			  WHERE UPPER(PG.RELNAME) = UPPER(#TABLE_NM#)
+	     ]]>
+    </insert>
+
+    <insert id="logs.insertBackupColumnCommentLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGS_COMMENT
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 컬럼 코멘트 이용 기록 */
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGS_COMMENT
+	        (
+				LOG_NO,
+				USER_ID,
+				TRGET_TABLE_NM,
+				TRGET_COLUMN_NM,
+				MEMO,
+				INS_DT
+			)
+			 SELECT #SEQ#,
+			        (SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#),
+				    UPPER('ACTVTY_AREA'),
+			        COALESCE(UPPER(PA.ATTNAME),''),
+			        COALESCE(PG_CATALOG.COL_DESCRIPTION(ATTRELID, ATTNUM),''),
+			        CURRENT_TIMESTAMP
+			   FROM PG_CATALOG.PG_ATTRIBUTE PA, PG_STAT_USER_TABLES PS
+			  WHERE PA.ATTRELID = PS.RELID
+			    AND UPPER(PS.RELNAME) = UPPER('ACTVTY_AREA')
+			    AND PA.ATTNUM > 0
+			    AND NOT PA.ATTISDROPPED
+		   ORDER BY PA.ATTNUM
+	     ]]>
+    </insert>
+
+    <insert id="logs.insertUserAuditLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGS_AUDIT
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 감사 이용 기록	*/
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGS_AUDIT
+	        (
+				LOG_NO,
+				USER_ID,
+				AUDIT_CD,
+				TRGET_USER_ID,
+				INS_DT,
+				PROGRM_NO
+			)
+			VALUES
+			(
+				#SEQ#,
+				(SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#),
+				#AUDIT_CD#,
+				(SELECT USER_ID    FROM LANDSYS_ADM.TB_USER_INFO  WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #TRGET_USER_ID#),
+				CURRENT_TIMESTAMP,
+				(SELECT PROGRM_NO  FROM LANDSYS_ADM.TB_PROGRM_MNG WHERE PROGRM_URL LIKE '%' || #PROGRM_URL# || '%')
+			)
+	     ]]>
+    </insert>
+
+    <insert id="logs.insertUserLoginAttemptLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_USER_LOGIN_ATTEMPT
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - 사용자 로그인 시도 기록  */
+			INSERT INTO LANDSYS_ADM.TH_USER_LOGIN_ATTEMPT
+	        (
+				LOG_NO,
+				USER_ID,
+				BRWSR,
+				CONNECT_IP,
+				REASON,
+				INS_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				#USER_ID#,
+				#USER_AGENT#,
+				#USER_IPADDR#,
+				#REASON#,
+				CURRENT_TIMESTAMP
+			)
+	     ]]>
+    </insert>
+
+    <insert id="logs.insertApiKeyLoginAttemptLogs" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_APIKEY_LOGIN_ATTEMPT
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* API LOGS - APIKEY 로그인 시도 기록  */
+			INSERT INTO LANDSYS_ADM.TH_APIKEY_LOGIN_ATTEMPT
+	        (
+				LOG_NO,
+				api_key_no,
+				BRWSR,
+				CONNECT_IP,
+				REASON,
+				INS_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				#API_KEY#,
+				#USER_AGENT#,
+				#USER_IPADDR#,
+				#REASON#,
+				CURRENT_TIMESTAMP
+			)
+	     ]]>
+    </insert>
+
+</sqlMap>

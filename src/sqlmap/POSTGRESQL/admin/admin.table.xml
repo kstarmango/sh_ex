@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="admin.table">
+    
+	<select id="admin.table.selectTableSpaceList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* 테이블 스페이스 목록 조회  */
+		  SELECT UPPER(SCHEMANAME) AS SCHEMANAME, 
+		         COUNT(*) AS CNT 
+		    FROM PG_STAT_USER_TABLES 
+		   WHERE SCHEMANAME <> 'public'
+		     AND SCHEMANAME LIKE 'landsys%' 
+		GROUP BY SCHEMANAME 
+		ORDER BY SCHEMANAME
+	]]>
+	</select>
+	    
+	<select id="admin.table.selectTableCommentList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* 테이블 및 테이블 코멘트 목록 조회  */
+		  SELECT ROW_NUMBER() OVER(ORDER BY UT.SCHEMANAME, UT.RELNAME)         	AS NO,
+		  		 UPPER(UT.SCHEMANAME)                                           AS TABLE_SCHEMA_NM,
+		         UPPER(UT.RELNAME)                                              AS TABLE_NM, 
+			     COALESCE(PG_CATALOG.OBJ_DESCRIPTION(UT.RELID, 'pg_class'),'')  AS TABLE_COMMENT,
+				 COALESCE(GC.F_GEOMETRY_COLUMN,'')                 			    AS GEOM_COLUMN_NM,
+				 COALESCE(GC.SRID, 0)	                                        AS GEOM_SRID,
+				 COALESCE(GC.TYPE, '')                             				AS GEOM_TYPE
+		    FROM PG_STAT_USER_TABLES UT
+		         LEFT OUTER JOIN 
+		         GEOMETRY_COLUMNS GC 
+		         ON UPPER(UT.RELNAME) = UPPER(GC.F_TABLE_NAME) AND UPPER(UT.SCHEMANAME) = UPPER(GC.F_TABLE_SCHEMA)
+		   WHERE UT.SCHEMANAME <> 'public' 
+	]]>
+    <isNotEmpty prepend="AND" property="TABLE_SPACE">
+                 UPPER(UT.SCHEMANAME) = UPPER(#TABLE_SPACE#)
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="TABLE_NM">
+                 UPPER(UT.RELNAME) LIKE '%' || UPPER(#TABLE_NM#) || '%'
+    </isNotEmpty>    
+    <isEqual prepend="AND" property="GIS_YN" compareValue="Y">
+                 GC.F_GEOMETRY_COLUMN IS NOT NULL
+    </isEqual>
+    <isEqual prepend="AND" property="GIS_YN" compareValue="N">
+                 GC.F_GEOMETRY_COLUMN IS NULL
+    </isEqual>    
+	</select>
+	
+	<select id="admin.table.selectColumnCommentList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		/* 컬럼 및 컬럼 코멘트 목록 조회  */
+		  SELECT PA.ATTNUM                                      			 AS COLUMN_SEQ,
+		         COALESCE(UPPER(PA.ATTNAME),'')                              AS COLUMN_NM,		
+		         COALESCE(PG_CATALOG.COL_DESCRIPTION(ATTRELID, ATTNUM),'')   AS COLUMN_COMMENT,
+				 PG_CATALOG.FORMAT_TYPE(ATTTYPID, ATTTYPMOD)    			 AS COLUMN_TYPE
+		    FROM PG_CATALOG.PG_ATTRIBUTE PA, PG_STAT_USER_TABLES PS
+		   WHERE PA.ATTRELID = PS.RELID
+		     AND PS.RELNAME IN ( 
+								 SELECT RELNAME 
+								   FROM PG_STAT_USER_TABLES 
+								  WHERE UPPER(SCHEMANAME) = UPPER(#TABLE_SPACE#)
+									AND UPPER(RELNAME) = UPPER(#TABLE_NM#) 
+								)
+		     AND PA.ATTNUM > 0
+		     AND UPPER(SCHEMANAME) = UPPER(#TABLE_SPACE#)
+		     AND NOT PA.ATTISDROPPED
+		ORDER BY PS.RELNAME, PA.ATTNUM
+	]]>
+	</select>
+	
+	<update id="admin.table.updateTableComment" parameterClass="java.util.HashMap">
+	<![CDATA[
+		/* 테이블 코멘트 변경  */	
+		COMMENT ON TABLE $TABLE_SPACE$.$TABLE_NM$ IS '$COMMENT$'
+	]]>
+	</update>
+	
+	<procedure id="admin.table.updateColumnComment" parameterClass="java.util.HashMap">
+	<![CDATA[
+		/* 컬럼 코멘트 변경  */	
+		COMMENT ON COLUMN $TABLE_SPACE$.$TABLE_NM$.$COLUMN_NM$ IS '$COMMENT$'
+	]]>
+	</procedure>
+	       
+</sqlMap>

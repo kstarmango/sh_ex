@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dash">
+
+    <typeAlias alias="DashVO" type="egovframework.zaol.dash.service.DashVO" />
+    
+    <!-- 시군구 중심 좌표 -->
+    <select id="dashDAO.dashBoard_List" parameterClass="DashVO" resultClass="java.util.HashMap">
+    <![CDATA[
+		SELECT 
+			SIG_KOR_NM as name, sig_cd,
+    		ST_X(ST_CENTROID(GEOM)) AS addr_x, 
+    		ST_Y(ST_CENTROID(GEOM)) AS addr_y
+    	FROM public.tl_scco_sig
+	]]>    			
+    </select>
+    
+	<!-- 통계자료 -->
+    <select id="dashDAO.dashBoard_data1" parameterClass="DashVO" resultClass="java.util.HashMap">
+	/* 1. 자치구별 소유현황 : 전체 토지자료 중 국유지, 시유지, 구유지 그외 나머지는 전부 사유지로 분류하여 4가지 분류에 대한 자치구별 통계분류 (지목은 대지인 것만) */
+	
+	</select>
+	<select id="dashDAO.dashBoard_data2" parameterClass="DashVO" resultClass="java.util.HashMap">
+	/* 2. 국유지 일반재산(캠코)의 대부대상, 매각대상,  매각제한대상, 사용중인재산 4가지 (기존 데이터 분류)하여 통계분류 */
+
+		<!-- SELECT 
+			row_name AS Section,
+		    (CASE WHEN category_1 IS NULL THEN 0 ELSE category_1::integer END) AS category_1,
+			(CASE WHEN category_2 IS NULL THEN 0 ELSE category_2::integer END) AS category_2,
+			(CASE WHEN category_3 IS NULL THEN 0 ELSE category_3::integer END) AS category_3,
+			(CASE WHEN category_4 IS NULL THEN 0 ELSE category_4::integer END) AS category_4
+		FROM crosstab($$$$select left(pnu, 5) AS sig, a12 AS nm, count(*)::text AS cnt from data_guk_land group by sig, a12 order by sig, nm$$$$
+			, 4) AS ct (row_name text, category_1 text, category_2 text, category_3 text, category_4 text); -->
+
+	</select>
+	<select id="dashDAO.dashBoard_data3" parameterClass="DashVO" resultClass="java.util.HashMap">
+	/* 3. 도시재생관련 사업대상지 (도시재생활성화, 주거환경관리, 희망지, 해제지역 4가지 분류)로 자치구별 통계분류 */
+		<!-- SELECT 
+			row_name AS Section,
+		    (CASE WHEN category_1 IS NULL THEN 0 ELSE category_1::integer END) AS category_1,
+			(CASE WHEN category_2 IS NULL THEN 0 ELSE category_2::integer END) AS category_2,
+			(CASE WHEN category_3 IS NULL THEN 0 ELSE category_3::integer END) AS category_3,
+			(CASE WHEN category_4 IS NULL THEN 0 ELSE category_4::integer END) AS category_4
+		FROM crosstab(
+			$$$$SELECT (SELECT sig_cd FROM tl_scco_sig B WHERE A.jache_gu = B.sig_kor_nm)::text AS sig, '도시재생활성화'::text AS nm, count(*)::text AS cnt FROM data_city_activation A GROUP BY sig
+				UNION
+				SELECT (SELECT sig_cd FROM tl_scco_sig B WHERE A.jache_gu = B.sig_kor_nm)::text AS sig, '주거환경관리'::text AS nm, count(*)::text AS cnt FROM data_house_envment A GROUP BY sig
+				UNION
+				SELECT (SELECT sig_cd FROM tl_scco_sig B WHERE A.jache_gu = B.sig_kor_nm)::text AS sig, '희망지'::text AS nm, count(*)::text AS cnt FROM data_house_envment A GROUP BY sig
+				UNION
+				SELECT (SELECT sig_cd FROM tl_scco_sig B WHERE A.jache_gu = B.sig_kor_nm)::text AS sig, '해제지역'::text AS nm, count(*)::text AS cnt FROM data_release_area A GROUP BY sig
+				ORDER BY sig, nm$$$$
+			, 4) AS ct (row_name text, category_1 text, category_2 text, category_3 text, category_4 text); -->
+	</select>
+	<select id="dashDAO.dashBoard_data4" parameterClass="DashVO" resultClass="java.util.HashMap">
+	/* 4. 임대주택단지 - 공급유형 (영구임대, 국민임대~~ 9가지)유형에 따른 통계로 단지수랑 세대수 통계분류 */
+	
+	</select> 
+	 
+	 
+	
+</sqlMap>

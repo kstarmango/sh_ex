@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="gisinfosub">   
+	 
+	<typeAlias alias="GisBasicVO" type="egovframework.zaol.gisinfo.service.GisBasicVO" />
+	<typeAlias alias="GisUserVO" type="egovframework.zaol.gisinfo.service.GisUserVO" />
+	<typeAlias alias="GisBookMarkVO" type="egovframework.zaol.gisinfo.service.GisBookMarkVO" />				
+		
+    <!-- 자산정보 등록  -->
+    <insert id="gisinfoDAO.gis_insert_guk_land" parameterClass="GisBasicVO" >
+     <selectKey resultClass="java.lang.String" keyProperty="gid">
+			SELECT COALESCE(MAX(gid::integer)) + 1 AS gid FROM public.data_guk_land 
+			</selectKey>
+			INSERT INTO public.data_guk_land 
+			(
+			<isNotEmpty  property="a1">a1,</isNotEmpty>
+			<isNotEmpty  property="a2">a2, </isNotEmpty>
+			<isNotEmpty  property="a3">a3, </isNotEmpty>
+			<isNotEmpty  property="a4">a4, </isNotEmpty>
+			<isNotEmpty  property="a5">a5, </isNotEmpty>
+			<isNotEmpty  property="a6">a6,</isNotEmpty>
+			<isNotEmpty  property="a7">a7, </isNotEmpty>
+			<isNotEmpty  property="a8">a8, </isNotEmpty>
+			<isNotEmpty  property="a9">a9, </isNotEmpty>
+			<isNotEmpty  property="a10">a10,</isNotEmpty>
+			<isNotEmpty  property="a11">a11,</isNotEmpty>
+			<isNotEmpty  property="a12">a12,</isNotEmpty>
+			<isNotEmpty  property="a13">a13,</isNotEmpty>
+			<isNotEmpty  property="a14">a14,</isNotEmpty>
+			<isNotEmpty  property="a15">a15,</isNotEmpty>
+			<isNotEmpty  property="a16">a16,</isNotEmpty>
+			<isNotEmpty  property="a17">a17,</isNotEmpty>
+			<isNotEmpty  property="a18">a18,</isNotEmpty>
+			<isNotEmpty  property="a19">a19,</isNotEmpty>
+			<isNotEmpty  property="a20">a20,</isNotEmpty>
+			pnu,
+			gid
+			)VALUES
+			(
+			<isNotEmpty  property="a1">#a1#,</isNotEmpty>
+			<isNotEmpty  property="a2">#a2#, </isNotEmpty>
+			<isNotEmpty  property="a3">#a3#, </isNotEmpty>
+			<isNotEmpty  property="a4">#a4#, </isNotEmpty>
+			<isNotEmpty  property="a5">#a5#, </isNotEmpty>
+			<isNotEmpty  property="a6">#a6#,</isNotEmpty>
+			<isNotEmpty  property="a7">#a7#, </isNotEmpty>
+			<isNotEmpty  property="a8">#a8#, </isNotEmpty>
+			<isNotEmpty  property="a9">#a9#, </isNotEmpty>
+			<isNotEmpty  property="a10">#a10#,</isNotEmpty>
+			<isNotEmpty  property="a11">#a11#,</isNotEmpty>
+			<isNotEmpty  property="a12">#a12#,</isNotEmpty>
+			<isNotEmpty  property="a13">#a13#,</isNotEmpty>
+			<isNotEmpty  property="a14">#a14#,</isNotEmpty>
+			<isNotEmpty  property="a15">#a15#,</isNotEmpty>
+			<isNotEmpty  property="a16">#a16#,</isNotEmpty>
+			<isNotEmpty  property="a17">#a17#,</isNotEmpty>
+			<isNotEmpty  property="a18">#a18#,</isNotEmpty>
+			<isNotEmpty  property="a19">#a19#,</isNotEmpty>
+			<isNotEmpty  property="a20">#a20#,</isNotEmpty>
+			#pnu#,
+			#gid#
+			)
+    </insert>
+    <!-- 자산정보 등록 이력 -->
+    <insert id="gisinfoDAO.gis_insert_guk_land_hist" parameterClass="GisBasicVO">
+			INSERT INTO public.data_guk_land_hist 
+			(
+			<isNotEmpty  property="a1">a1,</isNotEmpty>
+			<isNotEmpty  property="a2">a2, </isNotEmpty>
+			<isNotEmpty  property="a3">a3, </isNotEmpty>
+			<isNotEmpty  property="a4">a4, </isNotEmpty>
+			<isNotEmpty  property="a5">a5, </isNotEmpty>
+			<isNotEmpty  property="a6">a6,</isNotEmpty>
+			<isNotEmpty  property="a7">a7, </isNotEmpty>
+			<isNotEmpty  property="a8">a8, </isNotEmpty>
+			<isNotEmpty  property="a9">a9, </isNotEmpty>
+			<isNotEmpty  property="a10">a10,</isNotEmpty>
+			<isNotEmpty  property="a11">a11,</isNotEmpty>
+			<isNotEmpty  property="a12">a12,</isNotEmpty>
+			<isNotEmpty  property="a13">a13,</isNotEmpty>
+			<isNotEmpty  property="a14">a14,</isNotEmpty>
+			<isNotEmpty  property="a15">a15,</isNotEmpty>
+			<isNotEmpty  property="a16">a16,</isNotEmpty>
+			<isNotEmpty  property="a17">a17,</isNotEmpty>
+			<isNotEmpty  property="a18">a18,</isNotEmpty>
+			<isNotEmpty  property="a19">a19,</isNotEmpty>
+			<isNotEmpty  property="a20">a20,</isNotEmpty>
+			pnu,
+			gid,
+			updtid,
+			updtdt,
+			dmlcn
+			)VALUES
+			(
+			<isNotEmpty  property="a1">#a1#,</isNotEmpty>
+			<isNotEmpty  property="a2">#a2#, </isNotEmpty>
+			<isNotEmpty  property="a3">#a3#, </isNotEmpty>
+			<isNotEmpty  property="a4">#a4#, </isNotEmpty>
+			<isNotEmpty  property="a5">#a5#, </isNotEmpty>
+			<isNotEmpty  property="a6">#a6#,</isNotEmpty>
+			<isNotEmpty  property="a7">#a7#, </isNotEmpty>
+			<isNotEmpty  property="a8">#a8#, </isNotEmpty>
+			<isNotEmpty  property="a9">#a9#, </isNotEmpty>
+			<isNotEmpty  property="a10">#a10#,</isNotEmpty>
+			<isNotEmpty  property="a11">#a11#,</isNotEmpty>
+			<isNotEmpty  property="a12">#a12#,</isNotEmpty>
+			<isNotEmpty  property="a13">#a13#,</isNotEmpty>
+			<isNotEmpty  property="a14">#a14#,</isNotEmpty>
+			<isNotEmpty  property="a15">#a15#,</isNotEmpty>
+			<isNotEmpty  property="a16">#a16#,</isNotEmpty>
+			<isNotEmpty  property="a17">#a17#,</isNotEmpty>
+			<isNotEmpty  property="a18">#a18#,</isNotEmpty>
+			<isNotEmpty  property="a19">#a19#,</isNotEmpty>
+			<isNotEmpty  property="a20">#a20#,</isNotEmpty>
+			#pnu#,
+			#gid#,
+			'admin',
+			now(),
+			#dmlcn#
+			)
+    </insert>
+    <update id="gisinfoDAO.gis_delete_guk_land" parameterClass="GisBasicVO" >
+   	 	<isEqual property="sh_kind" compareValue="data_guk_land">	update data_guk_land set useyn = 'N' where  gid = #gid# </isEqual>
+    </update>
+    <!-- 자산검색 상세정보 - 자산정보  -->
+	<select id="gisinfoDAO.selectShData" parameterClass="GisBasicVO" resultClass="egovframework.zaol.gisinfo.service.GisBasicVO">
+		<isEqual property="sh_kind" compareValue="data_guk_land">	SELECT * FROM data_guk_land WHERE gid = #gid# </isEqual>
+	</select>
+	<select id="gisinfoDAO.selectSHhist" parameterClass="GisBasicVO" resultClass="java.util.HashMap">		
+		<isEqual property="sh_kind" compareValue="data_city_activation">	SELECT * FROM data_city_activation_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_council_land">	SELECT * FROM data_council_land_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_cynlst">	SELECT * FROM data_cynlst_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_declining">	SELECT * FROM data_declining_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_generations">	SELECT * FROM data_generations_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_guk_land">	SELECT * FROM data_guk_land_hist WHERE gid = #gid# </isEqual>		
+		<isEqual property="sh_kind" compareValue="data_hope_land">	SELECT * FROM data_hope_land_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_house_envment">	SELECT * FROM data_house_envment_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_industry">	SELECT * FROM data_industry_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_minuse">	SELECT * FROM data_minuse_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_owned_city">	SELECT * FROM data_owned_city_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_owned_consult">	SELECT * FROM data_owned_consult_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_owned_guyu">	SELECT * FROM data_owned_guyu_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_priority">	SELECT * FROM data_priority_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_public_buld_c">	SELECT * FROM data_public_buld_c_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_public_parking">	SELECT * FROM data_public_parking_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_public_site">	SELECT * FROM data_public_site_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_public_transport">	SELECT * FROM data_public_transport_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_purchase">	SELECT * FROM data_purchase_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_region_land">	SELECT * FROM data_region_land_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_release_area">	SELECT * FROM data_release_area_hist WHERE gid = #gid# </isEqual>
+		<isEqual property="sh_kind" compareValue="data_tmseq_land">	SELECT * FROM data_tmseq_land_hist WHERE gid = #gid# </isEqual>
+	</select>
+</sqlMap>

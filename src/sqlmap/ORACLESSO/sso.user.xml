@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="sso.user">
+
+ <!--    <select id="sso.user.selectUserInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* SSO 사용자 조회  */
+			SELECT USER_ID, USER_HNGLD_NM, DEPT_NM,  EMAIL
+			  FROM ZZUSER.PRT_EMP
+			 WHERE USER_ID = #USER_ID#
+	   	]]>
+    </select> -->
+    
+    
+    <select id="sso.user.selectUserInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* SSO 사용자 조회  */
+			SELECT USER_ID, USER_HNGLD_NM, DEPT_NM,  EMAIL
+			  FROM PRT_EMP
+			 WHERE USER_ID = #USER_ID#
+	   	]]>
+    </select>
+
+</sqlMap>

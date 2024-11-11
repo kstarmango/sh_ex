@@ -1,0 +1,1025 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="admin.layer">
+
+	<select id="admin.layer.selectLayerAuthList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 레이어 권한 조회1 */
+			SELECT L_AUTH_NO,
+				   auth_dc as auth_desc,
+				   BASS_YN,
+				   USE_YN,
+				   LANDSYS_ADM.FN_DECRYPT(INS_USER, #KEY#) AS INS_USER,
+				   LANDSYS_ADM.FN_DECRYPT(UPD_USER, #KEY#) AS UPD_USER,
+				   TO_CHAR(INS_DT, 'YYYY/MM/DD') AS INS_DT,
+				   TO_CHAR(UPD_DT, 'YYYY/MM/DD') AS UPD_DT
+			  FROM LANDSYS_ADM.TB_LAYER_AUTH_MNG
+			 WHERE 1 = 1
+		]]>
+		<isNotEmpty  prepend="AND" property="USE_YN">
+				   USE_YN = #USE_YN#
+		</isNotEmpty>
+		<isNotEmpty  prepend="AND" property="L_AUTH_NO">
+				   L_AUTH_NO = #L_AUTH_NO#
+		</isNotEmpty>
+	</select>
+
+	<select id="admin.layer.selectLayerAuthPagingList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			/* 레이어 권한 조회2 */
+			SELECT *
+			  FROM (
+			    	SELECT ROW_NUMBER() 
+			    	<isEqual prepend="OVER" property="PAGE_ORDER" compareValue="ASC">
+							       (ORDER BY INS_DT ASC) AS RNO,
+					</isEqual>
+					<isEqual prepend="OVER" property="PAGE_ORDER" compareValue="DESC">
+							       (ORDER BY INS_DT DESC) AS RNO,
+					</isEqual>
+					<![CDATA[ 
+			    	       AA.*,
+			    	       (SELECT COUNT(USER_ID) FROM LANDSYS_ADM.TB_USER_INFO WHERE L_AUTH_NO = AA.L_AUTH_NO) AUTH_USERS
+			    	  FROM (
+								SELECT L_AUTH_NO,
+									   auth_dc as auth_desc,
+									   BASS_YN,
+									   USE_YN,
+									   LANDSYS_ADM.FN_DECRYPT(INS_USER, #KEY#) AS INS_USER,
+									   LANDSYS_ADM.FN_DECRYPT(UPD_USER, #KEY#) AS UPD_USER,
+									   TO_CHAR(INS_DT, 'YYYY/MM/DD HH24:MI') AS INS_DT,
+									   TO_CHAR(UPD_DT, 'YYYY/MM/DD HH24:MI') AS UPD_DT
+								  FROM LANDSYS_ADM.TB_LAYER_AUTH_MNG
+								 WHERE 1 = 1
+		]]>
+							<isNotEmpty  prepend="AND" property="USE_YN">
+									   USE_YN = #USE_YN#
+							</isNotEmpty>
+		<![CDATA[
+			    	       ) AA
+		    	   ) AAA
+	    	 WHERE AAA.RNO BETWEEN #FIRST_INDEX# AND #LAST_INDEX#
+		]]>
+	</select>
+
+    <select id="admin.layer.selectLayerAuthPagingListCount" parameterClass="java.util.HashMap"  resultClass="int">
+		<![CDATA[
+			/* 레이어 권한 조회2 갯수 */
+			SELECT COUNT(*)
+			  FROM LANDSYS_ADM.TB_LAYER_AUTH_MNG
+			 WHERE 1 = 1
+		]]>
+		<isNotEmpty  prepend="AND" property="USE_YN">
+				   USE_YN = #USE_YN#
+		</isNotEmpty>
+	</select>
+
+    <update id="admin.layer.updateLayerAuth" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 레이어 권한 수정 */
+			UPDATE LANDSYS_ADM.TB_LAYER_AUTH_MNG
+			   SET
+		]]>
+		<isNotEmpty  prepend="" property="AUTH_DESC">
+				   auth_dc = #AUTH_DESC#,
+		</isNotEmpty>
+		<isNotEmpty  prepend="" property="BASS_YN">
+				   BASS_YN  = #BASS_YN#,
+		</isNotEmpty>
+		<isNotEmpty  prepend="" property="USE_YN">
+				   USE_YN   = #USE_YN#,
+		</isNotEmpty>
+		<![CDATA[
+				   UPD_USER  = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+				   UPD_DT    = CURRENT_TIMESTAMP
+			 WHERE L_AUTH_NO = #L_AUTH_NO#
+		]]>
+	</update>
+
+	<insert id="admin.layer.insertLayerAuth" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COUNT(L_AUTH_NO) + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TB_LAYER_AUTH_MNG
+				   ) A
+		</selectKey>
+
+    	<![CDATA[
+	    	/* 레이어 권한 등록 */
+	    	INSERT INTO LANDSYS_ADM.TB_LAYER_AUTH_MNG
+	    	(
+	    		L_AUTH_NO,
+	    		auth_dc,
+			    BASS_YN,
+			    USE_YN,
+			    INS_USER,
+			    UPD_USER,
+			    INS_DT,
+			    UPD_DT
+	    	)
+	    	VALUES
+	    	(
+	    		#SEQ#,
+			   	#AUTH_DESC#,
+			  	#BASS_YN#,
+				#USE_YN#,
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+	    	)
+		]]>
+	</insert>
+
+	<select id="admin.layer.selectLayerListByAuthNo" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/* 레이어 목록 */
+			WITH RECURSIVE TB_GROUP_INFO(GRP_NO, P_GRP_NO, GRP_ORDER, GRP_NM, GRP_DESC, LEVEL, PATH, CYCLE) AS
+			(
+				SELECT G.GRP_NO,
+					   G.P_GRP_NO,
+				       G.GRP_ORDR,
+					   G.GRP_NM,
+					   G.GRP_DC,
+					   0,
+					   ARRAY[G.GRP_ORDR],
+					   FALSE
+				  FROM LANDSYS_ADM.TB_GROUP_INFO G
+				 WHERE (G.P_GRP_NO = '' OR G.P_GRP_NO IS NULL)
+
+				UNION ALL
+
+				SELECT G.GRP_NO,
+				       G.P_GRP_NO,
+					   G.GRP_ORDR,
+					   G.GRP_NM,
+				       G.GRP_DC,
+				       LEVEL + 1,
+				       ARRAY_APPEND(PATH, G.GRP_ORDR),
+				       G.GRP_ORDR = ANY(PATH)
+				  FROM LANDSYS_ADM.TB_GROUP_INFO G, TB_GROUP_INFO SB
+				 WHERE G.P_GRP_NO = SB.GRP_NO
+				   AND NOT CYCLE
+			)
+				SELECT ROW_NUMBER() OVER(ORDER BY PATH, LM.layer_ordr) AS RNO,
+				       CASE WHEN LEVEL = 0 THEN  GI.GRP_NM
+					        ELSE CASE WHEN LI.LAYER_DP_NM IS NULL THEN LPAD('', 5*6*CAST(LEVEL AS INT), '&nbsp;') || ' > ' || COALESCE(GI.GRP_NM, '')
+					                  ELSE LPAD('', 5*6*CAST(LEVEL AS INT), '&nbsp;') || ' > ' || COALESCE(GI.GRP_NM, '') || ' > ' || COALESCE(LI.LAYER_DP_NM,'')
+					             END
+					   END                           AS FULL_GRP_NM,
+				       CASE WHEN LEVEL = 0 THEN  GI.GRP_NM
+					        ELSE LPAD('', 5*6*CAST(LEVEL AS INT), '&nbsp;') || ' > ' || COALESCE(GI.GRP_NM, '')
+					   END                           AS GRP_NM,
+					   COALESCE(LI.LAYER_DP_NM,'')   AS LAYER_NM,
+				       COALESCE(LM.MAPNG_NO, '')     AS MAPNG_NO,
+					   LM.LAYER_NO    				 AS LAYER_NO,
+					   CASE WHEN LI.TABLE_NM <> '' THEN COALESCE(AM.ATTR_EDIT_YN,'N') ELSE 'N' END AS ATTR_EDIT_YN,
+				       CASE WHEN LI.TABLE_NM <> '' THEN COALESCE(AM.SHP_DN_YN,'N')    ELSE 'N' END AS SHP_DN_YN,
+					   CASE WHEN LI.TABLE_NM <> '' THEN 'Y' ELSE 'N' END EDIT_ENABLE_YN
+				  FROM TB_GROUP_INFO GI
+				       LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_GROUP_LAYER_MAPNG LM ON GI.GRP_NO = LM.GRP_NO
+					   LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_LAYER_INFO LI        ON LM.LAYER_NO = LI.LAYER_NO
+					   LEFT OUTER JOIN
+					   LANDSYS_ADM.TB_LAYER_AUTH_MAPNG AM  ON LM.MAPNG_NO = AM.MAPNG_NO AND AM.L_AUTH_NO = #L_AUTH_NO#
+			  ORDER BY PATH, LM.layer_ordr
+		]]>
+	</select>
+
+    <insert id="admin.layer.insertLayerListByAuthNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 레이어 목록 등록 */
+			INSERT INTO LANDSYS_ADM.TB_LAYER_AUTH_MAPNG
+			(
+				L_AUTH_NO,
+				MAPNG_NO,
+				VIEW_YN,
+				ATTR_EDIT_YN,
+				SHP_DN_YN,
+			    INS_USER,
+			    UPD_USER,
+			    INS_DT,
+			    UPD_DT
+			)
+		]]>
+		<dynamic>
+		<iterate prepend="VALUES" conjunction=", " property="L_AUTH_DATA">
+			(
+				#L_AUTH_NO#,
+				#L_AUTH_DATA[].no#,
+				#L_AUTH_DATA[].view#,
+				#L_AUTH_DATA[].edit#,
+				#L_AUTH_DATA[].down#,
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+			)
+		</iterate>
+		</dynamic>
+	</insert>
+
+	<delete id="admin.layer.deleteLayerListByAuthNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 레이어 목록 삭제 */
+			DELETE
+			  FROM LANDSYS_ADM.TB_LAYER_AUTH_MAPNG
+			 WHERE L_AUTH_NO = #L_AUTH_NO#
+		]]>
+	</delete>
+
+    <insert id="admin.layer.insertLayerListBackupByAuthNo" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_LAYER_AUTH_MAPNG
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* 레이어 목록 백업  */
+			INSERT INTO LANDSYS_ADM.TH_LAYER_AUTH_MAPNG
+			(
+				LOG_NO,
+			    LOG_INS_USER,
+			    LOG_INS_DT,
+				L_AUTH_NO,
+				MAPNG_NO,
+				VIEW_YN,
+				ATTR_EDIT_YN,
+				SHP_DN_YN,
+			    INS_USER,
+			    UPD_USER,
+			    INS_DT,
+			    UPD_DT
+			)
+			 SELECT #SEQ#,
+					LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+					CURRENT_TIMESTAMP,
+					L_AUTH_NO,
+					MAPNG_NO,
+					VIEW_YN,
+					ATTR_EDIT_YN,
+					SHP_DN_YN,
+			    	INS_USER,
+			    	UPD_USER,
+			    	INS_DT,
+			    	UPD_DT
+			   FROM LANDSYS_ADM.TB_LAYER_AUTH_MAPNG
+			  WHERE L_AUTH_NO = #L_AUTH_NO#
+		]]>
+	</insert>
+
+	<select id="admin.layer.selectLayerList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/* 레이어 목록 */
+	    	SELECT LPAD(B.RNO::varchar, 3, '0') AS NO, B.*
+	    	  FROM (
+			    	SELECT ROW_NUMBER() OVER(ORDER BY A.LAYER_DP_NM ASC) RNO,
+	    		           A.LAYER_NO,
+				           A.SERVER_NO,
+				  		   A.LAYER_CD,
+				           COALESCE(A.LAYER_DP_NM,'')     AS LAYER_DP_NM,
+				           COALESCE(A.LAYER_TP_NM,'')     AS LAYER_TP_NM,
+				           COALESCE(A.LAYER_DC,'')      AS LAYER_DESC,
+				           COALESCE(A.MIN_ZOOM, 8)        AS MIN_ZOOM,
+				  		   COALESCE(A.MAX_ZOOM,19)        AS MAX_ZOOM,
+				           COALESCE(A.STYLES_NM,'')       AS STYLES_NM,
+				           COALESCE(A.PARAMTR,'')         AS PARAMTR,
+				           COALESCE(A.FLTER,'')           AS FLTER,
+				           COALESCE(A.PRJCTN,'')          AS PRJCTN,
+				           COALESCE(A.FILE_GRP,'')        AS FILE_GRP,
+				           COALESCE(A.INFOGRAPHIC_URL,'') AS INFOGRAPHIC_URL,
+				           COALESCE(A.TABLE_NM,'')        AS TABLE_NM,
+				  		   A.USE_YN,
+				  		   A.DEL_YN,
+	    		   		   LANDSYS_ADM.FN_DECRYPT(A.INS_USER, 'LANDSYS') AS INS_USER,
+	    		   		   LANDSYS_ADM.FN_DECRYPT(A.UPD_USER, 'LANDSYS') AS UPD_USER,
+	    		   		   CASE WHEN A.DEL_USER <> '' THEN LANDSYS_ADM.FN_DECRYPT(A.DEL_USER, 'LANDSYS') ELSE '' END AS DEL_USER,
+	    		   		   TO_CHAR(A.INS_DT, 'YYYY-MM-DD HH24:MI')       AS INS_DT,
+	    		   		   TO_CHAR(A.UPD_DT, 'YYYY-MM-DD HH24:MI')       AS UPD_DT,
+	    		   		   CASE WHEN A.DEL_USER <> '' THEN TO_CHAR(A.DEL_DT, 'YYYY-MM-DD HH24:MI')       ELSE '' END AS DEL_DT,
+			    		   COALESCE(B.SERVER_NM,'')                      AS SERVER_NM,
+			    		   COALESCE(C.CODE_NM,'')                        AS LAYER_CD_NM
+					  FROM LANDSYS_ADM.TB_LAYER_INFO A,
+					       LANDSYS_ADM.TB_SERVER_INFO B,
+					       LANDSYS_ADM.TC_CODE C
+					 WHERE A.SERVER_NO = B.SERVER_NO
+					   AND A.LAYER_CD  = C.CODE
+				   ) B
+	      ORDER BY B.RNO
+		]]>
+	</select>
+
+	<select id="admin.layer.selectLayerGroupList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/* 레이어 그룹 목록 */
+			WITH RECURSIVE TB_GROUP_INFO(GRP_NO, P_GRP_NO, GRP_ORDER, GRP_NM, GRP_DESC, LEVEL, PATH, CYCLE) AS
+			(
+				SELECT G.GRP_NO,
+					   G.P_GRP_NO,
+				       G.GRP_ORDR,
+					   G.GRP_NM,
+					   G.GRP_DC,
+					   0,
+					   ARRAY[G.GRP_ORDR],
+					   FALSE,
+					   LANDSYS_ADM.FN_DECRYPT(G.INS_USER, #KEY#) AS INS_USER,
+					   LANDSYS_ADM.FN_DECRYPT(G.UPD_USER, #KEY#) AS UPD_USER,
+					   TO_CHAR(G.INS_DT, 'YYYY-MM-DD HH24:MI')   AS INS_DT,
+					   TO_CHAR(G.UPD_DT, 'YYYY-MM-DD HH24:MI')   AS UPD_DT
+				  FROM LANDSYS_ADM.TB_GROUP_INFO G
+				 WHERE (G.P_GRP_NO = '' OR G.P_GRP_NO IS NULL)
+
+				UNION ALL
+
+				SELECT G.GRP_NO,
+				       G.P_GRP_NO,
+					   G.GRP_ORDR,
+					   G.GRP_NM,
+				       G.GRP_DC,
+				       LEVEL + 1,
+				       ARRAY_APPEND(PATH, G.GRP_ORDR),
+				       G.GRP_ORDR = ANY(PATH),
+					   LANDSYS_ADM.FN_DECRYPT(G.INS_USER, #KEY#) AS INS_USER,
+					   LANDSYS_ADM.FN_DECRYPT(G.UPD_USER, #KEY#) AS UPD_USER,
+					   TO_CHAR(G.INS_DT, 'YYYY-MM-DD HH24:MI')   AS INS_DT,
+					   TO_CHAR(G.UPD_DT, 'YYYY-MM-DD HH24:MI')   AS UPD_DT
+				  FROM LANDSYS_ADM.TB_GROUP_INFO G, TB_GROUP_INFO SB
+				 WHERE G.P_GRP_NO = SB.GRP_NO
+				   AND NOT CYCLE
+			)
+			SELECT
+			       COALESCE(GI.GRP_NO,'')    AS GRP_NO,
+				   COALESCE(GI.P_GRP_NO,'')  AS P_GRP_NO,
+				   GI.GRP_ORDER,
+				   COALESCE(GI.GRP_NM,'')    AS GRP_NM,
+				   COALESCE(GI.GRP_DESC,'')  AS GRP_DESC,
+				   GI.LEVEL,
+				   GI.INS_USER,
+				   GI.UPD_USER,
+				   GI.INS_DT,
+				   GI.UPD_DT,
+				   LPAD('', 5*6*CAST(GI.LEVEL AS INT), '&nbsp;') SPACE,
+				   LPAD('', 5*6*CAST(GI.LEVEL AS INT), '&nbsp;') || GI.GRP_NM AS VIEW_GRP_NM
+			  FROM TB_GROUP_INFO GI
+		  ORDER BY PATH
+		]]>
+	</select>
+
+	<select id="admin.layer.selectMapngList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/* 매핑 목록 */
+		]]>
+	</select>
+
+	<select id="admin.layer.selectServerList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/* 서버 목록 */
+	    	SELECT ROW_NUMBER() OVER(ORDER BY A.SERVER_NO ASC) AS NO,
+	    	       A.SERVER_NO,
+	    		   A.SERVER_CD,
+	    		   COALESCE(A.SERVER_NM,'')    AS SERVER_NM,
+	    		   COALESCE(A.SERVER_URL,'')   AS SERVER_URL,
+	    		   COALESCE(A.SERVER_DC,'')  AS SERVER_DESC,
+	    		   COALESCE(A.USER_ID,'')      AS USER_ID,
+	    		   COALESCE(A.PSWD,'')     AS USER_PWD,
+	    		   COALESCE(A.WORKSPACE,'')    AS WORKSPACE,
+	    		   LANDSYS_ADM.FN_DECRYPT(A.INS_USER, #KEY#) AS INS_USER,
+	    		   LANDSYS_ADM.FN_DECRYPT(A.UPD_USER, #KEY#) AS UPD_USER,
+	    		   TO_CHAR(A.INS_DT, 'YYYY-MM-DD HH24:MI')   AS INS_DT,
+	    		   TO_CHAR(A.UPD_DT, 'YYYY-MM-DD HH24:MI')   AS UPD_DT,
+	    		   B.CODE_NM   AS SERVER_TYPE,
+	    		   B.CODE_DC AS SERVER_TYPE_DESC
+			  FROM LANDSYS_ADM.TB_SERVER_INFO A,
+			       LANDSYS_ADM.TC_CODE B
+			 WHERE A.SERVER_CD = B.CODE
+		  ORDER BY A.SERVER_NO
+		]]>
+	</select>
+
+	<select id="admin.layer.selectLayerDesc" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/* 레이어 설명 */
+	    	SELECT COALESCE(A.DC_NO,'')              AS DESC_NO,
+	    		   COALESCE(A.LAYER_NO,'')             AS LAYER_NO,
+	    		   COALESCE(A.DATA_NM,'')              AS DATA_NM,
+	    		   COALESCE(A.DATA_DC,'')            	AS DATA_DESC,
+	    		   COALESCE(A.DATA_STDDE,'')           AS DATA_STDDE,
+	    		   COALESCE(A.DATA_ORIGIN,'')          AS DATA_ORIGIN,
+	    		   COALESCE(A.DATA_RM,'')              AS DATA_RM,
+	    		   COALESCE(A.DATA_UPD_CYCLE,'')       AS DATA_UPD_CYCLE,
+	    		   LANDSYS_ADM.FN_DECRYPT(A.INS_USER, #KEY#) AS INS_USER,
+	    		   LANDSYS_ADM.FN_DECRYPT(A.UPD_USER, #KEY#) AS UPD_USER,
+	    		   TO_CHAR(A.INS_DT, 'YYYY-MM-DD HH24:MI')   AS INS_DT,
+	    		   TO_CHAR(A.UPD_DT, 'YYYY-MM-DD HH24:MI')   AS UPD_DT
+			  FROM LANDSYS_ADM.TB_LAYER_DESC A
+			 WHERE A.LAYER_NO = #LAYER_NO#
+		]]>
+	</select>
+	
+	<select id="admin.layer.layerTypeSet" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/* 레이어 설명 */
+	    	select * from landsys_adm.tc_code where p_code = 'CD00000009';
+		]]>
+	</select>
+	
+	<select id="admin.layer.maxLayerGroupNo" parameterClass="java.util.HashMap" resultClass="String">
+		SELECT 'GROUP'||LPAD(CAST(CAST(MAX(regexp_replace(GRP_NO, '[^0-9]+', '', 'g')) AS INTEGER)+1 AS TEXT),15,'0') AS GRP_NO
+		  FROM LANDSYS_ADM.TB_GROUP_INFO
+	</select>
+	
+	<select id="admin.layer.layerGroupOrderList"  resultClass="java.util.HashMap">
+		SELECT generate_series(1,MAX(GRP_ORDR)+1) AS ORDER
+		  FROM LANDSYS_ADM.TB_GROUP_INFO
+	</select>
+	
+	
+
+    <insert id="admin.layer.insertLayerDesc" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */ 
+			  SELECT (LTRIM(REPLACE(#PREFIX#, 'LAYER', ''), '0')) AS SEQ
+		</selectKey>
+
+	    <![CDATA[
+			/* 레이어 설명 신규 등록 */
+			INSERT INTO LANDSYS_ADM.TB_LAYER_DESC
+			(
+				DC_NO,
+				LAYER_NO,
+				DATA_NM,
+				DATA_DC,
+				DATA_STDDE,
+				DATA_ORIGIN,
+				DATA_RM,
+				DATA_UPD_CYCLE,
+				INS_USER,
+				UPD_USER,
+				INS_DT,
+				UPD_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				#DESC_DATA.DESC_LAYER_NO#,
+				#DESC_DATA.DESC_DATA_NM#,
+				#DESC_DATA.DESC_DATA_DESC#,
+				#DESC_DATA.DESC_DATA_STDDE#,
+				#DESC_DATA.DESC_DATA_ORIGIN#,
+				#DESC_DATA.DESC_DATA_RM#,
+				#DESC_DATA.DESC_DATA_UPD_CYCLE#,
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+			)
+		]]>
+	</insert>
+
+    <insert id="admin.layer.insertLayerDescByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 레이어 설명 변경 */
+			INSERT INTO LANDSYS_ADM.TB_LAYER_DESC
+			(
+				DC_NO,
+				LAYER_NO,
+				DATA_NM,
+				DATA_DC,
+				DATA_STDDE,
+				DATA_ORIGIN,
+				DATA_RM,
+				DATA_UPD_CYCLE,
+				INS_USER,
+				UPD_USER,
+				INS_DT,
+				UPD_DT
+			)
+			VALUES
+			(
+				#DESC_NO#,
+				#DESC_DATA.DESC_LAYER_NO#,
+				#DESC_DATA.DESC_DATA_NM#,
+				#DESC_DATA.DESC_DATA_DESC#,
+				#DESC_DATA.DESC_DATA_STDDE#,
+				#DESC_DATA.DESC_DATA_ORIGIN#,
+				#DESC_DATA.DESC_DATA_RM#,
+				#DESC_DATA.DESC_DATA_UPD_CYCLE#,
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+			)
+		]]>
+	</insert>
+
+	<delete id="admin.layer.deleteLayerDescByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 레이어 설명 삭제 */
+			DELETE
+			  FROM LANDSYS_ADM.TB_LAYER_DESC
+			 WHERE DC_NO = #DESC_NO#
+		]]>
+	</delete>
+
+    <insert id="admin.layer.insertLayerDescBackupByNo" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_LAYER_DESC
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* 레이어 설명 백업  */
+			INSERT INTO LANDSYS_ADM.TH_LAYER_DESC
+			(
+				LOG_NO,
+			    LOG_INS_USER,
+			    LOG_INS_DT,
+				DC_NO,
+				LAYER_NO,
+				DATA_NM,
+				DATA_DC,
+				DATA_STDDE,
+				DATA_ORIGIN,
+				DATA_RM,
+				DATA_UPD_CYCLE,
+				INS_USER,
+				UPD_USER,
+				INS_DT,
+				UPD_DT
+			)
+			 SELECT #SEQ#,
+					LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+					CURRENT_TIMESTAMP,
+					DC_NO,
+					LAYER_NO,
+					DATA_NM,
+					DATA_DC,
+					DATA_STDDE,
+					DATA_ORIGIN,
+					DATA_RM,
+					DATA_UPD_CYCLE,
+					INS_USER,
+					UPD_USER,
+					INS_DT,
+					UPD_DT
+			   FROM LANDSYS_ADM.TB_LAYER_DESC
+			  WHERE DC_NO = #DESC_NO#
+		]]>
+	</insert>
+
+
+	<update id="admin.layer.updateLayerInfoByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 레이어 정보 변경 */
+			 UPDATE LANDSYS_ADM.TB_LAYER_INFO
+			    SET SERVER_NO       = #SERVER_NO#,
+					LAYER_CD        = #LAYER_CD#,
+					LAYER_DP_NM     = #LAYER_DP_NM#,
+					LAYER_TP_NM     = #LAYER_TP_NM#,
+					LAYER_DC      = #LAYER_DESC#,
+					MIN_ZOOM        = #MIN_ZOOM#,
+					MAX_ZOOM        = #MAX_ZOOM#,
+					STYLES_NM       = #STYLES_NM#,
+					PARAMTR         = #PARAMTR#,
+					FLTER           = #FLTER#,
+					PRJCTN          = #PRJCTN#,
+					INFOGRAPHIC_URL = #INFOGRAPHIC_URL#,
+					TABLE_NM        = #TABLE_NM#,
+					USE_YN          = #USE_YN#,
+			    	UPD_USER 		= LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+			    	UPD_DT   		= CURRENT_TIMESTAMP
+			  WHERE LAYER_NO = #LAYER_NO#
+		]]>
+	</update>
+	
+	<update id="admin.layer.updateLayerGroupInfoByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 레이어 그룹 정보 변경 */
+			 UPDATE LANDSYS_ADM.tb_group_info
+			    SET grp_no       = #grp_no#,
+					p_grp_no        = #p_grp_no#,
+					GRP_ORDR     = cast(#grp_order# as smallint),
+					grp_nm     = #grp_nm#,
+					UPD_USER      = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+					UPD_DT        = CURRENT_TIMESTAMP,
+					GRP_DC        = #grp_desc#
+			  WHERE grp_no = #grp_no#
+		]]>
+	</update>
+
+	<update id="admin.layer.updateLayerInfographicByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 레이어 인포그래픽 변경 */
+			 UPDATE LANDSYS_ADM.TB_LAYER_INFO
+			    SET FILE_GRP = #FILE_GRP#,
+			    	UPD_USER = LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			    	UPD_DT   = CURRENT_TIMESTAMP
+			  WHERE LAYER_NO = #LAYER_NO#
+		]]>
+	</update>
+
+    <insert id="admin.layer.insertLayerBackupByNo" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_LAYER_INFO
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* 레이어 백업  */
+			INSERT INTO LANDSYS_ADM.TH_LAYER_INFO
+			(
+				LOG_NO          ,
+				LOG_INS_USER    ,
+				LOG_INS_DT      ,
+				LAYER_NO        ,
+				SERVER_NO       ,
+				LAYER_CD        ,
+				LAYER_DP_NM     ,
+				LAYER_TP_NM     ,
+				LAYER_DC      ,
+				MIN_ZOOM        ,
+				MAX_ZOOM        ,
+				STYLES_NM       ,
+				PARAMTR         ,
+				FLTER           ,
+				PRJCTN          ,
+				FILE_GRP        ,
+				INFOGRAPHIC_URL ,
+				TABLE_NM        ,
+				USE_YN          ,
+				DEL_YN          ,
+				INS_USER        ,
+				UPD_USER        ,
+				DEL_USER        ,
+				INS_DT          ,
+				UPD_DT          ,
+				DEL_DT
+			)
+			 SELECT #SEQ#,
+					LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+					CURRENT_TIMESTAMP,
+					LAYER_NO        ,
+					SERVER_NO       ,
+					LAYER_CD        ,
+					LAYER_DP_NM     ,
+					LAYER_TP_NM     ,
+					LAYER_DC      ,
+					MIN_ZOOM        ,
+					MAX_ZOOM        ,
+					STYLES_NM       ,
+					PARAMTR         ,
+					FLTER           ,
+					PRJCTN          ,
+					FILE_GRP        ,
+					INFOGRAPHIC_URL ,
+					TABLE_NM        ,
+					USE_YN          ,
+					DEL_YN          ,
+					INS_USER        ,
+					UPD_USER        ,
+					DEL_USER        ,
+					INS_DT          ,
+					UPD_DT          ,
+					DEL_DT
+			   FROM LANDSYS_ADM.TB_LAYER_INFO
+			  WHERE LAYER_NO = #LAYER_NO#
+		]]>
+	</insert>
+
+    <insert id="admin.layer.insertServer" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(SERVER_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TB_SERVER_INFO
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* 서버 정보 신규 등록 */
+			INSERT INTO LANDSYS_ADM.TB_SERVER_INFO
+			(
+				SERVER_NO,
+				SERVER_CD,
+				SERVER_NM,
+				SERVER_URL,
+				SERVER_DC,
+				USER_ID,
+				PSWD,
+				WORKSPACE,
+				INS_USER,
+				UPD_USER,
+				INS_DT,
+				UPD_DT
+			)
+			VALUES
+			(
+				#SEQ#,
+				#SERVER_DATA.NEW_SERVER_CD#,
+				#SERVER_DATA.NEW_SERVER_NM#,
+				#SERVER_DATA.NEW_SERVER_URL#,
+				#SERVER_DATA.NEW_SERVER_DESC#,
+				#SERVER_DATA.NEW_USER_ID#,
+				#SERVER_DATA.NEW_USER_PWD#,
+				#SERVER_DATA.NEW_WORKSPACE#,
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+			)
+		]]>
+	</insert>
+
+    <insert id="admin.layer.insertServerByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 서버 정보 등록 */
+			INSERT INTO LANDSYS_ADM.TB_SERVER_INFO
+			(
+				SERVER_NO,
+				SERVER_CD,
+				SERVER_NM,
+				SERVER_URL,
+				SERVER_DC,
+				USER_ID,
+				PSWD,
+				WORKSPACE,
+				INS_USER,
+				UPD_USER,
+				INS_DT,
+				UPD_DT
+			)
+			VALUES
+			(
+				#SERVER_DATA.M_SERVER_NO#,
+				#SERVER_DATA.M_SERVER_CD#,
+				#SERVER_DATA.M_SERVER_NM#,
+				#SERVER_DATA.SERVER_URL#,
+				#SERVER_DATA.SERVER_DESC#,
+				#SERVER_DATA.USER_ID#,
+				#SERVER_DATA.USER_PWD#,
+				#SERVER_DATA.WORKSPACE#,
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+			)
+		]]>
+	</insert>
+
+	<delete id="admin.layer.deleteServerByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 서버 정보 삭제 */
+			DELETE
+			  FROM LANDSYS_ADM.TB_SERVER_INFO
+			 WHERE SERVER_NO = #SERVER_NO#
+		]]>
+	</delete>
+	
+	<delete id = "admin.layer.filedelete" parameterClass = "java.util.HashMap">
+	<![CDATA[
+		DELETE FROM LANDSYS_ADM.TB_FILE WHERE FILE_GRP = #file_grp#;
+		]]>
+	</delete>
+
+    <update id="admin.layer.updateServerByNo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+	    	/* 서버 정보 업데이트  */
+			UPDATE LANDSYS_ADM.TB_SERVER_INFO
+			   SET  SERVER_CD     = #SERVER_DATA.M_SERVER_CD#,
+					SERVER_NM     = #SERVER_DATA.M_SERVER_NM#,
+					SERVER_URL    = #SERVER_DATA.SERVER_URL#,
+					SERVER_DC   = #SERVER_DATA.SERVER_DESC#,
+					USER_ID       = #SERVER_DATA.SERVER_USER_ID#,
+					PSWD      = #SERVER_DATA.SERVER_USER_PWD#,
+					WORKSPACE     = #SERVER_DATA.SERVER_WORKSPACE#,
+					INS_USER      = LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+					UPD_USER      = LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+					INS_DT        = CURRENT_TIMESTAMP,
+					UPD_DT        = CURRENT_TIMESTAMP
+			 WHERE SERVER_NO = #SERVER_NO#
+		]]>
+	</update>
+
+    <insert id="admin.layer.insertServerBackupByNo" parameterClass="java.util.HashMap">
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+					  FROM LANDSYS_ADM.TH_SERVER_INFO
+				   ) A
+		</selectKey>
+
+	    <![CDATA[
+			/* 서버 정보 백업  */
+			INSERT INTO LANDSYS_ADM.TH_SERVER_INFO
+			(
+				LOG_NO,
+			    LOG_INS_USER,
+			    LOG_INS_DT,
+				SERVER_NO,
+				SERVER_CD,
+				SERVER_NM,
+				SERVER_URL,
+				SERVER_DC,
+				USER_ID,
+				PSWD,
+				WORKSPACE,
+				INS_USER,
+				UPD_USER,
+				INS_DT,
+				UPD_DT
+			)
+			 SELECT #SEQ#,
+					LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+					CURRENT_TIMESTAMP,
+					SERVER_NO,
+					SERVER_CD,
+					SERVER_NM,
+					SERVER_URL,
+					SERVER_DC,
+					USER_ID,
+					PSWD,
+					WORKSPACE,
+					INS_USER,
+					UPD_USER,
+					INS_DT,
+					UPD_DT
+			   FROM LANDSYS_ADM.TB_SERVER_INFO
+			  WHERE SERVER_NO = #SERVER_NO#
+		]]>
+	</insert>
+	
+	<insert id="admin.layer.layeradd" parameterClass="java.util.HashMap">
+	    <![CDATA[
+	    	insert into landsys_adm.tb_layer_info 
+	    	values(
+	    	(select 'LAYER'||LPAD(CAST(CAST(substr(layer_no,15) AS INTEGER) + 1 AS VARCHAR),15,'0') as layer_no
+			from landsys_adm.tb_layer_info
+			order by layer_no desc limit 1),
+			#SERVER_NM#,
+			#LAYER_CD#,
+			#LAYER_DP_NM#,
+			#LAYER_TP_NM#,
+			#LAYER_DESC#,
+			#MIN_ZOOM#,
+			#MAX_ZOOM#,
+			#STYLES_NM#,
+			#PARAMTR#,
+			#FLTER#,
+			#PRJCTN#,
+			'',
+			'',
+			#TABLE_NM#,
+			#USE_YN#,
+			'N',
+			LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			'',
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP,
+			null,
+			'')
+		]]>
+	</insert>
+	
+	<insert id="admin.layer.layerdel" parameterClass="java.util.HashMap">
+	    <![CDATA[
+	    	update landsys_adm.tb_layer_info set use_yn = 'N' where layer_no = #LAYER_NO#
+		]]>
+	</insert>
+	
+	<select id="admin.layer.MapngLayerList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/* 레이어 목록 */
+	    	SELECT 
+		       a.layer_no
+		     , a.layer_dp_nm as layer_nm
+		     , c.grp_no 
+		     , c.grp_nm   
+		  FROM landsys_adm.tb_layer_info        a
+		     , landsys_adm.tb_group_layer_mapng b
+		     , landsys_adm.tb_group_info        c
+		 WHERE c.grp_no = #GRP_NO#
+		   and a.use_yn = 'Y' and a.del_yn = 'N'  /* 사용여부 : Y, 삭제여부 : N */
+		   and a.layer_no = b.layer_no 
+		   AND b.grp_no   = c.grp_no   
+		  ORDER BY c.GRP_ORDR, b.layer_ordr
+		]]>
+	</select>
+	
+	<select id="admin.layer.NonMapngLayerList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		<![CDATA[
+	    	/*그룹 매핑없는 레이어 목록 */
+		   SELECT 
+		       a.layer_no
+		     , a.layer_dp_nm as layer_nm
+		  FROM landsys_adm.tb_layer_info a
+		 WHERE a.del_yn = 'N' 
+		   and (a.use_yn IS NULL OR a.use_yn = '' OR a.use_yn = 'N'); /* 사용여부 : N, 삭제여부 : N */
+		]]>
+	</select>
+	
+	<update id="admin.layer.updateLayerInfo" parameterClass="java.util.HashMap">
+	    <![CDATA[
+   	    UPDATE landsys_adm.tb_layer_info 
+	    SET 
+	        use_yn = 'Y', 
+	        upd_user = LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+	        upd_dt = CURRENT_TIMESTAMP
+	    WHERE 
+	        layer_no = #LAYER_NO#;
+	    ]]>
+	</update>
+	
+	<select id="admin.layer.checkLayerExists" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+	    <![CDATA[
+	    SELECT COUNT(1)
+	    FROM landsys_adm.tb_group_layer_mapng
+	    WHERE layer_no = #LAYER_NO#
+	    ]]>
+	</select>
+	
+	<update id="admin.layer.updateLayer" parameterClass="java.util.HashMap">
+	    <![CDATA[
+	    UPDATE landsys_adm.tb_group_layer_mapng 
+	    SET 
+	        grp_no = #GRP_NO#, 
+	        upd_user = LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+	        upd_dt = CURRENT_TIMESTAMP,
+	        layer_ordr = (
+	            SELECT COALESCE(MAX(gl.layer_ordr), 0) + 1
+	            FROM landsys_adm.tb_group_layer_mapng gl
+	            WHERE gl.grp_no = #GRP_NO#
+	        )  
+	    WHERE 
+	        layer_no = #LAYER_NO#;
+	    ]]>
+	</update>
+	
+	<insert id="admin.layer.insertLayer" parameterClass="java.util.HashMap">
+	    <![CDATA[
+	    INSERT INTO landsys_adm.tb_group_layer_mapng
+	    (
+	        mapng_no,
+	        grp_no,
+	        layer_no,
+	        layer_ordr,
+	        ins_user,
+	        upd_user,
+	        ins_dt,
+	        upd_dt
+	    )
+	    VALUES
+	    (
+	        (
+	            SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#), '0') AS SEQ
+	            FROM (
+	                SELECT (COALESCE(REPLACE(MAX(mapng_no), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ
+	                FROM landsys_adm.tb_group_layer_mapng
+	            ) A
+	        ),
+	        #GRP_NO#,
+	        #LAYER_NO#,
+	        (
+	            SELECT COALESCE(MAX(gl.layer_ordr), 0) + 1
+	            FROM landsys_adm.tb_group_layer_mapng gl
+	            WHERE gl.grp_no = #GRP_NO#
+	        ), 
+	        LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+	        LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+	        CURRENT_TIMESTAMP,
+	        CURRENT_TIMESTAMP
+	    );
+	    ]]>
+	</insert>
+
+	<update id="admin.layer.MapngLayerDel" parameterClass="java.util.HashMap">
+	    <![CDATA[
+   	   	/*그룹 레이어 매핑 삭제 */
+		UPDATE landsys_adm.tb_layer_info 
+	    SET 
+	        use_yn = 'N',
+	        upd_user = LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+	        upd_dt = CURRENT_TIMESTAMP
+	    WHERE 
+	        layer_no = #LAYER_NO#;
+	    ]]>
+	</update>
+	
+</sqlMap>

@@ -1,0 +1,129 @@
+@charset "utf-8";
+
+/* 공통 스타일 */
+.container_chart {
+    display: flex;
+    width: 100%;
+    margin: 10px 0;
+    position: relative; /* hover 문제 해결을 위한 relative positioning */
+}
+
+.chart-container, .chart-container_ht {
+    display: flex;
+    width: 100%;
+    height: 100%; /* 차트가 컨테이너를 꽉 채우도록 */
+    position: relative;
+   	overflow: hidden; /* 변경: 차트가 컨테이너를 넘을 수 있도록 함 */
+    padding-bottom: 5px; /* 아래 여백 추가 */
+}
+
+
+canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: pan-y !important
+}
+
+
+/* 가로형 스타일 */
+.convertDiv1, .convertDiv2 {
+    display: flex;
+    flex-direction: column;
+    background-color: #eee;
+    overflow: hidden; /* 차트가 컨테이너를 넘지 않도록 함 */
+}
+
+.convertDiv1 {
+    flex: 2;
+    margin-right: 10px;
+    height: 320px;
+}
+
+.convertDiv2 {
+    flex: 1;
+    height: 320px;
+}
+
+/* 세로형 스타일 */
+.container_chart_ht {
+    display: flex;
+    margin: 10px 0;
+     height: 715px; /* 전체 높이 지정 */
+  /*  height: 76vh; 
+   height: 660px;*/
+}
+
+.convertDiv1_ht {
+    display: flex;
+    flex-direction: column;
+    background-color: #eee;
+    flex: 1; /* 가로 크기 50% */
+    margin-right: 10px;
+    height: 100%; /* 세로 크기 100% */
+}
+
+.right-container_ht {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* 가로 크기 50% */
+    height: 100%; /* 전체 높이를 부모와 맞추기 */
+}
+
+.convertDiv2_ht {
+    display: flex;
+    flex-direction: column;
+    background-color: #eee;
+    height: 35%; /* 전체 높이의 1/3 */
+    margin-bottom: 10px; /* 두 번째와 세 번째 차트 사이의 간격 */
+    overflow: hidden; /* 넘치는 내용 숨기기 */
+}
+
+.convertDiv3_ht {
+    display: flex;
+    flex-direction: column;
+    background-color: #eee;
+    height: 65%; /* 전체 높이의 2/3 */
+    overflow: hidden; /* 넘치는 내용 숨기기 */
+}
+
+/* 레이블 스타일 */
+.convertDiv1 > label,
+.convertDiv2 > label,
+.convertDiv1_ht > label,
+.convertDiv2_ht > label,
+.convertDiv3_ht > label {
+    text-align: center;
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+/* 숨겨진 그리드 스타일 */
+.hidden-grid > [data-ax5grid] [data-ax5grid-container="root"] {
+    border: 0;
+}
+
+/* 날짜 선택 버튼 */
+.date_btn {
+    float: left;
+    font-size: 0;
+    padding: 0 10px 0 0;
+}
+
+.date_btn button {
+    cursor: pointer;
+    background-color: #d6e2e8;
+    border: 0;
+    border-radius: 3px;
+    padding: .24rem .36rem;
+    margin: .1rem;
+}
+
+.date_btn button.datepick {
+    background-color: #FFC44D;
+    color: #000;
+}
+	
+	/* .total-column {
+    background: #f8d2cb;
+} */

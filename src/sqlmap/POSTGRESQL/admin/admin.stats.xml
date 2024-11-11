@@ -1,0 +1,1234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="admin.stats">
+
+	<select id= "admin.stats.getmembergrp" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	 <![CDATA[
+	 /* 사용자 그룹정보  */
+        SELECT
+            ROW_NUMBER() OVER() AS NO,
+            LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) AS DEPT_NM
+        FROM 
+            LANDSYS_ADM.TB_USER_INFO UI
+        WHERE 
+            (UI.USE_YN IS NULL OR UI.USE_YN = 'Y')
+            AND UI.DEPT_NM IS NOT NULL
+            AND UI.DEPT_NM <> ''
+        GROUP BY 
+           UI.DEPT_NM
+		    ]]>
+	</select>
+	
+	 <select id="admin.stats.selectSearchThisYear" parameterClass="HashMap" resultClass="String">
+	    <![CDATA[
+	     /* 연도_header  */
+			 SELECT generate_series(
+		       (SELECT EXTRACT(YEAR FROM MIN(INS_DT))::int FROM LANDSYS_ADM.TH_USER_LOGS_PROGRM),
+		       (SELECT to_char(now(), 'YYYY')::int)
+		    )::text AS year
+		]]>
+	</select>
+
+	<select id="admin.stats.selectSearchThisMonth" parameterClass="HashMap" resultClass="String">
+	    <![CDATA[
+	     /* 월_header  */
+			SELECT TO_CHAR(generate_series(1, 12), 'FM00') AS month
+		]]>
+	</select>
+
+	 <select id="admin.stats.selectSearchThisDay"  parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+	     /* 일_header  */
+	        SELECT TO_CHAR(generate_series(min_day, max_day, INTERVAL '1 day'), 'DD') AS day
+	        FROM (
+	            SELECT
+	                MIN(day)::date AS min_day,
+	                MAX(day)::date AS max_day
+	            FROM 
+	            generate_series(DATE (#YEAR# || '-01-01'), DATE (#YEAR# || '-12-31'), INTERVAL '1 day' ) AS day
+	          WHERE 
+	                EXTRACT(YEAR FROM day) = #YEAR#::integer
+	                AND EXTRACT(MONTH FROM day) = #MONTH#::integer
+	        ) a 
+	   ]]>
+	</select>
+
+	<select id="admin.stats.selectSearchData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    /* 관리자 - 사용자 접속 통계 (연도/월/일) */
+	     <isEqual prepend="" property="DATAVAL" compareValue="day">
+	    with DAYS AS (
+	        SELECT 
+	            MIN(day) AS min_day,
+	            MAX(day) AS max_day
+	        FROM 
+	            generate_series(DATE (#YEAR# || '-01-01'), DATE (#YEAR# || '-12-31'), INTERVAL '1 day' ) AS day
+	        WHERE  
+	            EXTRACT(YEAR FROM day) = #YEAR#::integer
+	            AND EXTRACT(MONTH FROM day) = #MONTH#::integer
+	    ), 
+	    </isEqual>
+	    <isNotEqual prepend="" property="DATAVAL" compareValue="day">
+		with 
+	</isNotEqual>
+	<![CDATA[
+	    USER_LOGS AS (
+	        SELECT 
+	            B.progrm_no AS PROGRM_NO,
+	            COUNT(B.LOG_NO) AS CNT,
+	            CASE 
+	                WHEN #DATAVAL# = 'year' THEN EXTRACT(YEAR FROM B.INS_DT)::text
+	                WHEN #DATAVAL# = 'month' THEN TO_CHAR(B.INS_DT, 'MM')
+	                WHEN #DATAVAL# = 'day' THEN TO_CHAR(B.INS_DT, 'DD')
+	            END AS LOG_TIME,
+	            C.DEPT_NM AS DEPT_NM
+	        FROM 
+	            LANDSYS_ADM.TH_USER_LOGS_PROGRM B
+	            JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+	        WHERE 
+	            B.progrm_no IN ('PROGRM00000000000023')
+	       ]]>
+	            <isEqual prepend="AND" property="DATAVAL" compareValue="year">
+	                EXTRACT(YEAR FROM B.INS_DT) BETWEEN 
+	                (SELECT EXTRACT(YEAR FROM MIN(INS_DT))::integer FROM LANDSYS_ADM.TH_USER_LOGS_PROGRM)
+	                AND EXTRACT(YEAR FROM CURRENT_DATE)::integer
+	            </isEqual>
+	            <isEqual prepend="AND" property="DATAVAL" compareValue="month">
+	                B.INS_DT::date BETWEEN concat(#YEAR#, '-01-01')::date AND concat(#YEAR#, '-12-31')::date
+	            </isEqual>
+	            <isEqual prepend="AND" property="DATAVAL" compareValue="day">
+	                B.INS_DT::date BETWEEN (SELECT min_day FROM DAYS) AND (SELECT max_day FROM DAYS)
+	            </isEqual>
+	        <![CDATA[
+	            AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+	        GROUP BY 
+	            B.progrm_no, LOG_TIME, C.DEPT_NM
+	    ),
+	    DEPT_LOGS AS (
+	        SELECT 
+	            LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) AS DEPT_NM,
+	            b.LOG_TIME,
+	            COALESCE(u.CNT, 0) AS TOTAL
+	        FROM 
+	            LANDSYS_ADM.TB_USER_INFO UI
+	            CROSS JOIN (
+	            ]]>
+	                <isEqual prepend="" property="DATAVAL" compareValue="year">
+	                    SELECT generate_series(
+	                        (SELECT EXTRACT(YEAR FROM MIN(INS_DT))::integer FROM LANDSYS_ADM.TH_USER_LOGS_PROGRM),
+	                        EXTRACT(YEAR FROM CURRENT_DATE)::integer
+	                    )::text AS LOG_TIME
+	                </isEqual>
+	                <isEqual prepend="" property="DATAVAL" compareValue="month">
+	                    SELECT TO_CHAR(generate_series(1, 12), 'FM00') AS LOG_TIME
+	                </isEqual>
+	                <isEqual prepend="" property="DATAVAL" compareValue="day">
+	                    SELECT TO_CHAR(generate_series((SELECT min_day FROM DAYS), (SELECT max_day FROM DAYS), INTERVAL '1 day'), 'DD') AS LOG_TIME
+	                </isEqual>
+                <![CDATA[
+	            ) b
+	            LEFT JOIN USER_LOGS u 
+	                ON UI.DEPT_NM = u.DEPT_NM
+	                AND b.LOG_TIME = u.LOG_TIME
+	        WHERE 
+	            (UI.USE_YN IS NULL OR UI.USE_YN = 'Y')
+	            AND UI.DEPT_NM IS NOT NULL
+	            AND UI.DEPT_NM <> ''
+	    ),
+	    AGGREGATED_DATA AS (
+	        SELECT 
+	            DEPT_NM,
+	            jsonb_object_agg(LOG_TIME, TOTAL::integer) AS times
+	        FROM 
+	            DEPT_LOGS
+	        GROUP BY 
+	            DEPT_NM
+	    ),
+	    DEPT_TOTAL AS (
+	        SELECT 
+	            DEPT_NM,
+	            SUM((times->>LOG_TIME)::integer) AS total
+	        FROM 
+	            AGGREGATED_DATA,
+	            jsonb_object_keys(times) AS LOG_TIME
+	        GROUP BY 
+	            DEPT_NM
+	    )
+	    SELECT 
+	        jsonb_build_object('DEPT_NM', AD.DEPT_NM) || COALESCE(AD.times, '{}'::jsonb) || jsonb_build_object('total', DT.total) AS result
+	    FROM 
+	        AGGREGATED_DATA AD
+	        JOIN DEPT_TOTAL DT ON AD.DEPT_NM = DT.DEPT_NM;
+	    ]]>
+	</select>
+	
+	<select id="admin.stats.getUserDeptPercent" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	 /* 관리자 - 접속자 통계 (부서 백분율) */
+	<isEqual prepend="" property="DATAVAL" compareValue="day">
+		with DAYS AS (
+			SELECT 
+				MIN(day) AS min_day,
+				MAX(day) AS max_day
+			FROM 
+				generate_series(DATE (#YEAR# || '-01-01'), DATE (#YEAR# || '-12-31'), INTERVAL '1 day' ) AS day
+			WHERE  
+				EXTRACT(YEAR FROM day) = #YEAR#::integer
+				AND EXTRACT(MONTH FROM day) = #MONTH#::integer
+		),
+	</isEqual>
+	<isNotEqual prepend="" property="DATAVAL" compareValue="day">
+		with 
+	</isNotEqual>
+	<![CDATA[
+	USER_LOGS AS (
+	    SELECT 
+	        B.progrm_no AS PROGRM_NO,
+	        COUNT(B.LOG_NO) AS CNT,
+	        C.DEPT_NM AS DEPT_NM
+	    FROM 
+	        LANDSYS_ADM.TH_USER_LOGS_PROGRM B
+	        JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+	    WHERE 
+	    	B.progrm_no in ('PROGRM00000000000023')
+	    	]]>
+	    	<isEqual prepend="AND" property="DATAVAL" compareValue="month">
+				B.INS_DT::date BETWEEN concat(#YEAR#, '-01-01')::date AND concat(#YEAR#, '-12-31')::date
+			</isEqual>
+			<isEqual prepend="AND" property="DATAVAL" compareValue="day">
+	    		B.INS_DT BETWEEN (SELECT min_day FROM DAYS) AND (SELECT max_day FROM DAYS)
+			</isEqual>
+		<![CDATA[
+	        AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+	    GROUP BY 
+	        B.progrm_no,
+	        C.DEPT_NM
+	),
+	FILTERED_USER_LOGS AS (
+	    SELECT 
+	    ]]>
+	    	LANDSYS_ADM.FN_DECRYPT(UL.DEPT_NM, #KEY#) AS DEPT_NM,
+	    <![CDATA[
+	        SUM(UL.CNT) AS DEPT_CNT
+	    FROM 
+	        USER_LOGS UL
+	    GROUP BY 
+	        UL.DEPT_NM
+	),
+	TOTAL_LOGS AS (
+	    SELECT 
+	        SUM(DEPT_CNT) AS TOTAL_CNT
+	    FROM 
+	        FILTERED_USER_LOGS
+	),
+	TOP_3_DEPTS AS (
+	    SELECT 
+	        FUL.DEPT_NM,
+	        ROUND(FUL.DEPT_CNT * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+	    FROM 
+	        FILTERED_USER_LOGS FUL, 
+	        TOTAL_LOGS TL
+	    ORDER BY 
+	        PERCENTAGE DESC
+	    LIMIT 3
+	),
+	OTHER_DEPTS AS (
+	    SELECT 
+	        '기타' AS DEPT_NM,
+	        ROUND(SUM(FUL.DEPT_CNT) * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+	    FROM 
+	        FILTERED_USER_LOGS FUL,
+	        TOTAL_LOGS TL
+	    WHERE 
+	        FUL.DEPT_NM NOT IN (SELECT DEPT_NM FROM TOP_3_DEPTS)
+	    GROUP BY 
+	        TOTAL_CNT
+	),
+	ALL_DEPTS AS (
+	    SELECT 
+	        DEPT_NM,
+	        PERCENTAGE
+	    FROM 
+	        TOP_3_DEPTS
+	    UNION ALL
+	    SELECT 
+	        DEPT_NM,
+	        PERCENTAGE
+	    FROM 
+	        OTHER_DEPTS
+	),
+	FINAL_RESULTS AS (
+	    SELECT 
+	        DEPT_NM,
+	        PERCENTAGE,
+	        ROW_NUMBER() OVER (ORDER BY CASE WHEN DEPT_NM = '기타' THEN 4 ELSE 1 END, PERCENTAGE DESC) AS no
+	    FROM 
+	        ALL_DEPTS
+	)
+	SELECT 
+	    no,
+	    DEPT_NM,
+	    PERCENTAGE
+	FROM 
+	    FINAL_RESULTS
+	ORDER BY 
+	    no;
+	]]>
+</select>
+
+<select id="admin.stats.getSumStatUserPercent" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	 /* 관리자 - 접속자 누계통계 (부서 백분율) */
+	<![CDATA[
+	WITH USER_LOGS AS (
+	    SELECT 
+	        B.progrm_no AS PROGRM_NO,
+	        COUNT(B.LOG_NO) AS CNT,
+	        C.DEPT_NM AS DEPT_NM
+	    FROM 
+	        LANDSYS_ADM.TH_USER_LOGS_PROGRM B
+	        JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+	    WHERE 
+	    	B.progrm_no in ('PROGRM00000000000023')
+	        AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+	    GROUP BY 
+	        B.progrm_no,
+	        C.DEPT_NM
+	),
+	FILTERED_USER_LOGS AS (
+	    SELECT 
+	    	LANDSYS_ADM.FN_DECRYPT(UL.DEPT_NM, #KEY#) AS DEPT_NM,
+	        SUM(UL.CNT) AS DEPT_CNT
+	    FROM 
+	        USER_LOGS UL
+	    GROUP BY 
+	        UL.DEPT_NM
+	),
+	TOTAL_LOGS AS (
+	    SELECT 
+	        SUM(DEPT_CNT) AS TOTAL_CNT
+	    FROM 
+	        FILTERED_USER_LOGS
+	),
+	ALL_DEPTS AS (
+	     SELECT 
+	        FUL.DEPT_NM,
+	        ROUND(FUL.DEPT_CNT * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+	    FROM 
+	        FILTERED_USER_LOGS FUL, 
+	        TOTAL_LOGS TL
+	)
+	SELECT 
+	    ROW_NUMBER() OVER (ORDER BY PERCENTAGE DESC) AS no,
+	    DEPT_NM,
+	    PERCENTAGE
+	FROM 
+	    ALL_DEPTS
+	ORDER BY 
+	    no;
+	]]>
+</select>
+
+<select id="admin.stats.selectUsesMenuStatics" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 관리자 - 메뉴별 통계  */
+		    WITH RECURSIVE PROGRM(PROGRM_NO, P_PROGRM_NO, PROGRM_NM, LEVEL, PATH, CYCLE, MENU_YN, STATS_YN, P_PROGRM_NM) AS 
+				(
+				    SELECT 
+				        G.PROGRM_NO, 
+				        G.P_PROGRM_NO, 
+				        G.PROGRM_NM, 
+				          0 AS LEVEL, 
+				        ARRAY[substring(G.PROGRM_NO, 7)::int] AS PATH, 
+				        FALSE AS CYCLE, 
+				        G.MENU_YN, 
+				        G.STATS_YN,
+				        CAST(NULL AS VARCHAR) AS P_PROGRM_NM
+				    FROM 
+				        landsys_adm.TB_PROGRM_MNG G
+				    WHERE 
+				        (G.P_PROGRM_NO = '' OR G.P_PROGRM_NO IS NULL)
+				        AND G.USE_YN = 'Y'
+				    
+				    UNION ALL
+				
+				    SELECT 
+				        G.PROGRM_NO, 
+				        G.P_PROGRM_NO, 
+				        G.PROGRM_NM, 
+				         P.LEVEL + 1, 
+				        P.PATH || substring(G.PROGRM_NO, 7)::int, 
+				        substring(G.PROGRM_NO, 7)::int = ANY(P.PATH), 
+				        G.MENU_YN, 
+				        G.STATS_YN,
+				        P.PROGRM_NM AS P_PROGRM_NM
+				    FROM 
+				        landsys_adm.TB_PROGRM_MNG G
+				        JOIN PROGRM P ON G.P_PROGRM_NO = P.PROGRM_NO
+				    WHERE 
+				        G.USE_YN = 'Y'
+				        AND NOT CYCLE
+				)  
+				, FILTERED_PROGRM AS (
+				    SELECT 
+				        PROGRM.PROGRM_NO,
+				        PROGRM.P_PROGRM_NO,
+				        PROGRM.PROGRM_NM,
+				        PROGRM.LEVEL,
+				        PROGRM.PATH,
+				      (SELECT COUNT(*) FROM landsys_adm.TB_PROGRM_MNG M WHERE M.P_PROGRM_NO = PROGRM.PROGRM_NO AND M.MENU_YN = 'Y') = 0 AS ISLEAF,
+				        CASE 
+				            WHEN (SELECT COUNT(*) FROM landsys_adM.TB_PROGRM_MNG M WHERE M.P_PROGRM_NO = PROGRM.PROGRM_NO AND M.MENU_YN = 'Y') = 0 
+				            THEN PROGRM.P_PROGRM_NM 
+				            ELSE NULL 
+				        END AS P_PROGRM_NM
+				    FROM 
+				        PROGRM 
+				    WHERE 
+				        PROGRM.MENU_YN = 'Y'
+				        AND PROGRM.STATS_YN = 'Y'
+				        AND PROGRM.P_PROGRM_NM IS NOT NULL
+				),
+				USER_LOGS AS (
+				    SELECT 
+				        B.progrm_no AS PROGRM_NO,
+				        COUNT(B.LOG_NO) AS CNT
+				         ]]>
+				         <isEmpty property="DEPT_NM"> 
+							 , '전체' as DEPT_NM
+						</isEmpty>
+				        <isNotEmpty property="DEPT_NM"> 
+							, C.DEPT_NM AS DEPT_NM
+						</isNotEmpty>
+						<![CDATA[
+				    FROM 
+				        LANDSYS_ADM.TH_USER_LOGS_PROGRM B
+				        JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+				    WHERE 
+				        B.INS_DT BETWEEN #START_DT#::timestamp AND concat(#END_DT#,' ','11:59:59')::timestamp
+				        AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+				        ]]>
+				        <isNotEmpty prepend="AND" property="DEPT_NM"> 
+							 C.DEPT_NM = LANDSYS_ADM.FN_ENCRYPT(#DEPT_NM#, #KEY#)
+						</isNotEmpty>
+						<![CDATA[
+				    GROUP BY 
+				        B.progrm_no
+				         ]]>
+				        <isNotEmpty property="DEPT_NM"> 
+						, C.DEPT_NM
+						</isNotEmpty>
+						<![CDATA[
+				        
+				)
+				SELECT 
+				    c.P_PROGRM_NO, 
+				    c.PROGRM_NO, 
+				    c.P_PROGRM_NM, 
+				    c.PROGRM_NM, 
+				    COALESCE(d.CNT, '0') AS TOTAL,
+				     ]]>
+			         <isEmpty property="DEPT_NM"> 
+						 COALESCE(d.DEPT_NM, '-') AS DEPT_NM
+					</isEmpty>
+			        <isNotEmpty property="DEPT_NM"> 
+					COALESCE(LANDSYS_ADM.FN_DECRYPT(d.DEPT_NM, #KEY#), '-') AS DEPT_NM
+					</isNotEmpty>
+					<![CDATA[
+				FROM 
+				    FILTERED_PROGRM c 
+				LEFT JOIN 
+				    USER_LOGS d 
+				ON 
+				    c.PROGRM_NO = d.PROGRM_NO
+				WHERE 
+				    c.P_PROGRM_NM IS NOT NULL
+				ORDER BY 
+				    c.PATH;
+		]]>
+	</select>
+	
+	<select id="admin.stats.getMenuDeptPercent" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 관리자 - 메뉴별 통계 (부서 백분율) */
+		 WITH RECURSIVE PROGRM AS (
+			    SELECT 
+			        G.PROGRM_NO, 
+			        G.P_PROGRM_NO, 
+			        G.PROGRM_NM, 
+			        0 AS LEVEL, 
+			        ARRAY[substring(G.PROGRM_NO, 7)::int] AS PATH, 
+			        FALSE AS CYCLE, 
+			        G.MENU_YN, 
+			        G.STATS_YN,
+			        CAST(NULL AS VARCHAR) AS P_PROGRM_NM
+			    FROM 
+			        landsys_adm.TB_PROGRM_MNG G
+			    WHERE 
+			        (G.P_PROGRM_NO = '' OR G.P_PROGRM_NO IS NULL)
+			        AND G.USE_YN = 'Y'
+			    
+			    UNION ALL
+			
+			    SELECT 
+			        G.PROGRM_NO, 
+			        G.P_PROGRM_NO, 
+			        G.PROGRM_NM, 
+			        P.LEVEL + 1, 
+			        P.PATH || substring(G.PROGRM_NO, 7)::int, 
+			        substring(G.PROGRM_NO, 7)::int = ANY(P.PATH), 
+			        G.MENU_YN, 
+			        G.STATS_YN,
+			        P.PROGRM_NM AS P_PROGRM_NM
+			    FROM 
+			        landsys_adm.TB_PROGRM_MNG G
+			        JOIN PROGRM P ON G.P_PROGRM_NO = P.PROGRM_NO
+			    WHERE 
+			        G.USE_YN = 'Y'
+			        AND NOT CYCLE
+			), 
+			FILTERED_PROGRM AS (
+			    SELECT 
+			        PROGRM.PROGRM_NO
+			    FROM 
+			        PROGRM 
+			    WHERE 
+			        PROGRM.MENU_YN = 'Y'
+			        AND PROGRM.STATS_YN = 'Y'
+			        AND PROGRM.P_PROGRM_NM IS NOT NULL
+			),
+			USER_LOGS AS (
+			    SELECT 
+			        B.progrm_no AS PROGRM_NO,
+			        COUNT(B.LOG_NO) AS CNT,
+			        CASE WHEN C.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(C.DEPT_NM, #KEY#)
+			             ELSE '' END AS DEPT_NM
+			    FROM 
+			        LANDSYS_ADM.TH_USER_LOGS_PROGRM B
+			        JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+			    WHERE 
+			         B.INS_DT BETWEEN #START_DT#::timestamp AND concat(#END_DT#,' ','11:59:59')::timestamp
+			        AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+			    GROUP BY 
+			        B.progrm_no,
+			        C.DEPT_NM
+			),
+			FILTERED_USER_LOGS AS (
+			    SELECT 
+			        UL.DEPT_NM,
+			        SUM(UL.CNT) AS DEPT_CNT
+			    FROM 
+			        USER_LOGS UL
+			        JOIN FILTERED_PROGRM FP ON UL.PROGRM_NO = FP.PROGRM_NO
+			    GROUP BY 
+			        UL.DEPT_NM
+			),
+			TOTAL_LOGS AS (
+			    SELECT 
+			        SUM(DEPT_CNT) AS TOTAL_CNT
+			    FROM 
+			        FILTERED_USER_LOGS
+			),
+			TOP_3_DEPTS AS (
+			    SELECT 
+			        FUL.DEPT_NM,
+			        ROUND(FUL.DEPT_CNT * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+			    FROM 
+			        FILTERED_USER_LOGS FUL, 
+			        TOTAL_LOGS TL
+			    ORDER BY 
+			        PERCENTAGE DESC
+			    LIMIT 3
+			),
+			OTHER_DEPTS AS (
+			    SELECT 
+			        '기타' AS DEPT_NM,
+			        ROUND(SUM(FUL.DEPT_CNT) * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+			    FROM 
+			        FILTERED_USER_LOGS FUL,
+			        (SELECT TOTAL_CNT FROM TOTAL_LOGS) TL
+			    WHERE 
+			        FUL.DEPT_NM NOT IN (SELECT DEPT_NM FROM TOP_3_DEPTS)
+			      group by TOTAL_CNT
+			),
+			ALL_DEPTS AS (
+			    SELECT 
+			        DEPT_NM,
+			        PERCENTAGE
+			    FROM 
+			        TOP_3_DEPTS
+			    UNION ALL
+			    SELECT 
+			        DEPT_NM,
+			        PERCENTAGE
+			    FROM 
+			        OTHER_DEPTS
+			),
+			FINAL_RESULTS AS (
+			    SELECT 
+			        DEPT_NM,
+			        PERCENTAGE,
+			        ROW_NUMBER() OVER (ORDER BY CASE WHEN DEPT_NM = '기타' THEN 4 ELSE 1 END, PERCENTAGE DESC) AS no
+			    FROM 
+			        ALL_DEPTS
+			)
+			SELECT 
+			    no,
+			    DEPT_NM,
+			    PERCENTAGE
+			FROM 
+			    FINAL_RESULTS
+			ORDER BY 
+			    no;
+		]]>
+	</select>
+	
+	
+<select id="admin.stats.selectSumUsesMenuStatics" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 관리자 - 메뉴별 누계통계  */
+		    WITH RECURSIVE PROGRM(PROGRM_NO, P_PROGRM_NO, PROGRM_NM, LEVEL, PATH, CYCLE, MENU_YN, STATS_YN, P_PROGRM_NM) AS 
+				(
+				    SELECT 
+				        G.PROGRM_NO, 
+				        G.P_PROGRM_NO, 
+				        G.PROGRM_NM, 
+				          0 AS LEVEL, 
+				        ARRAY[substring(G.PROGRM_NO, 7)::int] AS PATH, 
+				        FALSE AS CYCLE, 
+				        G.MENU_YN, 
+				        G.STATS_YN,
+				        CAST(NULL AS VARCHAR) AS P_PROGRM_NM
+				    FROM 
+				        landsys_adm.TB_PROGRM_MNG G
+				    WHERE 
+				        (G.P_PROGRM_NO = '' OR G.P_PROGRM_NO IS NULL)
+				        AND G.USE_YN = 'Y'
+				    
+				    UNION ALL
+				
+				    SELECT 
+				        G.PROGRM_NO, 
+				        G.P_PROGRM_NO, 
+				        G.PROGRM_NM, 
+				         P.LEVEL + 1, 
+				        P.PATH || substring(G.PROGRM_NO, 7)::int, 
+				        substring(G.PROGRM_NO, 7)::int = ANY(P.PATH), 
+				        G.MENU_YN, 
+				        G.STATS_YN,
+				        P.PROGRM_NM AS P_PROGRM_NM
+				    FROM 
+				        landsys_adm.TB_PROGRM_MNG G
+				        JOIN PROGRM P ON G.P_PROGRM_NO = P.PROGRM_NO
+				    WHERE 
+				        G.USE_YN = 'Y'
+				        AND NOT CYCLE
+				)  
+				, FILTERED_PROGRM AS (
+				    SELECT 
+				        PROGRM.PROGRM_NO,
+				        PROGRM.P_PROGRM_NO,
+				        PROGRM.PROGRM_NM,
+				        PROGRM.LEVEL,
+				        PROGRM.PATH,
+				      (SELECT COUNT(*) FROM landsys_adm.TB_PROGRM_MNG M WHERE M.P_PROGRM_NO = PROGRM.PROGRM_NO AND M.MENU_YN = 'Y') = 0 AS ISLEAF,
+				        CASE 
+				            WHEN (SELECT COUNT(*) FROM landsys_adM.TB_PROGRM_MNG M WHERE M.P_PROGRM_NO = PROGRM.PROGRM_NO AND M.MENU_YN = 'Y') = 0 
+				            THEN PROGRM.P_PROGRM_NM 
+				            ELSE NULL 
+				        END AS P_PROGRM_NM
+				    FROM 
+				        PROGRM 
+				    WHERE 
+				        PROGRM.MENU_YN = 'Y'
+				        AND PROGRM.STATS_YN = 'Y'
+				        AND PROGRM.P_PROGRM_NM IS NOT NULL
+				),
+				YEARS AS (
+				    SELECT generate_series(
+				        (SELECT EXTRACT(YEAR FROM MIN(INS_DT))::integer FROM LANDSYS_ADM.TH_USER_LOGS_PROGRM),
+				        EXTRACT(YEAR FROM CURRENT_DATE)::integer
+				    )::text AS LOG_TIME
+				),
+				USER_LOGS AS (
+				    SELECT 
+				        B.progrm_no AS PROGRM_NO,
+				        COUNT(B.LOG_NO) AS CNT,
+                        EXTRACT(YEAR FROM B.INS_DT)::text AS LOG_TIME
+				         ]]>
+				         <isEmpty property="DEPT_NM"> 
+							 , '전체' as DEPT_NM
+						</isEmpty>
+				        <isNotEmpty property="DEPT_NM"> 
+							, C.DEPT_NM AS DEPT_NM
+						</isNotEmpty>
+						<![CDATA[
+				    FROM 
+				        LANDSYS_ADM.TH_USER_LOGS_PROGRM B
+				        JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+				    WHERE 
+				        EXTRACT(YEAR FROM B.INS_DT) BETWEEN 
+                        (SELECT EXTRACT(YEAR FROM MIN(INS_DT))::integer FROM LANDSYS_ADM.TH_USER_LOGS_PROGRM)
+                        AND EXTRACT(YEAR FROM CURRENT_DATE)::integer
+				        AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+				        ]]>
+				        <isNotEmpty prepend="AND" property="DEPT_NM"> 
+							 C.DEPT_NM = LANDSYS_ADM.FN_ENCRYPT(#DEPT_NM#, #KEY#)
+						</isNotEmpty>
+						<![CDATA[
+				    GROUP BY 
+				        B.progrm_no, LOG_TIME 
+				         ]]>
+				        <isNotEmpty property="DEPT_NM"> 
+						, C.DEPT_NM
+						</isNotEmpty>
+						<![CDATA[
+				        
+				),
+				USER_LOGS_EXPANDED AS (
+				    SELECT 
+				        fp.PROGRM_NO,
+				        y.LOG_TIME,
+				        COALESCE(ul.CNT, 0) AS CNT
+                        ]]>
+				         <isEmpty property="DEPT_NM"> 
+							 , COALESCE(ul.DEPT_NM, '-') AS DEPT_NM
+						</isEmpty>
+				        <isNotEmpty property="DEPT_NM"> 
+							,COALESCE(LANDSYS_ADM.FN_DECRYPT(ul.DEPT_NM,  #KEY#), #DEPT_NM#) AS DEPT_NM
+						</isNotEmpty>
+						<![CDATA[
+				    FROM 
+				        FILTERED_PROGRM fp
+				    CROSS JOIN YEARS y
+				    LEFT JOIN USER_LOGS ul 
+				    ON fp.PROGRM_NO = ul.PROGRM_NO AND y.LOG_TIME = ul.LOG_TIME
+				),
+				RESULTS AS (
+				    SELECT 
+				        c.P_PROGRM_NO,
+				        c.PROGRM_NO,
+				        c.P_PROGRM_NM,
+				        c.PROGRM_NM,
+				        jsonb_object_agg(e.LOG_TIME, e.CNT ORDER BY e.LOG_TIME) AS times,
+				        e.DEPT_NM,
+				        SUM(e.CNT) AS TOTAL,
+				        c.PATH
+				    FROM 
+				        FILTERED_PROGRM c 
+				    LEFT JOIN 
+				        USER_LOGS_EXPANDED e 
+				    ON 
+				        c.PROGRM_NO = e.PROGRM_NO
+				    WHERE 
+				        c.P_PROGRM_NM IS NOT NULL
+				    GROUP BY 
+				        c.P_PROGRM_NO, 
+				        c.PROGRM_NO, 
+				        c.P_PROGRM_NM, 
+				        c.PROGRM_NM, 
+				        e.DEPT_NM, 
+				        c.PATH
+				)
+				SELECT 
+				 jsonb_build_object(
+				        'P_PROGRM_NO', r.P_PROGRM_NO,
+				        'PROGRM_NO', r.PROGRM_NO,
+				        'P_PROGRM_NM', r.P_PROGRM_NM,
+				        'PROGRM_NM', r.PROGRM_NM,
+				        'TOTAL', r.TOTAL,
+				       'DEPT_NM', CASE WHEN r.TOTAL = 0 THEN '-' ELSE r.DEPT_NM END
+				          ) || r.times AS result
+				FROM 
+				    RESULTS r
+				ORDER BY 
+				    r.PATH;
+		]]>
+	</select>
+	
+	<select id="admin.stats.getSumMenuDeptPercent" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 관리자 - 메뉴별 누계통계 (부서 백분율) */
+		 WITH RECURSIVE PROGRM AS (
+			    SELECT 
+			        G.PROGRM_NO, 
+			        G.P_PROGRM_NO, 
+			        G.PROGRM_NM, 
+			        0 AS LEVEL, 
+			        ARRAY[substring(G.PROGRM_NO, 7)::int] AS PATH, 
+			        FALSE AS CYCLE, 
+			        G.MENU_YN, 
+			        G.STATS_YN,
+			        CAST(NULL AS VARCHAR) AS P_PROGRM_NM
+			    FROM 
+			        landsys_adm.TB_PROGRM_MNG G
+			    WHERE 
+			        (G.P_PROGRM_NO = '' OR G.P_PROGRM_NO IS NULL)
+			        AND G.USE_YN = 'Y'
+			    
+			    UNION ALL
+			
+			    SELECT 
+			        G.PROGRM_NO, 
+			        G.P_PROGRM_NO, 
+			        G.PROGRM_NM, 
+			        P.LEVEL + 1, 
+			        P.PATH || substring(G.PROGRM_NO, 7)::int, 
+			        substring(G.PROGRM_NO, 7)::int = ANY(P.PATH), 
+			        G.MENU_YN, 
+			        G.STATS_YN,
+			        P.PROGRM_NM AS P_PROGRM_NM
+			    FROM 
+			        landsys_adm.TB_PROGRM_MNG G
+			        JOIN PROGRM P ON G.P_PROGRM_NO = P.PROGRM_NO
+			    WHERE 
+			        G.USE_YN = 'Y'
+			        AND NOT CYCLE
+			), 
+			FILTERED_PROGRM AS (
+			    SELECT 
+			        PROGRM.PROGRM_NO
+			    FROM 
+			        PROGRM 
+			    WHERE 
+			        PROGRM.MENU_YN = 'Y'
+			        AND PROGRM.STATS_YN = 'Y'
+			        AND PROGRM.P_PROGRM_NM IS NOT NULL
+			),
+			USER_LOGS AS (
+			    SELECT 
+			        B.progrm_no AS PROGRM_NO,
+			        COUNT(B.LOG_NO) AS CNT,
+			         C.DEPT_NM AS DEPT_NM
+			    FROM 
+			        LANDSYS_ADM.TH_USER_LOGS_PROGRM B
+			        JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+			    WHERE  
+			        (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+			    GROUP BY 
+			        B.progrm_no,
+			        C.DEPT_NM
+			),
+			FILTERED_USER_LOGS AS (
+			     SELECT 
+			     CASE WHEN UL.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(UL.DEPT_NM, #KEY#)
+			             ELSE '알수없음' END AS DEPT_NM,
+			        SUM(UL.CNT) AS DEPT_CNT
+			    FROM 
+			        USER_LOGS UL
+			        JOIN FILTERED_PROGRM FP ON UL.PROGRM_NO = FP.PROGRM_NO
+			    GROUP BY 
+			        UL.DEPT_NM
+			),
+			TOTAL_LOGS AS (
+			    SELECT 
+			        SUM(DEPT_CNT) AS TOTAL_CNT
+			    FROM 
+			        FILTERED_USER_LOGS
+			),
+			ALL_DEPTS AS (
+			    SELECT 
+			        FUL.DEPT_NM,
+	        		ROUND(FUL.DEPT_CNT * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+			    FROM 
+			       FILTERED_USER_LOGS FUL, 
+	        	   TOTAL_LOGS TL
+			)
+			SELECT 
+			    ROW_NUMBER() OVER (ORDER BY PERCENTAGE DESC) AS no,
+			    DEPT_NM,
+			    PERCENTAGE
+			FROM 
+			    ALL_DEPTS
+			ORDER BY 
+			    no;
+		]]>
+	</select>
+	
+	<select id="admin.stats.selectUsesLayerStatics" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 관리자 - 레이어 통계  */
+		  SELECT e.layer_no , e.layer_nm, e.grp_no, e.grp_nm,  COALESCE(f.DEPT_NM, '-') AS DEPT_NM,  COALESCE(f.total, '0') as total 
+	  FROM (
+	            SELECT /* 기본정보 */
+	                   a.layer_no
+			         , a.layer_dp_nm as layer_nm
+			         , b.layer_ordr         
+			         , c.grp_no 
+			         , c.GRP_ORDR 
+			         , c.grp_nm   
+			      FROM landsys_adm.tb_layer_info        a
+			         , landsys_adm.tb_group_layer_mapng b
+			         , landsys_adm.tb_group_info        c
+			     WHERE a.layer_no = b.layer_no 
+			       AND b.grp_no   = c.grp_no       
+	       ) e LEFT OUTER JOIN (     
+					 SELECT 
+						          B.layer_no                       as layer_no
+						         , to_char(count(*), 'FM9,999,999,999') as total
+								  ]]>
+								<isEmpty property="DEPT_NM"> 
+									, '전체' as DEPT_NM
+								</isEmpty>
+								<isNotEmpty property="DEPT_NM"> 
+									, COALESCE(LANDSYS_ADM.FN_DECRYPT(C.DEPT_NM, #KEY#), '-') AS DEPT_NM
+								</isNotEmpty>
+								<![CDATA[
+				    FROM  ]]>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="layer">
+				         /* 1. 레이어 조회*/
+						      landsys_adm.TH_USER_LOGS_LAYER B
+					</isEqual>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="data">
+				          /* 2. 데이터 조회*/
+						      landsys_adm.th_user_logs_data B
+					</isEqual>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="download">
+				          /* 3. 다운로드 조회*/
+						     landsys_adm.TH_USER_LOGS_DWLD B
+					</isEqual>
+					<![CDATA[
+						      JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+				    WHERE 
+				        B.INS_DT BETWEEN #START_DT#::timestamp AND concat(#END_DT#,' ','11:59:59')::timestamp
+				        AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+				        ]]>
+				        <isNotEmpty prepend="AND" property="DEPT_NM"> 
+							 C.DEPT_NM = LANDSYS_ADM.FN_ENCRYPT(#DEPT_NM#, #KEY#)
+						</isNotEmpty>
+						<![CDATA[
+				    GROUP BY 
+				       B.layer_no 
+				         ]]>
+				        <isNotEmpty property="DEPT_NM"> 
+						, C.DEPT_NM
+						</isNotEmpty>
+						<![CDATA[
+				        
+				 ORDER BY  B.layer_no	 
+	       ) f 
+		ON e.layer_no = f.layer_no
+  ORDER BY e.grp_ordr, e.layer_ordr   
+		]]>
+	</select>
+
+	<select id="admin.stats.getLayerDeptPercent" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 관리자 - 레이어 통계 (백분율)  */
+		 WITH USER_LOGS AS (
+			SELECT 
+				B.layer_no AS layer_no,
+				COUNT(*) AS total,
+				C.DEPT_NM AS DEPT_NM
+			FROM 
+			]]>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="layer">
+				         /* 1. 레이어 조회*/
+						      landsys_adm.TH_USER_LOGS_LAYER B
+					</isEqual>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="data">
+				          /* 2. 데이터 조회*/
+						      landsys_adm.th_user_logs_data B
+					</isEqual>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="download">
+				          /* 3. 다운로드 조회*/
+						     landsys_adm.TH_USER_LOGS_DWLD B
+					</isEqual>
+					<![CDATA[
+						      JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+				    WHERE 
+				        B.INS_DT BETWEEN #START_DT#::timestamp AND concat(#END_DT#,' ','11:59:59')::timestamp
+				        AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+				    GROUP BY 
+				       B.layer_no , C.DEPT_NM
+					),
+					FILTERED_USER_LOGS AS (
+						SELECT 
+							CASE WHEN UL.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(UL.DEPT_NM, #KEY#)
+				             ELSE '알수없음' END AS DEPT_NM,
+							SUM(UL.total) AS DEPT_CNT
+						FROM 
+							USER_LOGS UL
+						GROUP BY 
+							UL.DEPT_NM
+					),
+					TOTAL_LOGS AS (
+						SELECT 
+							SUM(DEPT_CNT) AS TOTAL_CNT
+						FROM 
+							FILTERED_USER_LOGS
+					),
+					TOP_3_DEPTS AS (
+						SELECT 
+							FUL.DEPT_NM,
+							ROUND(FUL.DEPT_CNT * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+						FROM 
+							FILTERED_USER_LOGS FUL, TOTAL_LOGS TL
+						ORDER BY 
+							PERCENTAGE DESC
+						LIMIT 3
+					),
+					OTHER_DEPTS AS (
+						SELECT 
+							'기타' AS DEPT_NM,
+							ROUND(SUM(FUL.DEPT_CNT) * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+						FROM 
+							FILTERED_USER_LOGS FUL, TOTAL_LOGS TL
+						WHERE 
+							FUL.DEPT_NM NOT IN (SELECT DEPT_NM FROM TOP_3_DEPTS)
+						GROUP BY 
+	       				 	TOTAL_CNT
+					),
+					ALL_DEPTS AS (
+						SELECT 
+							DEPT_NM,
+							PERCENTAGE
+						FROM 
+							TOP_3_DEPTS
+						UNION ALL
+						SELECT 
+							DEPT_NM,
+							PERCENTAGE
+						FROM 
+							OTHER_DEPTS
+					),
+					FINAL_RESULTS AS (
+						SELECT 
+							DEPT_NM,
+							PERCENTAGE,
+							ROW_NUMBER() OVER (ORDER BY CASE WHEN DEPT_NM = '기타' THEN 4 ELSE 1 END, PERCENTAGE DESC) AS no
+						FROM 
+							ALL_DEPTS
+					)
+					SELECT 
+						no,
+						DEPT_NM,
+						PERCENTAGE
+					FROM 
+						FINAL_RESULTS
+					ORDER BY 
+						no;
+		]]>
+	</select>
+	
+	<select id="admin.stats.selectSumUsesLayerStatics" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 관리자 - 레이어 누계통계  */
+				with YEARS AS (
+									SELECT generate_series(
+										(SELECT EXTRACT(YEAR FROM MIN(INS_DT))::integer FROM LANDSYS_ADM.TH_USER_LOGS_PROGRM),
+										EXTRACT(YEAR FROM CURRENT_DATE)::integer
+									)::text AS LOG_TIME
+								),
+				USER_LOGS_BASE AS (
+				/*레이어 정보 */
+					SELECT 
+						a.layer_no,
+						a.layer_dp_nm AS layer_nm,
+						b.layer_ordr,
+						c.grp_no,
+						c.GRP_ORDR,
+						c.grp_nm
+					FROM 
+						landsys_adm.tb_layer_info a
+						JOIN landsys_adm.tb_group_layer_mapng b ON a.layer_no = b.layer_no
+						JOIN landsys_adm.tb_group_info c ON b.grp_no = c.grp_no
+				),
+				USER_LOGS AS (
+				/*사용자 정보 */
+					SELECT 
+						e.layer_no,
+						e.layer_nm,
+						e.layer_ordr,
+						e.grp_no,
+						e.grp_ordr,
+						e.grp_nm,
+						COALESCE(f.LOG_TIME, '-') AS LOG_TIME,
+						COALESCE(f.CNT, '0') AS CNT,
+								  ]]>
+								<isEmpty property="DEPT_NM"> 
+									'전체' as DEPT_NM
+								</isEmpty>
+								<isNotEmpty property="DEPT_NM"> 
+									f.DEPT_NM AS DEPT_NM
+								</isNotEmpty>
+								<![CDATA[
+				      FROM 
+						USER_LOGS_BASE e
+						LEFT JOIN (
+							SELECT 
+								B.layer_no AS layer_no,
+								COUNT(B.LOG_NO) AS CNT,
+								EXTRACT(YEAR FROM B.INS_DT)::text AS LOG_TIME,]]>
+								<isEmpty property="DEPT_NM"> 
+									'전체' as DEPT_NM
+								</isEmpty>
+								<isNotEmpty property="DEPT_NM"> 
+									 C.DEPT_NM AS DEPT_NM
+								</isNotEmpty>
+								<![CDATA[
+  							FROM  
+							]]>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="layer">
+				         /* 1. 레이어 조회*/
+						      landsys_adm.TH_USER_LOGS_LAYER B
+					</isEqual>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="data">
+				          /* 2. 데이터 조회*/
+						      landsys_adm.th_user_logs_data B
+					</isEqual>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="download">
+				          /* 3. 다운로드 조회*/
+						     landsys_adm.TH_USER_LOGS_DWLD B
+					</isEqual>
+					<![CDATA[
+						      JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+				    WHERE 
+				        EXTRACT(YEAR FROM B.INS_DT) BETWEEN 
+						(SELECT EXTRACT(YEAR FROM MIN(INS_DT))::integer FROM LANDSYS_ADM.TH_USER_LOGS_PROGRM)
+						AND EXTRACT(YEAR FROM CURRENT_DATE)::integer
+						AND (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+				        ]]>
+				        <isNotEmpty prepend="AND" property="DEPT_NM"> 
+							 C.DEPT_NM = LANDSYS_ADM.FN_ENCRYPT(#DEPT_NM#, #KEY#)
+						</isNotEmpty>
+						<![CDATA[
+				    GROUP BY 
+				       B.layer_no, LOG_TIME
+				         ]]>
+				        <isNotEmpty property="DEPT_NM"> 
+						, C.DEPT_NM
+						</isNotEmpty>
+						<![CDATA[
+				  ) f ON e.layer_no = f.layer_no
+) ,
+USER_LOGS_EXPANDED AS (
+    SELECT 
+        ulb.layer_no,
+        ulb.layer_nm,
+        ulb.layer_ordr,
+        ulb.grp_no,
+        ulb.grp_nm,
+        ulb.grp_ordr,
+        y.LOG_TIME,
+        COALESCE(ul.CNT, 0) AS CNT,
+  ]]>
+		<isEmpty property="DEPT_NM"> 
+			'전체' as DEPT_NM
+		</isEmpty>
+		<isNotEmpty property="DEPT_NM"> 
+			COALESCE(LANDSYS_ADM.FN_DECRYPT(ul.DEPT_NM,  #KEY#), #DEPT_NM#) AS DEPT_NM
+		</isNotEmpty>
+		<![CDATA[
+FROM 
+        USER_LOGS_BASE ulb
+    CROSS JOIN YEARS y
+    LEFT JOIN USER_LOGS ul 
+    ON ulb.layer_no = ul.layer_no AND y.LOG_TIME = ul.LOG_TIME
+),
+RESULTS AS (
+				    SELECT 
+				        c.layer_no,
+				        c.layer_nm,
+				        c.layer_ordr,
+				        c.grp_no,
+				        c.grp_nm,
+				        c.grp_ordr,
+				        jsonb_object_agg(e.LOG_TIME, e.CNT ORDER BY e.LOG_TIME) AS times,
+				        e.DEPT_NM,
+				        SUM(e.CNT) AS TOTAL
+				    FROM 
+				        USER_LOGS_BASE c 
+				    LEFT JOIN 
+				        USER_LOGS_EXPANDED e 
+				    ON 
+				        c.layer_no = e.layer_no
+				    GROUP BY 
+				        c.layer_no, 
+				        c.layer_nm, 
+				        c.grp_no, 
+				        c.grp_nm, 
+				        e.DEPT_NM,
+				        c.layer_ordr,
+				        c.grp_ordr
+				)
+				SELECT 
+				 jsonb_build_object(
+				        'LAYER_NO', r.layer_no,
+				        'LAYER_NM', r.layer_nm,
+				        'GRP_NO', r.grp_no,
+				        'GRP_NM', r.grp_nm,
+				        'TOTAL', r.TOTAL,
+				       'DEPT_NM', CASE WHEN r.TOTAL = 0 THEN '-' ELSE r.DEPT_NM END
+				          ) || r.times AS result
+				FROM 
+				    RESULTS r
+				ORDER BY 
+				    r.grp_ordr, r.layer_ordr;
+		]]>
+	</select>
+
+	<select id="admin.stats.getSumLayerDeptPercent" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 관리자 - 레이어 누계통계 (백분율)  */
+		 WITH USER_LOGS AS (
+			SELECT 
+				B.layer_no AS layer_no,
+				COUNT(*) AS total,
+				C.DEPT_NM AS DEPT_NM
+			FROM 
+			]]>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="layer">
+				         /* 1. 레이어 조회*/
+						      landsys_adm.TH_USER_LOGS_LAYER B
+					</isEqual>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="data">
+				          /* 2. 데이터 조회*/
+						      landsys_adm.th_user_logs_data B
+					</isEqual>
+					<isEqual prepend="" property="STAT_TYPE" compareValue="download">
+				          /* 3. 다운로드 조회*/
+						     landsys_adm.TH_USER_LOGS_DWLD B
+					</isEqual>
+					<![CDATA[
+						      JOIN LANDSYS_ADM.TB_USER_INFO C ON B.USER_ID = C.USER_ID
+				    WHERE 
+				       (C.USE_YN IS NULL OR C.USE_YN = 'Y')
+				    GROUP BY 
+				       B.layer_no , C.DEPT_NM
+					),
+					FILTERED_USER_LOGS AS (
+						SELECT 
+							CASE WHEN UL.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(UL.DEPT_NM, #KEY#)
+			             		 ELSE '알수없음' END AS DEPT_NM,
+							SUM(UL.total) AS DEPT_CNT
+						FROM 
+							USER_LOGS UL
+						GROUP BY 
+							UL.DEPT_NM
+					),
+					TOTAL_LOGS AS (
+						SELECT 
+							SUM(DEPT_CNT) AS TOTAL_CNT
+						FROM 
+							FILTERED_USER_LOGS
+					),
+					ALL_DEPTS AS (
+						SELECT 
+					        FUL.DEPT_NM,
+			        		ROUND(FUL.DEPT_CNT * 100.0 / TL.TOTAL_CNT, 2) AS PERCENTAGE
+					    FROM 
+					       FILTERED_USER_LOGS FUL, 
+			        	   TOTAL_LOGS TL
+					)
+					SELECT 
+					    ROW_NUMBER() OVER (ORDER BY PERCENTAGE DESC) AS no,
+					    DEPT_NM,
+					    PERCENTAGE
+					FROM 
+					    ALL_DEPTS
+					ORDER BY 
+					    no;
+		]]>
+	</select>
+
+
+</sqlMap>

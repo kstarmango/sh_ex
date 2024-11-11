@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>SH서울주택도시공사</title>  
+</head>
+<body>
+    
+    <div class="header">
+        <div class="logo">
+            <img src="/img/SH_logo.svg" alt="logo" />
+            <span>|</span>
+            <h1>전사자원관리시스템 통합 공간정보 시스템</h1>
+        </div>
+
+        <div class="nav">
+            <a href="">
+                <img src="/img/Icon_NavMap.svg" alt="map" />
+                지도
+            </a>
+            <a href="">
+                <img src="/img/Icon_NavBoard.svg" alt="board" />
+                게시판
+            </a>
+            <a href="" class="active">
+                <img src="/img/Icon_NavManager.svg" alt="Manager" />
+                관리자
+            </a>
+        </div>
+
+        <div class="user" onclick="">
+            <img src="img/Icon_User.svg" />
+            user_admin
+        </div>
+    </div>
+ <!-- 헤더 종료  -->
+ 
+    <div class="leftMenu">
+        <div class="leftTop">
+            <img src="/img/Icon_NavManager.svg" alt="map" /> 시스템 관리
+        </div>
+        <div class="sidenav">
+            <button class="dropdown-btn">사용자 관리
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-container">
+                <a href="#">
+                    <img src="/img/Icon_SidnavLi.svg" />사용자 관리
+                </a>
+                <a href="#">
+                	<img src="/img/Icon_SidnavLi.svg" />사용자 권한관리
+                </a>
+            </div>
+
+            <button class="dropdown-btn">시스템 관리
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-container">
+                <a href="#">
+                    <img src="/img/Icon_SidnavLi.svg" />
+                    사용자 관리
+                </a>
+                <a href="#">
+                    <img src="/img/Icon_SidnavLi.svg" />
+                    사용자 권한관리
+                </a>
+            </div>
+
+            <button class="dropdown-btn">레이어 관리
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-container">
+                <a href="#">
+                    <img src="/img/Icon_SidnavLi.svg" />
+                    사용자 관리
+                </a>
+                <a href="#">
+                    <img src="/img/Icon_SidnavLi.svg" />
+                    사용자 권한관리
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="contWrap">
+        <h1>사용자 관리</h1>
+        <div class="whiteCont">
+            <p class="pageNav">
+                HOME &nbsp&nbsp |  &nbsp&nbsp  시스템 관리  &nbsp&nbsp  |  &nbsp&nbsp  사용자 관리
+            </p>
+        </div>
+    </div>
+
+
+    <script>
+        /* leftMenu toggle */
+        var dropdown = document.getElementsByClassName("dropdown-btn");
+        var i;
+        
+        for (i = 0; i < dropdown.length; i++) {
+          dropdown[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var dropdownContent = this.nextElementSibling;
+            if (dropdownContent.style.display === "block") {
+              dropdownContent.style.display = "none";
+            } else {
+              dropdownContent.style.display = "block";
+            }
+          });
+        }
+        for(let i =0; i<document.getElementsByClassName("dropdown-container").length; i++){
+            var dropdownSub = document.getElementsByClassName("dropdown-container")[i].children;
+            
+            for (let j = 0; j < dropdownSub.length; j++) {
+                dropdownSub[j].addEventListener("click", function() {
+                    for(let k=0; k<this.parentElement.children.length; k++){
+                        for(let l=0; l<this.parentElement.parentElement.children.length; l++){
+                            if(this.parentElement.parentElement.children[l].className === 'dropdown-container'){
+                                if(this.parentElement.parentElement.children[l] !== document.getElementsByClassName("dropdown-container")[i]){
+                                    for(let m=0; m<this.parentElement.parentElement.children[l].children.length; m++){
+                                        this.parentElement.parentElement.children[l].children[m].classList.remove("active");
+                                    }
+                                }
+                            }
+                        }
+                        if(this.parentElement.children[k] === this){
+                            this.parentElement.children[k].classList.toggle("active");
+                        }else{
+                            this.parentElement.children[k].classList.remove("active");
+                        }
+                    }
+                })
+            };
+        }
+    </script>
+</body>
+</html>

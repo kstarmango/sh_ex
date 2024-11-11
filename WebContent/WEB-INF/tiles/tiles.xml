@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+  "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+  "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+
+<tiles-definitions>
+	<!-- tiles 적용 -->
+	<definition name="adminBase" template="/WEB-INF/jsp/layout/adminTemplate.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/layout/adminHeader.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/jsp/layout/adminLeftLayout.jsp" />
+		<put-attribute name="content" value="" />
+		<put-attribute name="siteBottom" value="/WEB-INF/jsp/layout/SiteBottom.jsp" />
+	</definition>
+ 
+	<definition name="admin/*.tile" extends="adminBase">
+		<put-attribute name="content" value="/WEB-INF/jsp/admin/{1}.jsp"/>
+	</definition>
+	
+	<definition name="admin/*/*.tile" extends="adminBase">
+		<put-attribute name="content" value="/WEB-INF/jsp/admin/{1}/{2}.jsp"/>
+	</definition> 
+	
+	<definition name="pageContent" template="/WEB-INF/jsp/layout/pageContent.jsp">
+	  <put-attribute name="content"   value="" />
+	 </definition>
+	 <definition name="*/*.page" extends="pageContent">
+	  <put-attribute name="content"   value="/WEB-INF/jsp/{1}/{2}.jsp" />
+	 </definition>
+	<definition name="*/*/*.page" extends="pageContent">
+	  <put-attribute name="content"   value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+	 </definition>
+	
+		
+	<!-- 타일즈 미 적용 -->
+	<definition name="simple-tiles" template="/WEB-INF/jsp/layout/singleLayout.jsp">
+	  <put-attribute name="content"   value="" />
+	 </definition>
+	<definition name="*/*.part" extends="simple-tiles">
+	  <put-attribute name="content"   value="/WEB-INF/jsp/{1}/{2}.jsp" />
+	 </definition>
+	 <definition name="*/*/*.part" extends="simple-tiles">
+	  <put-attribute name="content"   value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+	 </definition>
+	 	<definition name="*/*/*/*.part" extends="simple-tiles">
+		<put-attribute name="content" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+	</definition> 
+	
+	<!-- 타일즈 미 적용 임시 -->
+	<definition name="subContent" template="/WEB-INF/jsp/layout/subMenu.jsp">
+	  <put-attribute name="sub_content"   value="" />
+	 </definition>
+	 
+	<definition name="*/*/*.sub" extends="subContent">
+	  <put-attribute name="sub_content"   value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+	 </definition>
+	<definition name="*/*/*/*.sub" extends="subContent">
+	  <put-attribute name="sub_content"   value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+	 </definition>
+ 	
+ 	<!-- 지도서비스 -->
+    <definition name="normalLayout" template="/WEB-INF/jsp/layout/NormalLayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/portal/header.jsp" />
+		<!-- <put-attribute name="aside" value="/WEB-INF/jsp/portal/leftMenu.jsp" /> -->
+		<put-attribute name="aside" value="/WEB-INF/jsp/portal/leftMenu.jsp" />
+		<!-- <put-attribute name="sub_content" value="" /> -->
+		<put-attribute name="NormalLayout" value="" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/portal/footer.jsp" />
+	</definition>
+	
+	
+	<definition name="/*.jsp" extends="normalLayout">
+		<put-attribute name="NormalLayout" value="/WEB-INF/jsp/{1}.jsp" />
+	</definition>
+		
+	<definition name="*/*.jsp" extends="normalLayout">
+		<put-attribute name="NormalLayout" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+	</definition> 
+	<definition name="*/*/*/*.jsp" extends="normalLayout">
+		<put-attribute name="NormalLayout" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+	</definition> 
+	
+	<definition name="*/*/*.jsp" extends="normalLayout">
+		<put-attribute name="aside" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+	</definition> 
+	
+	
+	<!-- 포탈서비스 -->
+    <definition name="portalLayout" template="/WEB-INF/jsp/layout/portalLayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/jsp/portal/board/header.jsp" />
+		<!-- <put-attribute name="aside" value="/WEB-INF/jsp/portal/leftMenu.jsp" /> -->
+		<put-attribute name="aside" value="/WEB-INF/jsp/portal/board/leftMenu.jsp" />
+		<!-- <put-attribute name="sub_content" value="" /> -->
+		<put-attribute name="content" value="" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/portal/footer.jsp" />
+	</definition>
+	
+	
+	<definition name="portal/*/*.tile" extends="portalLayout"> 
+		<put-attribute name="content" value="/WEB-INF/jsp/portal/{1}/{2}.jsp"/>
+	</definition> 
+	 
+</tiles-definitions>

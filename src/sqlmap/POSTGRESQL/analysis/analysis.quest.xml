@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="analysis.quest">
+
+	<select id="analysis.quest.selectIndvdlzHousePc" parameterClass="String" resultClass="org.json.simple.JSONObject">
+		<![CDATA[
+			/* 개별주택가격 통계 조회 */
+			select '개별주택가격' as gubun,*
+			from (
+				SELECT cast(avg(t11.house_pc) as text) as sg_avg, t12.signgu_nm, t11.data_stdde
+				FROM landsys_gis.indvdlz_house_pc_info t11, landsys_gis.signgu_administ_bndry_cd t12
+				where t11.signgu_code = #sggCd# and t12.signgu_code = #sggCd#
+				group by t12.signgu_nm, t11.data_stdde
+			) t1,
+			(
+				SELECT cast(avg(house_pc) as text) as sid_avg
+				FROM landsys_gis.indvdlz_house_pc_info
+				where signgu_code like '%' || substr(#sggCd#,1,2) ||'%'
+			) t2
+		]]>
+	</select>
+	
+	
+	<select id="analysis.quest.selectCopertnHousePc" parameterClass="String" resultClass="org.json.simple.JSONObject">
+		<![CDATA[
+			/* 공동주택가격 통계 조회 */
+			select '공동주택가격' as gubun,*
+			from (
+				SELECT cast(avg(t11.avrg_potvale) as text) as sg_avg, t12.signgu_nm, t11.data_stdde
+				FROM landsys_gis.copertn_house_pc_info t11, landsys_gis.signgu_administ_bndry_cd t12
+				where t11.signgu_code = #sggCd# and t12.signgu_code = #sggCd#
+				group by t12.signgu_nm, t11.data_stdde
+			) t1,
+			(
+				SELECT cast(avg(avrg_potvale) as text) as sid_avg
+				FROM landsys_gis.copertn_house_pc_info
+				where signgu_code like '%' || substr(#sggCd#,1,2) ||'%'
+			) t2
+		]]>
+	</select>
+	
+	
+	<select id="analysis.quest.selectPnilp" parameterClass="String" resultClass="org.json.simple.JSONObject">
+		<![CDATA[
+			/* 개별공시지가 통계 조회 */
+			select '개별공시지가' as gubun,*
+			from (
+				SELECT cast(avg(t11.pnilp) as text) as sg_avg, t12.signgu_nm, t11.data_stdde
+				FROM landsys_gis.pnilp t11, landsys_gis.signgu_administ_bndry_cd t12
+				where t11.signgu_code = #sggCd# and t12.signgu_code = #sggCd#
+				group by t12.signgu_nm, t11.data_stdde
+			) t1,
+			(
+				SELECT cast(avg(pnilp) as text) as sid_avg
+				FROM landsys_gis.pnilp
+				where signgu_code like '%' || substr(#sggCd#,1,2) ||'%'
+			) t2
+		]]>
+	</select>
+	
+	
+	<select id="analysis.quest.selectBild" parameterClass="String" resultClass="org.json.simple.JSONObject">
+		<![CDATA[
+			/* 건축물대장 - 표제부 통계 조회 */
+			select '건축물대장' as gubun, *
+			from (
+				SELECT 
+					cast(round(avg(t11.hshld_co::numeric(5)),1) as text) as hshld_co_sg_avg,
+					cast(round(avg(t11.fmly_co::numeric(5)),1) as text) as fmly_co_sg_avg,
+					cast(round(avg(t11.hg::numeric),1) as text) as hg_sg_avg,
+					cast(round(avg(t11.ground_floor_co),1) as text) as ground_floor_co_sg_avg,
+					cast(round(avg(t11.undgrnd_floor_co),1) as text) as undgrnd_floor_co_sg_avg,
+					t12.signgu_nm
+				FROM landsys_gis.bild_regstr_titleledger t11, landsys_gis.signgu_administ_bndry_cd t12
+				where t11.signgu_code = #sggCd# and t12.signgu_code = #sggCd#
+				group by t12.signgu_nm
+			) t1, 
+			(
+				SELECT 
+					cast(round(avg(t11.hshld_co::numeric(5)),1) as text) as hshld_co_sid_avg,
+					cast(round(avg(t11.fmly_co::numeric(5)),1) as text) as fmly_co_sid_avg,
+					cast(round(avg(t11.hg::numeric),1) as text) as hg_sid_avg,
+					cast(round(avg(t11.ground_floor_co),1) as text) as ground_floor_co_sid_avg,
+					cast(round(avg(t11.undgrnd_floor_co),1) as text) as undgrnd_floor_co_sid_avg
+				FROM landsys_gis.bild_regstr_titleledger t11
+				where signgu_code like '%' || substr(#sggCd#,1,2) ||'%'
+			) t2
+		]]>
+	</select>
+
+</sqlMap>

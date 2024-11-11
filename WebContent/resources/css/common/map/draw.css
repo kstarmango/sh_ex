@@ -1,0 +1,71 @@
+.draw_tool_box {
+	display: flex;
+	width: fit-content;
+	border: 1px solid #000;
+	border-radius: 0.4rem;
+}
+
+.draw_item {
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 32px;
+	height: 32px;
+	background-color: #fff;
+	border-right: 1px solid #000;
+}
+
+.draw_item:last-of-type {
+	border-right: none;
+}
+
+.draw_move {
+	width: inherit;
+	height: inherit;
+}
+
+.draw_point {
+	width: inherit;
+	height: inherit;
+}
+
+.draw_line {
+	width: 32px;
+	height: 32px;
+	/* background-image: url(/resources/img/line.png); */
+}
+
+.draw_polygon {
+	width: 32px;
+	height: 32px;
+	/* background-image: url(/resources/img/polygon.png); */
+}
+
+.draw_circle {
+	width: 32px;
+	height: 32px;
+	/* background-image: url(/resources/img/circle.png); */
+}
+
+.draw_square {
+	width: 32px;
+	height: 32px;
+	/* background-image: url(/resources/img/square.png); */
+}
+
+.draw_snap {
+	width: 32px;
+	height: 32px;
+	/* background-image: url(/resources/img/snap.png); */
+}
+
+.draw_remove {
+	width: 32px;
+	height: 32px;
+	/* background-image: url(/resources/img/remove.png); */
+}
+
+#draw_circle_condition {
+	display: none;
+}

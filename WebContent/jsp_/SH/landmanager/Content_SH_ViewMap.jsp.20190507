@@ -1,0 +1,620 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sf" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	$("#map-search-tab_Landlist input").click(function(){		
+		toggle_layersLand("SH_LM:"+$(this).prop("id"));
+		$("#map-search-tab_Landlist input[id!="+$(this).prop("id")+"]").prop("checked", false);
+	});
+	$("#map-search-tab_Buldlist input").click(function(){
+		toggle_layersBuld("SH_LM:"+$(this).prop("id"));
+		$("#map-search-tab_Buldlist input[id!="+$(this).prop("id")+"]").prop("checked", false);
+	});
+	$("#map-search-tab_Distlist input").click(function(){
+		toggle_layersDist("SH_LM:"+$(this).prop("id"));
+		$("#map-search-tab_Distlist input[id!="+$(this).prop("id")+"]").prop("checked", false);
+	});
+	$("#map-search-tab_SHlist input").click(function(){
+		toggle_layersSH("SH_LM:"+$(this).prop("id"));
+		$("#map-search-tab_SHlist input[id!="+$(this).prop("id")+"]").prop("checked", false);
+	});
+	
+});
+
+
+//검색 버튼
+function searchLayersName() {	
+	var nm = $('#Layers_nm').val();
+	if( nm != ""){
+		$("#map-search-tab_keyword").text("\""+nm+"\"");
+	}else{
+		$("#map-search-tab_keyword").text("전체리스트");
+	}
+	
+	$("#map-search-tab_Landlist input, #map-search-tab_Buldlist input, #map-search-tab_Distlist input, #map-search-tab_SHlist input").parent().parent("div").hide();
+	$("#map-search-tab_Landlist label:contains('"+nm+"')").parent().parent("div").show();
+	$("#map-search-tab_Buldlist label:contains('"+nm+"')").parent().parent("div").show();
+	$("#map-search-tab_Distlist label:contains('"+nm+"')").parent().parent("div").show();
+	$("#map-search-tab_SHlist label:contains('"+nm+"')").parent().parent("div").show();
+}
+
+
+//주제도 오버레이
+var now_layersLand = null;
+var now_layersLand_nm = null;
+function toggle_layersLand(layers_nm, style){
+	if( now_layersLand != null ){
+		geoMap.removeLayer(now_layersLand);		
+	}
+	if( now_layersLand_nm == layers_nm ){
+		now_layersLand_nm = null;
+	}else{
+		now_layersLand_nm = layers_nm;
+		if(style != null){
+			now_layersLand = get_vWorldMap(now_layersLand_nm, style);
+		}else{
+			now_layersLand = get_WMSlayer(now_layersLand_nm);
+		}
+		geoMap.addLayer(now_layersLand);
+// 		now_layersLand.setOpacity(parseFloat(0.7));
+	}	
+}
+var now_layersBuld = null;
+var now_layersBuld_nm = null;
+function toggle_layersBuld(layers_nm, style){
+	if( now_layersBuld != null ){
+		geoMap.removeLayer(now_layersBuld);		
+	}
+	if( now_layersBuld_nm == layers_nm ){
+		now_layersBuld_nm = null;
+	}else{
+		now_layersBuld_nm = layers_nm;
+		if(style != null){
+			now_layersBuld = get_vWorldMap(now_layersBuld_nm, style);
+		}else{
+			now_layersBuld = get_WMSlayer(now_layersBuld_nm);
+		}
+		geoMap.addLayer(now_layersBuld);
+// 		now_layersBuld.setOpacity(parseFloat(0.7));
+	}	
+}
+var now_layersDist = null;
+var now_layersDist_nm = null;
+function toggle_layersDist(layers_nm, style){
+	if( now_layersDist != null ){
+		geoMap.removeLayer(now_layersDist);		
+	}
+	if( now_layersDist_nm == layers_nm ){
+		now_layersDist_nm = null;
+	}else{
+		now_layersDist_nm = layers_nm;
+		if(style != null){
+			now_layersDist = get_vWorldMap(now_layersDist_nm, style);
+		}else{
+			now_layersDist = get_WMSlayer(now_layersDist_nm);
+		}
+		geoMap.addLayer(now_layersDist);
+// 		now_layersDist.setOpacity(parseFloat(0.7));
+	}	
+}
+var now_layersSH = null;
+var now_layersSH_nm = null;
+function toggle_layersSH(layers_nm, style){
+	if( now_layersSH != null ){
+		geoMap.removeLayer(now_layersSH);		
+	}
+	if( now_layersSH_nm == layers_nm ){
+		now_layersSH_nm = null;
+	}else{
+		now_layersSH_nm = layers_nm;
+		if(style != null){
+			now_layersSH = get_vWorldMap(now_layersSH_nm, style);
+		}else{
+			now_layersSH = get_WMSlayer(now_layersSH_nm);
+		}
+		geoMap.addLayer(now_layersSH);
+		now_layersSH.setOpacity(parseFloat(0.7));
+	}	
+}
+</script>	
+
+
+
+    	<!-- 주제도검색 Side-Panel -->
+		<div class="tab-pane fade toptab" role="tabpanel" id="map-search-tab">
+            <div class="pane-content map">
+                        
+                <div class="search-result-list in-assetview">
+                	<p class="srl-title"><span class="text-orange" id="map-search-tab_keyword">"전체리스트"</span> 검색결과</p>
+                    <div class="list-group-wrap in-assetview">
+                        <div class="collapse in">
+                            <div class="list-group">		
+                            	
+                            	<div class="col-xs-6" id="map-search-tab_Landlist">
+                            		<label style="font-size: 16px;"><b>[필지단위]</b></label>
+                            		<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="mv_sn_apmm_nv_land_11" type="checkbox"/>&nbsp;
+											<label for="mv_sn_apmm_nv_land_11">국공유지<span class="caret m-l-5"></span></label>
+											<img src="/jsp/SH/img/btn-info01.png" onclick="showTooltip('mv_sn_apmm_nv_land_11_svc')" style="cursor:pointer">
+ 											<div class="open-info hide" id="mv_sn_apmm_nv_land_11_svc" style="width: 150px;">
+												<div class="title">
+													<h3>설명<a class="close btnClose"><img src="/jsp/SH/img/btn-s-x.gif" onclick="showTooltip('mv_sn_apmm_nv_land_11_svc')" style="cursor: pointer"></a></h3>
+												</div>
+												<div class="text">레이어 상세설명 내용</div>
+											</div> 
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:mv_sn_apmm_nv_land_11&RULE=국유지"/>&nbsp;<label>국유지</label></li>
+								       			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:mv_sn_apmm_nv_land_11&RULE=시유지"/>&nbsp;<label>시유지</label></li>
+								       			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:mv_sn_apmm_nv_land_11&RULE=구유지"/>&nbsp;<label>구유지</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+                            		<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_guk_land" type="checkbox"/>&nbsp;
+											<label for="data_guk_land">국유지일반재산(캠코)<span class="caret m-l-5"></span></label>
+											<img src="/jsp/SH/img/btn-info01.png" onclick="showTooltip('data_guk_land_svc')" style="cursor:pointer">
+											<div class="open-info hide" id="data_guk_land_svc" style="width: 150px;">
+												<div class="title">
+													<h3>설명<a class="close btnClose"><img src="/jsp/SH/img/btn-s-x.gif" onclick="showTooltip('data_guk_land_svc')" style="cursor: pointer"></a></h3>
+												</div>
+												<div class="text">레이어 상세설명 내용</div>
+											</div>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_guk_land&RULE=대부대상"/>&nbsp;<label>대부대상</label></li>
+								       			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_guk_land&RULE=매각대상"/>&nbsp;<label>매각대상</label></li>
+								       			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_guk_land&RULE=매각제한대상"/>&nbsp;<label>매각제한대상</label></li>
+								       			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_guk_land&RULE=사용중인재산"/>&nbsp;<label>사용중인재산</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_tmseq_land" type="checkbox"/>&nbsp;
+											<label for="data_tmseq_land">위탁관리<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_tmseq_land&RULE=관리대상"/>&nbsp;<label>관리대상</label></li>
+								       			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_tmseq_land&RULE=관리제외"/>&nbsp;<label>관리제외</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_region_land" type="checkbox"/>&nbsp;
+											<label for="data_region_land">자치구위임관리 시유지<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_region_land&RULE=자치구위임관리시유지"/>&nbsp;<label>자치구위임관리시유지</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_owned_city" type="checkbox"/>&nbsp;
+											<label for="data_owned_city">자치구 보유관리(시유지)<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_owned_city&RULE=일반재산"/>&nbsp;<label>일반재산</label></li>
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_owned_city&RULE=행정재산"/>&nbsp;<label>행정재산</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_owned_guyu" type="checkbox"/>&nbsp;
+											<label for="data_owned_guyu">자치구 보유관리(구유지)<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_owned_guyu&RULE=일반재산"/>&nbsp;<label>일반재산</label></li>
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_owned_guyu&RULE=행정재산"/>&nbsp;<label>행정재산</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_public_site" type="checkbox"/>&nbsp;
+											<label for="data_public_site">공공기관 이전부지<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_public_site&RULE=공공기관이전부지"/>&nbsp;<label>공공기관 이전부지</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_public_parking" type="checkbox"/>&nbsp;
+											<label for="data_public_parking">공영주차장<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_public_parking&RULE=공영주차장"/>&nbsp;<label>공영주차장</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_generations" type="checkbox"/>&nbsp;
+											<label for="data_generations">역세권사업 후보지<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_generations&RULE=완료"/>&nbsp;<label>완료</label></li>
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_generations&RULE=진행"/>&nbsp;<label>진행</label></li>
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_generations&RULE=준비"/>&nbsp;<label>준비</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_council_land" type="checkbox"/>&nbsp;
+											<label for="data_council_land">임대주택 단지<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_council_land&RULE=임대주택단지"/>&nbsp;<label>임대주택 단지</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_minuse" type="checkbox"/>&nbsp;
+											<label for="data_minuse">저이용공공시설<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_minuse&RULE=저이용공공시설"/>&nbsp;<label>저이용공공시설</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_industry" type="checkbox"/>&nbsp;
+											<label for="data_industry">공공부지 혼재지역<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_industry&RULE=공공부지혼재지역"/>&nbsp;<label>공공부지 혼재지역</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_priority" type="checkbox"/>&nbsp;
+											<label for="data_priority">중점활용 시유지<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_priority&RULE=중점활용시유지"/>&nbsp;<label>중점활용 시유지</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+                            	</div>
+                            	
+                            	
+                            	<div class="col-xs-6"  id="map-search-tab_Buldlist">
+                            		<label style="font-size: 16px;"><b>[건물단위]</b></label>
+                            		<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_cynlst" type="checkbox"/>&nbsp;
+											<label for="data_cynlst">재난위험시설<span class="caret m-l-5"></span></label>
+											<img src="/jsp/SH/img/btn-info01.png" onclick="showTooltip('data_cynlst_svc')" style="cursor:pointer">
+											<div class="open-info hide" id="data_cynlst_svc" style="width: 150px;">
+												<div class="title">
+													<h3>설명<a class="close btnClose"><img src="/jsp/SH/img/btn-s-x.gif" onclick="showTooltip('data_cynlst_svc')" style="cursor: pointer"></a></h3>
+												</div>
+												<div class="text">레이어 상세설명 내용</div>
+											</div>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_cynlst&RULE=재난위험시설"/>&nbsp;<label>재난위험시설</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_public_buld_c" type="checkbox"/>&nbsp;
+											<label for="data_public_buld_c">공공건축물<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_public_buld_c&RULE=공공건축물"/>&nbsp;<label>공공건축물</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_purchase" type="checkbox"/>&nbsp;
+											<label for="data_purchase">매입임대<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_purchase&RULE=매입임대"/>&nbsp;<label>매입임대</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_declining" type="checkbox"/>&nbsp;
+											<label for="data_declining">노후매입임대<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_declining&RULE=노후매입임대"/>&nbsp;<label>노후매입임대</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+									
+									<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="data_rental" type="checkbox"/>&nbsp;
+											<label for="data_rental">서울시 임대주택<span class="caret m-l-5"></span></label>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:data_rental&RULE=임대주택"/>&nbsp;<label>서울시 임대주택</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+																		
+                            	</div>		
+								
+								
+								
+								
+								<div class="col-xs-6"  id="map-search-tab_SHlist">
+                            		<label style="font-size: 16px;"><b>[기초현황인프라]</b></label>
+                            		
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_23" type="checkbox"/>&nbsp;
+		<label for="basic_23">도시공원 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_23&RULE=도시공원"/>&nbsp;<label>도시공원</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_24" type="checkbox"/>&nbsp;
+		<label for="basic_24">공영주차장 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_24&RULE=공영주차장"/>&nbsp;<label>공영주차장</label></li>
+		</ul>                                     	
+	</div>                               
+</div>									
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_18" type="checkbox"/>&nbsp;
+		<label for="basic_18">도서관 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_18&RULE=도서관"/>&nbsp;<label>도서관</label></li>
+		</ul>                                     	
+	</div>                               
+</div>									
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_19" type="checkbox"/>&nbsp;
+		<label for="basic_19">전체 어린이집 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_19&RULE=전체어린이집"/>&nbsp;<label>전체어린이집</label></li>
+		</ul>                                     	
+	</div>                               
+</div>									
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_19_1" type="checkbox"/>&nbsp;
+		<label for="basic_19_1">민간어린이집 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_19_1&RULE=민간어린이집"/>&nbsp;<label>민간어린이집</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_19_2" type="checkbox"/>&nbsp;
+		<label for="basic_19_2">국공립어린이집 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_19_2&RULE=국공립어린이집"/>&nbsp;<label>국공립어린이집</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_21" type="checkbox"/>&nbsp;
+		<label for="basic_21">경로당 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_21&RULE=경로당"/>&nbsp;<label>경로당</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_21_1" type="checkbox"/>&nbsp;
+		<label for="basic_21_1">노인교실 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_21_1&RULE=노인교실"/>&nbsp;<label>노인교실</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_22" type="checkbox"/>&nbsp;
+		<label for="basic_22">공공체육 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_22&RULE=공공체육"/>&nbsp;<label>공공체육</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_20" type="checkbox"/>&nbsp;
+		<label for="basic_20">전체유치원 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_20&RULE=전체유치원"/>&nbsp;<label>전체유치원</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_20_1" type="checkbox"/>&nbsp;
+		<label for="basic_20_1">국공립유치원 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_20_1&RULE=국공립유치원"/>&nbsp;<label>국공립유치원</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_20_2" type="checkbox"/>&nbsp;
+		<label for="basic_20_2">사립유치원 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_20_2&RULE=사립유치원"/>&nbsp;<label>사립유치원</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_25" type="checkbox"/>&nbsp;
+		<label for="basic_25">의원 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_25&RULE=의원"/>&nbsp;<label>의원</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_26" type="checkbox"/>&nbsp;
+		<label for="basic_26">약국 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_26&RULE=약국"/>&nbsp;<label>약국</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_27" type="checkbox"/>&nbsp;
+		<label for="basic_27">소매점 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_27&RULE=소매점"/>&nbsp;<label>소매점</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_28" type="checkbox"/>&nbsp;
+		<label for="basic_28">시청/구청/주민센터 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_28&RULE=시청"/>&nbsp;<label>시청</label></li>
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_28&RULE=구청"/>&nbsp;<label>구청</label></li>
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_28&RULE=주민센터"/>&nbsp;<label>주민센터</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_29" type="checkbox"/>&nbsp;
+		<label for="basic_29">보건소/소방서/우체국 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_29&RULE=보건소"/>&nbsp;<label>보건소</label></li>
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_29&RULE=소방서"/>&nbsp;<label>소방서</label></li>
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_29&RULE=우체국"/>&nbsp;<label>우체국</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_30" type="checkbox"/>&nbsp;
+		<label for="basic_30">학교(초,중,고) 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_30&RULE=초등학교"/>&nbsp;<label>초등학교</label></li>
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_30&RULE=중학교"/>&nbsp;<label>중학교</label></li>
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_30&RULE=고등학교"/>&nbsp;<label>고등학교</label></li>
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_30&RULE=기타학교"/>&nbsp;<label>기타학교</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_30_1" type="checkbox"/>&nbsp;
+		<label for="basic_30_1">초등학교 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_30_1&RULE=초등학교"/>&nbsp;<label>초등학교</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+
+<div class="form-group row">
+	<div class="col-xs-12">
+		<input id="basic_31" type="checkbox"/>&nbsp;
+		<label for="basic_31">대학교 위치도<span class="caret m-l-5"></span></label>
+		<ul class="layers_d4" style="padding:10px;">
+			<li><img src="<c:out value="${geoserverURL}"/>&LAYER=SH_LM:basic_31&RULE=대학교"/>&nbsp;<label>대학교</label></li>
+		</ul>                                     	
+	</div>                               
+</div>
+									
+								</div>
+								
+								
+								<div class="col-xs-6"  id="map-search-tab_Distlist">
+                            		<label style="font-size: 16px;"><b>[사업지구]</b></label>
+                            		<div class="form-group row">
+										<div class="col-xs-12">
+											<input id="sh_district" type="checkbox"/>&nbsp;
+											<label for="sh_district">사업지구<span class="caret m-l-5"></span></label>
+											<img src="/jsp/SH/img/btn-info01.png" onclick="showTooltip('sh_district_svc')" style="cursor:pointer">
+											<div class="open-info hide" id="sh_district_svc" style="width: 150px;">
+												<div class="title">
+													<h3>설명<a class="close btnClose"><img src="/jsp/SH/img/btn-s-x.gif" onclick="showTooltip('sh_district_svc')" style="cursor: pointer"></a></h3>
+												</div>
+												<div class="text">사업지구 전체 현황 참조용 <br/> 공통 범례만 적용(용지구분)</div>
+											</div>
+											<ul class="layers_d4" style="padding:10px;">
+	                                       		<li><label>사업지구 전체</label></li>
+	                                       	</ul>                                     	
+	                                    </div>                               
+									</div>
+								</div>	
+								
+								
+								
+								
+						
+								
+								
+							</div>
+						</div>
+                	</div>
+                </div>
+                
+                <div class="btn-wrap tab text-right">
+                	<div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="레이어명 입력" id="Layers_nm" onkeypress="if(event.keyCode==13) {searchLayersName();}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-teal btn-sm" onclick="searchLayersName()">검색</button>
+                        </span>
+                    </div>
+                </div>                 
+                
+            </div>
+        </div>
+        <!-- End 주제도검색 Side-Panel -->
+    
+    
+    
+    
+    

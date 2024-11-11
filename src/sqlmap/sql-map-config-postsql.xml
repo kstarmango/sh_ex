@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+
+	<!-- V1 -->
+    <sqlMap resource="sqlmap/ORACLE/gisinfo/Gisinfo_SQL_Postsql.xml"/>
+    <sqlMap resource="sqlmap/ORACLE/gisinfo/GisinfoSub_SQL_Postsql.xml"/>
+    <sqlMap resource="sqlmap/ORACLE/common/common.xml"                        	/> <!-- 공통                                                        -->
+    <sqlMap resource="sqlmap/ORACLE/common/userMenu.xml"                      	/> <!-- 메뉴                                                        -->
+    <sqlMap resource="sqlmap/ORACLE/home/Home_SQL_Oracle.xml"                 	/> <!-- 메인                                                        -->
+    <sqlMap resource="sqlmap/ORACLE/mbersbscrb/Mbersbscrb_SQL_Oracle.xml"     	/> <!-- 회원가입                                                   -->
+    <sqlMap resource="sqlmap/ORACLE/manage/Manage_SQL_Postsql.xml"           	/> <!-- 관리자                                                   -->
+    <sqlMap resource="sqlmap/ORACLE/board/board_SQL_Postsql.xml"            	/> <!-- 게시판                              			-->
+    <sqlMap resource="sqlmap/ORACLE/factual/factual_SQL_Postsql.xml"           	/>
+    <sqlMap resource="sqlmap/ORACLE/dash/dash_SQL_Postsql.xml"           		/>
+    <sqlMap resource="sqlmap/ORACLE/theme/theme_SQL_Postsql.xml"				/>
+
+
+	<!-- V2 -->
+    <sqlMap resource="sqlmap/POSTGRESQL/cmmn/cmmn.logs.xml"                     /> <!-- 로그                                                        	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/cmmn/cmmn.menu.xml"                     /> <!-- 메뉴                                                        	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/cmmn/cmmn.file.xml"                		/> <!-- 파일관리           					-->
+
+    <sqlMap resource="sqlmap/POSTGRESQL/portal/portal.dashboard.xml"      		/> <!-- 대시보드           					-->
+    <sqlMap resource="sqlmap/POSTGRESQL/portal/portal.gis.xml"      			/> <!-- 대시보드           					-->
+    <sqlMap resource="sqlmap/POSTGRESQL/portal/portal.theme.xml"   	   			/> <!-- 주제도면           					-->
+    <sqlMap resource="sqlmap/POSTGRESQL/portal/portal.user.xml"                 /> <!-- 사용자                                                     	-->
+
+    <sqlMap resource="sqlmap/POSTGRESQL/admin/admin.code.xml"                 	/> <!-- 관리자 - 코드         				-->
+	<sqlMap resource="sqlmap/POSTGRESQL/admin/admin.board.xml"                 	/> <!-- 관리자 - 게시판(공지사항)          	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/admin/admin.user.xml"                 	/> <!-- 관리자 - 사용자                                      	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/admin/admin.progrm.xml"                	/> <!-- 관리자 - 프로그램 권한                            	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/admin/admin.layer.xml"                	/> <!-- 관리자 - 레이어 권한                               	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/admin/admin.table.xml"                	/> <!-- 관리자 - 테이블 및 컬럼 코멘트 관ㄹ           	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/admin/admin.data.xml"                	/> <!-- 관리자 - 데이터 수정 요청 관리                  	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/admin/admin.apikey.xml"                	/> <!-- 관리자 - APIKEY               	-->
+    <sqlMap resource="sqlmap/POSTGRESQL/admin/admin.stats.xml"                	/> <!-- 관리자 - 통계                                          	-->
+
+
+	<!-- 공간분석 -->
+	<sqlMap resource="sqlmap/POSTGRESQL/analysis/analysis.quest.xml"                	/> <!-- 공간분석 - 대상지 통계                                          	-->
+
+</sqlMapConfig>

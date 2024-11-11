@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="common">
+
+    <typeAlias alias="defaultSearchVO" type="egovframework.zaol.common.DefaultSearchVO"/>
+    <typeAlias alias="urlmngVO" type="egovframework.zaol.ad.urlmng.service.UrlmngVO"/>
+    <typeAlias alias="factualVO" type="egovframework.zaol.factual.service.FactualVO" />
+ 
+	<!-- 첨부파일 MAX GID값 -->
+    <select id="commonDAO.MaxFileGID" parameterClass="factualVO" resultClass="int">
+    	SELECT MAX(row_gid) FROM in_file
+    </select>
+    
+    <!-- 첨부파일 리스트 -->
+    <select id="commonDAO.fileList" parameterClass="factualVO" resultClass="java.util.HashMap">
+    	SELECT 
+    		table_type, row_gid, files_order, files_org_name, files_sav_name, files_size, files_type, files_path, files_down_co
+    	FROM in_file    	
+        WHERE ROW_GID = #gid# 
+        ORDER BY files_order
+    </select>
+    
+    <select id="commonDAO.selectUserShare" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<![CDATA[
+		with dept(user_id, pid, DEPT_NM, user_nm) as
+		(
+			select
+				'' as user_id 
+				,ROW_NUMBER() OVER(order by DEPT_NM)::text as pid 
+				,case
+					when UI.DEPT_NM <> '' then LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#)
+					else ''
+				end as DEPT_NM
+				,case
+					when UI.DEPT_NM <> '' then LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#)
+					else ''
+				end as user_nm
+			from
+				LANDSYS_ADM.TB_USER_INFO UI
+			where dept_nm != ''
+			group by DEPT_NM
+			order by DEPT_NM 
+		)
+		select * from (
+			select
+				LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) as USER_ID,
+				LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) as id,
+				(SELECT b.pid FROM dept B WHERE LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) = B.dept_nm) AS pid,
+				case when UI.DEPT_NM <> '' then LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) else '' end as DEPT_NM ,
+				LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) as USER_NM
+			from
+				LANDSYS_ADM.TB_USER_INFO UI
+			where
+				UI.use_yn = 'Y'
+				and  dept_nm != ''
+				
+			union 
+				select
+					'' as user_id
+					,pid as id
+					,'' as pid
+					,dept_nm
+					,user_nm
+				from 
+					dept
+		)a 
+		order by dept_nm, pid
+	 ]]>
+	</select>
+    
+</sqlMap>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="portal.dashboard">
+
+	<select id="portal.dashboard.selectDashboardList" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 인포그래픽 이미지 목록 조회 */
+			SELECT FI.FILE_NO			,
+				   FI.FILE_GRP			AS GROUP,
+				   FI.FILE_ORDR		AS ORDER,
+				   FI.FILE_ORIGNL_NM	AS FILE_NAME,
+				   FI.FILE_EXTSN		AS FILE_EXT,
+				   FI.FILE_SAVE_NM		AS SAVE_NAME,
+				   FI.FILE_SAVE_PATH    AS SAVE_PATH,
+				   LI.LAYER_DP_NM       AS LAYER_DP_NM,
+				   LI.LAYER_TP_NM       AS LAYER_TP_NM,
+				   LI.TABLE_NM          AS TABLE_NM,
+				   LI.INFOGRAPHIC_URL   AS INFOGRAPHIC_URL
+			  FROM LANDSYS_ADM.TB_LAYER_INFO LI,
+			       LANDSYS_ADM.TB_FILE       FI
+			 WHERE LI.FILE_GRP = FI.FILE_GRP
+			   AND FI.USE_YN   = 'Y'
+		  ORDER BY FI.UPD_DT DESC
+		]]>
+	</select>
+
+</sqlMap>

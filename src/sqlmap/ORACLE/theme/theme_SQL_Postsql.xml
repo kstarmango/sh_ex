@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="theme">
+
+    <typeAlias alias="ThemeVO" type="egovframework.zaol.theme.service.ThemeVO" />
+    
+    <!-- 조회 테스트 -->
+    <select id="themeDAO.theme_List" parameterClass="ThemeVO" resultClass="java.util.HashMap">
+    <![CDATA[
+		SELECT 
+			SIG_KOR_NM as NAME,
+    		ST_X(ST_CENTROID(GEOM)) AS ADDR_X, 
+    		ST_Y(ST_CENTROID(GEOM)) AS ADDR_Y
+    	FROM 
+    		public.tl_scco_sig
+    	WHERE
+    		1=1
+	]]>    			
+    </select>
+     
+    
+	  
+	  <select id="themeDAO.theme_List_View" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		   <!--  SELECT
+		        COUNT(*) OVER() AS TOTAL_COUNT,
+		        AA.*
+		    FROM(
+		        SELECT
+		            ROW_NUMBER() OVER (ORDER BY POST_SEQ DESC) RNUM,
+		            POST_SEQ,
+		            SUBJECT,
+		            COUNTS,
+		            lAYNAME IMAGES,
+		            OWNNAME, 
+		            to_char(rdate, 'YYYY-MM-DD') rdate,
+		            use_at
+		        FROM
+		            tb_user_motif m
+		     	WHERE
+		     		1=1
+		     		AND
+		     		m.use_at = 'Y'
+		     		AND
+		     		case when (select user_auth from user_info where user_id = #USERS_ID#) = '0' then 1 = 1
+             		else m.ownname = #USERS_NM# or m.public = 'Y'
+		     		END
+		     		<isNotEmpty prepend="AND" property="SEARCH">
+		     			SUBJECT LIKE '%$SEARCH$%'
+		     		</isNotEmpty>
+		     		
+		    ) AA
+		    WHERE
+		    AA.RNUM BETWEEN $START$ AND $END$ -->
+		
+	 </select>
+	
+	 
+	 <select id="themeDAO.theme_max_seq" resultClass="int">
+	 	SELECT
+	 		coalesce(max(post_seq), 0) numb
+	 	FROM
+	 		tb_user_motif
+	 </select>
+	 
+	 <select id="themeDAO.theme_post" parameterClass="java.lang.Integer" resultClass="java.util.HashMap">
+	 	<!-- SELECT
+	 		*
+	 	FROM
+	 		tb_user_motif
+	 	WHERE
+	 		post_seq = $nPostSeq$ -->
+	 </select>
+	 
+	 <insert id="themeDAO.theme_post_input" parameterClass="java.util.HashMap">
+	 	INSERT
+	 	INTO
+	 		tb_user_motif (
+	 			post_seq,
+	 			subject,
+	 			title,
+	 			sub1,
+	 			sub2,
+	 			counts,
+	 			ownName,
+	 			mapName,
+	 			layName,
+	 			rdate,
+	 			public, <!-- cjw 공개여부 추가 컬럼 -->
+	 			use_at
+	 		)
+	 	VALUES
+	 		(
+	 			#NUMB#,
+	 			#SUBJECT#,
+	 			#TITLE#,
+	 			#SUB1#,
+	 			#SUB2#,
+	 			0,
+	 			#OWNER#,
+	 			#MAPNM#,
+	 			#LAYNM#,
+	 			CURRENT_DATE,
+	 			#PUBLIC#, <!-- cjw 공개여부 추가 컬럼 -->
+	 			'Y'
+	 		)
+	 </insert>
+	
+	<update id="themeDAO.theme_post_modify" parameterClass="java.util.HashMap">
+		UPDATE
+			tb_user_motif
+		SET
+			subject=#SUBJECT#,
+	 		title=#TITLE#,
+	 		sub1=#SUB1#,
+	 		sub2=#SUB2#,
+	 		public=#PUBLIC#, <!-- cjw 공개여부 추가 컬럼 -->
+	 		layName=#LAYNM#
+		WHERE
+			post_seq = #NUMB#
+	</update>
+	
+	
+	<!-- 주제도 삭제 쿼리 -->
+	<update id="themeDAO.themeDeleteUpdateStart" parameterClass="java.util.HashMap">
+		UPDATE
+			tb_user_motif
+		SET
+			use_at = 'N'
+		WHERE
+			post_seq = #post_seq#
+	</update>
+	
+	
+	
+		  <select id="themeDAO.theme_List_View_Cnt" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		    <!-- SELECT
+		        COUNT(*) OVER() AS TOTAL_COUNT,
+		        AA.*
+		    FROM(
+		        SELECT
+		            ROW_NUMBER() OVER (ORDER BY POST_SEQ DESC) RNUM,
+		            POST_SEQ,
+		            SUBJECT,
+		            COUNTS,
+		            lAYNAME IMAGES,
+		            OWNNAME, 
+		            to_char(rdate, 'YYYY-MM-DD') rdate,
+		            use_at
+		        FROM
+		            tb_user_motif m
+		     	WHERE
+		     		1=1
+		     		AND
+		     		m.use_at = 'Y'
+		     		AND
+		     		case when (select user_auth from user_info where user_id = #USERS_ID#) = '0' then 1 = 1
+             		else m.ownname = #USERS_NM# or m.public = 'Y'
+		     		END
+		     		<isNotEmpty prepend="AND" property="SEARCH">
+		     			SUBJECT LIKE '%$SEARCH$%'
+		     		</isNotEmpty>
+		     		
+		    ) AA -->
+	 </select>
+	
+	
+</sqlMap>

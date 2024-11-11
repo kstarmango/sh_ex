@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="portal.user">
+
+ 	<!-- WEB/SSO USER 관련 -->
+    <select id="portal.user.checkExistUserId" parameterClass="java.util.HashMap" resultClass="String">
+	    <![CDATA[
+			/* 사용자 존재 체크  */
+			SELECT CASE WHEN COUNT(UI.USER_ID) > 0 THEN 'Y' ELSE 'N' END AS CHECK_USERID
+			  FROM LANDSYS_ADM.TB_USER_INFO UI
+			 WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)      = #USER_ID#
+	    ]]>
+    </select>
+
+    <select id="portal.user.checkValidPassword" parameterClass="java.util.HashMap" resultClass="String">
+	    <![CDATA[
+			/* 사용자 암호 체크  */
+			SELECT CASE WHEN COUNT(UI.USER_ID) > 0 THEN 'Y' ELSE 'N' END AS CHECK_PASS
+			  FROM LANDSYS_ADM.TB_USER_INFO UI
+			 WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)      = #USER_ID#
+			   AND LANDSYS_ADM.FN_CRYPT(#USER_PASS#, UI.PSWD) = UI.PSWD
+	    ]]>
+    </select>
+
+    <select id="portal.user.checkResetPassword" parameterClass="java.util.HashMap" resultClass="String">
+	    <![CDATA[
+			/* 사용자 암호 초기화 여부 체크  */
+			SELECT CASE WHEN COUNT(UI.USER_ID) > 0 THEN 'Y' ELSE 'N' END AS CHECK_PASS
+			  FROM LANDSYS_ADM.TB_USER_INFO UI
+			 WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)      = #USER_ID#
+			   AND PWD_RESET_YN = 'Y'
+	    ]]>
+		<isEqual  prepend="AND" property="UNIT" compareValue="MIN">
+			   	   EXTRACT(MIN FROM (CURRENT_TIMESTAMP - PWD_UPD_DT) )  >= #NUM#::integer
+		</isEqual>
+		<isEqual  prepend="AND" property="UNIT" compareValue="HOUR">
+			   	   EXTRACT(HOUR FROM (CURRENT_TIMESTAMP - PWD_UPD_DT) ) >= #NUM#::integer
+		</isEqual>
+		<isEqual  prepend="AND" property="UNIT" compareValue="DAY">
+			   	   EXTRACT(DAY  FROM (CURRENT_TIMESTAMP - PWD_UPD_DT) ) >= #NUM#::integer
+		</isEqual>
+    </select>
+
+    <select id="portal.user.selectUserInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 사용자 정보 조회  */
+			SELECT LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) AS USER_ID,
+				   LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) AS USER_NM,
+				   CASE WHEN UI.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#)
+				        ELSE '' END                          AS DEPT_NM,
+				   CASE WHEN UI.TELNO   <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.TELNO,   #KEY#)
+				   		ELSE '' END                          AS TELNO,
+				   CASE WHEN UI.EMAIL   <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.EMAIL,   #KEY#)
+				   		ELSE '' END                          AS EMAIL,
+				   UI.P_AUTH_NO,
+				   PAM.AUTH_DC AS P_AUTH_DESC,
+				   PAM.ADMIN_YN  AS P_ADMIN_YN,
+				   UI.L_AUTH_NO,
+				   LAM.auth_dc AS L_AUTH_DESC,
+				   UI.USE_YN,
+				   UI.LOCK_YN,
+				   UI.CONFM_YN
+			  FROM LANDSYS_ADM.TB_USER_INFO UI,
+			       LANDSYS_ADM.TB_PROGRM_AUTH_MNG PAM,
+			       LANDSYS_ADM.TB_LAYER_AUTH_MNG LAM
+			 WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)      = #USER_ID#
+	    ]]>
+		<isEqual  prepend="AND" property="USER_SSO" compareValue="N">
+		<![CDATA[
+		       	   LANDSYS_ADM.FN_CRYPT(#USER_PASS#, UI.PSWD) = UI.PSWD
+    	]]>
+		</isEqual>
+		<![CDATA[
+		   	   AND UI.P_AUTH_NO = PAM.P_AUTH_NO
+		   	   AND UI.L_AUTH_NO = LAM.L_AUTH_NO
+    	]]>
+    </select>
+
+    <select id="portal.user.selectUserLoginAttempt" parameterClass="java.util.HashMap" resultClass="String">
+	    <![CDATA[
+			/* 사용자 로그인 오류 횟수  조회 */
+	    	SELECT ATTEMPT_CNT
+	    	  FROM LANDSYS_ADM.TB_USER_INFO UI
+			 WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)      = #USER_ID#
+	    ]]>
+    </select>
+
+    <update id="portal.user.updateUserLoginAttempt" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+			/* 사용자 로그인 오류 횟수  증가 */
+			UPDATE LANDSYS_ADM.TB_USER_INFO UI
+	           SET ATTEMPT_CNT = #ATTEMPT_CNT#
+			 WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)      = #USER_ID#
+	    ]]>
+    </update>
+
+    <update id="portal.user.updateUserLoginLock" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+			/* 사용자 로그인 잠금  */
+			UPDATE LANDSYS_ADM.TB_USER_INFO UI
+	           SET LOCK_YN     = #LOCK_YN#,
+	               ATTEMPT_CNT = #ATTEMPT_CNT#
+			 WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)      = #USER_ID#
+	    ]]>
+    </update>
+
+	<insert id="portal.user.insertUserInfo" parameterClass="java.util.HashMap">
+		<![CDATA[
+		   	/* 사용자 정보 등록 */
+		   	INSERT INTO LANDSYS_ADM.TB_USER_INFO
+		   	(
+		   		USER_ID,
+		   		USER_NM,
+		   		PSWD,
+		   		DEPT_NM,
+		   		TELNO,
+		   		P_AUTH_NO,
+		   		L_AUTH_NO,
+		   		ADMIN_YN,
+		   		LOCK_YN,
+		   		ATTEMPT_CNT,
+		   		SBSCRB_CD,
+		   		USE_YN,
+		   		CONFM_YN,
+		   		PWD_RESET_YN,
+		   		INS_USER,
+		   		UPD_USER,
+		   		INS_DT,
+		   		UPD_DT
+		   	)
+		   	VALUES
+		   	(
+		   		LANDSYS_ADM.FN_ENCRYPT(#USER_ID#  , #KEY#),
+		   		LANDSYS_ADM.FN_ENCRYPT(#USER_NM#  , #KEY#),
+		   		LANDSYS_ADM.FN_CRYPT(#PASSWORD#   , #KEY#),
+		   		LANDSYS_ADM.FN_ENCRYPT(#DEPT_NM#  , #KEY#),
+		   		LANDSYS_ADM.FN_ENCRYPT(#TELNO#    , #KEY#),
+		   		(SELECT P_AUTH_NO FROM LANDSYS_ADM.TB_PROGRM_AUTH_MNG WHERE USE_YN = 'Y' AND BASS_YN = 'Y' LIMIT 1),
+		   		(SELECT L_AUTH_NO FROM LANDSYS_ADM.TB_LAYER_AUTH_MNG  WHERE USE_YN = 'Y' AND BASS_YN = 'Y' LIMIT 1),
+		   		'N',
+		   		'N',
+		   		0,
+		   		#SBSCRB_CD#,
+		   		#USE_YN#,
+				#CONFM_YN#,
+		   		'N',
+		   		LANDSYS_ADM.FN_ENCRYPT('SYSTEM', #KEY#),
+		   		LANDSYS_ADM.FN_ENCRYPT('SYSTEM', #KEY#),
+		   		CURRENT_TIMESTAMP,
+		   		CURRENT_TIMESTAMP
+		   	)
+		]]>
+	</insert>
+
+    <select id="portal.user.selectUserIdsById" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* 사용자 정보 검색 */
+			SELECT LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#) AS USER_ID
+		  	  FROM LANDSYS_ADM.TB_USER_INFO UI
+			 WHERE UI.USER_NM = LANDSYS_ADM.FN_ENCRYPT(#USER_NAME# , #KEY#)
+			   AND UI.TELNO   = LANDSYS_ADM.FN_ENCRYPT(#USER_PHONE#, #KEY#)
+	    ]]>
+	</select>
+
+
+    <!-- API USER 관련 -->
+    <select id="portal.user.checkExistApiKey" parameterClass="java.util.HashMap" resultClass="String">
+	    <![CDATA[
+			/* API KEY 체크  */
+			SELECT CASE WHEN COUNT(KM.CONFM_KEY) > 0 THEN 'Y' ELSE 'N' END AS CHECK_APIKEY
+			  FROM LANDSYS_ADM.TB_API_KEY_MNG KM
+			 WHERE CONFM_KEY = #API_KEY#
+	    ]]>
+    </select>
+
+    <select id="portal.user.selectApiKeyInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+			/* API 정보 조회  */
+			SELECT LANDSYS_ADM.FN_DECRYPT(KM.USER_ID, #KEY#) AS USER_ID,
+				   LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) AS USER_NM,
+				   CASE WHEN UI.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#)
+				        ELSE '' END                          AS DEPT_NM,
+				   CASE WHEN UI.TELNO   <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.TELNO,   #KEY#)
+				   		ELSE '' END                          AS TELNO,
+				   CASE WHEN UI.EMAIL   <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.EMAIL,   #KEY#)
+				   		ELSE '' END                          AS EMAIL,
+				   UI.P_AUTH_NO,
+				   PAM.AUTH_DC AS P_AUTH_DESC,
+				   PAM.ADMIN_YN  AS P_ADMIN_YN,
+				   UI.L_AUTH_NO,
+				   LAM.auth_dc AS L_AUTH_DESC,
+				   UI.USE_YN,
+				   UI.CONFM_YN,
+				   CASE WHEN LANDSYS_ADM.FN_DECRYPT(KM.SITE_URL, #KEY#) LIKE '%' || #API_HOST# || '%'   THEN 'Y' ELSE 'N' END AS PRODUCT_SERVER,
+				   CASE WHEN KM.DEVLOP_SERVER1 = #API_HOST#                         					THEN 'Y' ELSE 'N' END AS DEVELOP_SERVER1,
+				   CASE WHEN KM.DEVLOP_SERVER2 = #API_HOST#  											THEN 'Y' ELSE 'N' END AS DEVELOP_SERVER2,
+				   CASE WHEN KM.USE_LAST_DT1 < CURRENT_DATE                        						THEN 'Y' ELSE 'N' END AS DEVELOP_SERVER1_EXPIRE,
+				   CASE WHEN KM.USE_LAST_DT2 < CURRENT_DATE                        						THEN 'Y' ELSE 'N' END AS DEVELOP_SERVER2_EXPIRE
+			  FROM LANDSYS_ADM.TB_API_KEY_MNG KM,
+			  	   LANDSYS_ADM.TB_USER_INFO UI,
+			       LANDSYS_ADM.TB_PROGRM_AUTH_MNG PAM,
+			       LANDSYS_ADM.TB_LAYER_AUTH_MNG LAM
+			 WHERE CONFM_KEY = #API_KEY#
+			   AND KM.USER_ID = UI.USER_ID
+			   AND UI.P_AUTH_NO = PAM.P_AUTH_NO
+			   AND UI.L_AUTH_NO = LAM.L_AUTH_NO
+	    ]]>
+    </select>
+    
+    
+     <update id="portal.user.userDeptUpdate" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+			/* 사용자 로그인 잠금  */
+			UPDATE LANDSYS_ADM.TB_USER_INFO UI
+	           SET DEPT_NM     = LANDSYS_ADM.FN_ENCRYPT(#DEPT_NM#  , #KEY#)
+			 WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)      = #USER_ID#
+	    ]]>
+    </update>
+    
+
+    
+    
+
+</sqlMap>

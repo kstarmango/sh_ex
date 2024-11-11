@@ -1,0 +1,845 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Home_SQL_Oracle">
+
+    <typeAlias alias="homeVO" type="egovframework.zaol.home.service.HomeVO" />
+    <!-- 로그인 액션 -->
+    <select id="homeDAO.selectHomeLogin01" parameterClass="homeVO" resultClass="homeVO">
+    <![CDATA[
+       
+        select user_id,  
+      		   user_name, 
+      		   user_pass,
+       		   user_position,
+       		   user_auth,       		    
+       		   del_yn, 
+       		   top_cd,
+      		   middle_cd,
+      		   sub_cd
+  		from sh_user_info
+		where user_id = #sh_user_id#
+        ]]>
+    </select>
+    
+    <!-- 사용자기초정보 조회 -->
+    <select id="homeDAO.selectMebersinfo" parameterClass="homeVO"  resultClass="homeVO">
+    <![CDATA[
+        /* 사용자기초정보 조회 */
+        select user_id,  
+      		   user_name, 
+      		   user_pass, 
+      		   user_position,
+      		   user_auth,
+      		   del_yn,
+      		   user_hp,
+      		   user_phone,
+      		   user_mail,
+      		   top_cd,
+      		   middle_cd,
+      		   sub_cd,
+      	 case
+          when top_cd = '01' then 'SH도시연구원'
+          when top_cd = '02' then 'SH교육원'
+          when top_cd = '03' then '감사'
+          when top_cd = '04' then '기획경영본부'
+          when top_cd = '05' then '공공개발사업본부'
+          when top_cd = '06' then '건설안전사업본부'
+          when top_cd = '07' then '도시재생본부'
+          when top_cd = '08' then '주거복지본부'
+          when top_cd = '09' then '택지사업본부'
+		ELSE '관리자'
+		END as topDept_name ,
+		case
+          when top_cd = '03' and middle_cd = '01' then '감사실'
+          when top_cd = '04' and middle_cd = '01' then '기획조정처'
+          when top_cd = '04' and middle_cd = '02' then '경영지원처'
+          when top_cd = '04' and middle_cd = '03' then '소통홍보처'
+          when top_cd = '04' and middle_cd = '04' then '서울시정책수출사업단'
+          when top_cd = '04' and middle_cd = '05' then '범무지원실'
+          when top_cd = '05' and middle_cd = '01' then '공공요지처'
+          when top_cd = '05' and middle_cd = '02' then '공공개발사업처'
+          when top_cd = '05' and middle_cd = '03' then '마케팅처'
+          when top_cd = '05' and middle_cd = '04' then '가든파이브사업단'
+          when top_cd = '06' and middle_cd = '01' then '건축설계처'
+          when top_cd = '06' and middle_cd = '02' then '건설사업처'
+          when top_cd = '06' and middle_cd = '03' then '첨단기술사업처'
+          when top_cd = '06' and middle_cd = '04' then '안전하자관리상황실' 
+          when top_cd = '07' and middle_cd = '01' then '재생사업기획처'
+          when top_cd = '07' and middle_cd = '02' then '근린재생사업처'
+          when top_cd = '07' and middle_cd = '03' then '공유재산관리단'
+          when top_cd = '08' and middle_cd = '01' then '주거복지처'
+          when top_cd = '08' and middle_cd = '02' then '주거복지센터'
+          when top_cd = '08' and middle_cd = '01' then '택지계획처'
+          when top_cd = '09' and middle_cd = '02' then '택지조성처'
+          when top_cd = '09' and middle_cd = '03' then '마곡위례사업단'
+		ELSE '-'
+		END as midDept_name , 
+		case
+          when top_cd = '03' and middle_cd = '01' and sub_cd = '01' then '행정감사부'
+          when top_cd = '03' and middle_cd = '01' and sub_cd = '02' then '기술감사부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '01' then '기획부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '02' then '재정관리부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '03' then '경영관리부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '04' then '예산자금부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '05' then '미래전략부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '06' then '금융사업기획부'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '01' then '총무부'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '02' then '인사노무부'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '03' then '계약부'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '04' then '회계심사부'
+          when top_cd = '04' and middle_cd = '03' and sub_cd = '01' then '정보시스템부'
+          when top_cd = '04' and middle_cd = '03' and sub_cd = '02' then '홍보부'
+          when top_cd = '05' and middle_cd = '01' and sub_cd = '01' then '보상총괄부'
+          when top_cd = '05' and middle_cd = '01' and sub_cd = '02' then '용지보상부'
+          when top_cd = '05' and middle_cd = '01' and sub_cd = '03' then '수탁보상부'
+          when top_cd = '05' and middle_cd = '02' and sub_cd = '01' then '개발기획부'
+          when top_cd = '05' and middle_cd = '02' and sub_cd = '02' then '개발사업부'
+          when top_cd = '05' and middle_cd = '03' and sub_cd = '01' then '판매부'
+          when top_cd = '05' and middle_cd = '03' and sub_cd = '02' then '분양수납부'
+          when top_cd = '05' and middle_cd = '04' and sub_cd = '01' then '운영관리부'
+          when top_cd = '05' and middle_cd = '04' and sub_cd = '02' then '공급수납부'
+          when top_cd = '06' and middle_cd = '01' and sub_cd = '01' then '건축기술부'
+          when top_cd = '06' and middle_cd = '01' and sub_cd = '02' then '건축설계부'
+          when top_cd = '06' and middle_cd = '01' and sub_cd = '03' then '토목조경설계부'
+          when top_cd = '06' and middle_cd = '01' and sub_cd = '04' then '기전설계부'
+          when top_cd = '06' and middle_cd = '02' and sub_cd = '01' then '건설사업부'
+          when top_cd = '06' and middle_cd = '02' and sub_cd = '02' then '건축공사부'
+          when top_cd = '06' and middle_cd = '02' and sub_cd = '03' then '토목조경공사부'
+          when top_cd = '06' and middle_cd = '03' and sub_cd = '01' then '미래기술사업부'
+          when top_cd = '06' and middle_cd = '03' and sub_cd = '02' then '기계공사부'
+          when top_cd = '06' and middle_cd = '03' and sub_cd = '03' then '전기공사부'
+          when top_cd = '06' and middle_cd = '04' and sub_cd = '01' then '재난안전부'
+          when top_cd = '06' and middle_cd = '04' and sub_cd = '02' then '하자관리부'
+          when top_cd = '07' and middle_cd = '01' and sub_cd = '01' then '재생기획부'
+          when top_cd = '07' and middle_cd = '01' and sub_cd = '02' then '도시재생사업부'
+          when top_cd = '07' and middle_cd = '01' and sub_cd = '03' then '세운사업부'
+          when top_cd = '07' and middle_cd = '02' and sub_cd = '01' then '주거재생사업부'
+          when top_cd = '07' and middle_cd = '02' and sub_cd = '02' then '공동주택사업부'
+          when top_cd = '07' and middle_cd = '02' and sub_cd = '03' then '매입주택부'
+          when top_cd = '07' and middle_cd = '03' and sub_cd = '01' then '공유재산관리부'
+          when top_cd = '07' and middle_cd = '03' and sub_cd = '02' then '공유재산개발부'
+          when top_cd = '08' and middle_cd = '01' and sub_cd = '01' then '주거복지부'
+          when top_cd = '08' and middle_cd = '01' and sub_cd = '02' then '공동체지원부'
+          when top_cd = '08' and middle_cd = '01' and sub_cd = '03' then '공공임대부'
+          when top_cd = '08' and middle_cd = '01' and sub_cd = '04' then '맞춤임대부'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '01' then '강남센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '02' then '송파센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '03' then '관약센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '04' then '강서센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '05' then '양천센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '06' then '마포센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '07' then '성동센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '08' then '은평센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '09' then '노원센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '10' then '성북센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '11' then '동대문센터'
+          when top_cd = '08' and middle_cd = '03' and sub_cd = '01' then '시설계획부'
+          when top_cd = '08' and middle_cd = '03' and sub_cd = '02' then '시설지원부'
+          when top_cd = '08' and middle_cd = '03' and sub_cd = '03' then '시설활용부'
+          when top_cd = '09' and middle_cd = '01' and sub_cd = '01' then '토목기술부'
+          when top_cd = '09' and middle_cd = '01' and sub_cd = '02' then '택지계획부'
+          when top_cd = '09' and middle_cd = '01' and sub_cd = '03' then '택지설계부'
+          when top_cd = '09' and middle_cd = '02' and sub_cd = '01' then '택지조성부'
+          when top_cd = '09' and middle_cd = '02' and sub_cd = '02' then '기반시설사업부'
+          when top_cd = '09' and middle_cd = '02' and sub_cd = '03' then '조경부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '01' then '마곡사업부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '02' then '위례사업부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '03' then '건축사업부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '04' then '조경사업부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '05' then '기전사업부'
+		ELSE '-'
+		END as subDept_name
+  		from sh_user_info
+        WHERE user_id = #user_id#        
+
+    ]]>
+    </select>
+    
+    <!-- 사용자기초정보 수정 -->
+    <update id="homeDAO.updateMemberupt" parameterClass="homeVO" >
+    <![CDATA[
+      
+        UPDATE sh_user_info
+            SET
+                 user_name     = #user_name#                      
+                ,user_mail     = #user_mail#                   
+                ,user_position = #user_position#
+                ,user_hp       = #user_hp#
+                ,user_phone    = #user_telno#
+                ,updt_date     = to_char(now(),'yyyy-mm-dd HH24:mi:ss')
+                ,updt_id       = #user_id#
+                ,top_cd 	   = #dept_top#
+                ,middle_cd     = #dept_middle#
+                ,sub_cd        = #dept_sub#
+ 
+    ]]>
+     <isNotEqual prepend="" property="user_password" compareValue="" ><![CDATA[ ,user_pass = #user_password# /* 비밀번호 */ ]]></isNotEqual>
+    <![CDATA[
+            WHERE user_id = #user_id#
+             
+    ]]>
+    </update>
+    
+     <!-- 비밀번호 초기화 -->
+    <update id="homeDAO.resetPass" parameterClass="homeVO" >
+        UPDATE sh_user_info
+            SET
+            	user_pass = #user_password# /* 비밀번호 */ 
+            WHERE user_id = #user_id#
+    </update>
+    
+    <!-- 공지사항 조회  -->
+    <select id="homeDAO.noticeListPage" parameterClass="homeVO"  resultClass="homeVO">
+    <![CDATA[
+              select * from (
+               	select (ROW_NUMBER() OVER()) AS rno , A.* from(
+               	 select
+					 seq,
+					 board_gubun, 
+					 reg_name,  
+					 user_dept_all,  
+					 open_gb,  
+					 board_sjt, 
+					 board_contents as content, 
+					 board_cnt,  
+					 refer_no,  
+					 board_step, 
+					 level_ling,  
+					 regest_id, 
+					 regest_date,  
+					 udpate_date,
+					 use_at
+              from sh_boad_data 
+              where board_gubun = #bg_gb#
+               order by   regest_date desc ) A
+			) as A1
+          WHERE rno BETWEEN #firstIndex# AND #lastIndex#
+    ]]>
+    </select>
+    <!-- 공지사항 수정 -->
+    <update id="homeDAO.updateNoticeupt" parameterClass="homeVO" >
+    <![CDATA[
+      
+        UPDATE sh_boad_data
+            SET
+                 board_sjt     = #board_sjt#                      
+                ,board_contents     = #content#                   
+                , udpate_date  = to_char(now(),'yyyy-mm-dd HH24:mi:ss')
+                ,use_at = #use_at#
+    
+            WHERE seq = #seq_int#
+             
+    ]]>
+    </update>
+    <!-- 공지사항 입력  -->
+    <insert id="homeDAO.noticeInserteStart" parameterClass="homeVO" >
+    <![CDATA[
+        INSERT INTO sh_boad_data     /* 사용자접속 이력정보 */
+        (
+            board_gubun         
+           ,reg_name
+           ,board_sjt  
+           ,board_contents  
+           ,regest_date   
+           ,regest_id
+           ,use_at
+                   
+        )VALUES(
+            #board_gubun#        
+           ,#user_nm#     
+           ,#board_sjt#  
+           ,#content#  
+           ,to_char(now(),'yyyy-mm-dd HH24:mi:ss')      
+           ,'admin'    
+           ,#use_at#
+        )
+    ]]>
+    </insert>
+    <select id="homeDAO.noticeListPageCnt" parameterClass="homeVO" resultClass="int">
+	    select count(*) as CNT
+	    from sh_boad_data
+	    where board_gubun = #bg_gb#
+	</select>
+      <!-- 공지사항세부 조회 -->
+    <select id="homeDAO.selectBoardData" parameterClass="homeVO"  resultClass="homeVO">
+    <![CDATA[
+                select 
+                     seq,
+					 board_gubun, 
+					 reg_name,  
+					 user_dept_all,  
+					 open_gb,  
+					 board_sjt, 
+					 board_contents as content, 
+					 board_cnt,  
+					 refer_no,  
+					 board_step, 
+					 level_ling,  
+					 regest_id, 
+					 regest_date,  
+					 udpate_date,
+					 use_at
+              from sh_boad_data 
+              where seq = #seq_int#
+
+    ]]>
+    </select>
+   
+    <!-- 권한 수정 -->
+    <update id="homeDAO.memAuthudp01" parameterClass="homeVO" >
+    <![CDATA[
+      
+        UPDATE sh_user_info
+            SET
+                user_auth     = #user_auth#                      
+                ,del_yn        = #del_yn#
+ 
+    
+            WHERE user_id = #user_id#
+             
+    ]]>
+    </update>
+    
+    <!-- 사용자접속 이력정보 등록  -->
+    <insert id="homeDAO.selectHomeLogin02" parameterClass="homeVO" >
+    <![CDATA[
+        INSERT INTO sh_user_log     /* 사용자접속 이력정보 */
+        (
+            user_id         
+           ,user_name
+           ,user_position  
+           ,user_dept  
+           ,reg_date   
+           ,in_out
+                   
+        )VALUES(
+            #user_id#        
+           ,#user_name#    
+           ,#user_position#  
+           ,#eptoncat#  
+           ,to_char(now(),'yyyy-mm-dd HH24:mi:ss')      
+           ,#in_out#    
+        )
+    ]]>
+    </insert>
+    <!-- 부서 대분류 리스트 -->
+	<select id="homeDAO.deptTopList01" parameterClass="homeVO" resultClass="homeVO">
+    <![CDATA[
+        
+        select 
+        	dept_name ,
+        	top_cd
+        from sh_dept_code 
+        where dept_gubun = 'top' 
+        order by top_cd 
+        
+     ]]>
+    </select>
+    
+    <!-- 부서 중분류 리스트 -->
+    <select id="homeDAO.selectMidleList"  parameterClass="string" resultClass="homeVO">
+        <![CDATA[
+        select dept_name ,
+               top_cd,
+               middle_cd,
+               sub_cd,
+               top_cd as parent_dept_top2,
+               middle_cd as  parent_dept_sub
+        
+         from sh_dept_code 
+         where dept_gubun = 'mid'         
+         and top_cd = #parent_dept_top#        
+        order by top_cd  , middle_cd
+           ]]> 
+    </select>
+    <!-- 권한 갯수 -->
+    <select id="homeDAO.authCnts"   parameterClass="string" resultClass="int">
+        <![CDATA[
+	        select 
+	          count(user_auth) as auth_cnt	
+			from sh_user_info	
+			where user_auth = '2'
+           ]]> 
+    </select>    
+     <!-- 부서 소분류 리스트 -->
+    <select id="homeDAO.selectSubList"  parameterClass="homeVO" resultClass="homeVO">
+    <![CDATA[
+        select dept_name
+               ,sub_cd 
+        from sh_dept_code 
+        where 
+        dept_gubun = 'sub' 
+        and top_cd = #parent_dept_top2#   
+        and middle_cd = #parent_dept_sub#   
+     ]]>     
+    </select>
+    
+     <!-- 회원 저장  -->
+    <insert id="homeDAO.shMemberInsert" parameterClass="homeVO" >		
+    <![CDATA[
+       insert into sh_user_info 
+       ( 
+          user_id, 
+          user_pass, 
+          user_name,
+          user_position, 
+          user_hp, 
+          user_phone, 
+          user_mail,
+          reg_date , 
+          updt_date, 
+          del_yn,
+          top_cd,
+          middle_cd,
+          sub_cd
+	  )values(
+	     #user_id#,
+	     #user_password#,
+	     #user_name#,
+	     #user_position#,
+	     #user_hp#,
+	     #user_telno#,
+	     #user_mail#,
+	     to_char(now(),'yyyy-mm-dd HH24:mi:ss'),
+	     to_char(now(),'yyyy-mm-dd HH24:mi:ss'),
+	     'N',
+	     #dept_top#,
+	     #dept_middle#,
+	     #dept_sub#  
+	     
+	  )
+    ]]>
+    </insert>
+      <!-- qna조회  -->
+    <select id="homeDAO.qListPage" parameterClass="homeVO"  resultClass="homeVO">
+    <![CDATA[
+               select * from (
+               	select (ROW_NUMBER() OVER()) AS rno , A.* from(
+					select
+					 seq,
+					 board_gubun, 
+					 reg_name,  
+					 user_dept_all,  
+					 open_gb,  
+					 board_sjt, 
+					 board_contents as content, 
+					 board_cnt,  
+					 refer_no,  
+					 board_step, 
+					 level_ling,  
+					 regest_id, 
+					 regest_date,  
+					 udpate_date
+              from sh_boad_data 
+              where board_gubun = #bg_gb#
+               order by  regest_date desc 
+          		) A
+		) as A1
+          WHERE rno BETWEEN #firstIndex# AND #lastIndex#
+          
+    ]]>
+    </select>
+         <select id="homeDAO.qListPageCnt" parameterClass="homeVO" resultClass="int">
+	    select count(*) as CNT
+	    from sh_boad_data
+	    where board_gubun = #bg_gb#
+	</select>
+    <!-- qna 수정  -->
+    <update id="homeDAO.updateQeupt" parameterClass="homeVO" >
+    <![CDATA[
+      
+        UPDATE sh_boad_data
+            SET
+                 board_sjt     = #board_sjt#                      
+                ,board_contents     = #content#                   
+                , udpate_date  = to_char(now(),'yyyy-mm-dd HH24:mi:ss')
+    
+            WHERE seq = #seq_int#
+             
+    ]]>
+    </update>
+    <delete id="homeDAO.qDelStar" parameterClass="homeVO" >
+    <![CDATA[
+      
+        delete from sh_boad_data
+           
+            WHERE seq = #seq_int#
+             
+    ]]>
+    </delete>
+        <!-- 공지사항 입력  -->
+    <insert id="homeDAO.qInserteStart" parameterClass="homeVO" >
+    <![CDATA[
+        INSERT INTO sh_boad_data     /* 사용자접속 이력정보 */
+        (
+            board_gubun         
+           ,reg_name
+           ,board_sjt  
+           ,board_contents  
+           ,regest_date   
+           ,regest_id
+           ,use_at
+                   
+        )VALUES(
+            #board_gubun#        
+           ,#user_nm#     
+           ,#board_sjt#  
+           ,#content#  
+           ,to_char(now(),'yyyy-mm-dd HH24:mi:ss')      
+           ,#regest_id#
+           ,#use_at#
+        )
+    ]]>
+	 </insert>
+    <!-- 아이디 중복체크 -->
+    <select id="homeDAO.userIdDplctAjax01" parameterClass="homeVO" resultClass="homeVO">
+        SELECT user_id 
+        FROM user_info  
+        WHERE user_id  = #user_id# 
+    </select>
+    <!-- 사용자 접속 건수 가져오기   -->
+	<select id="homeDAO.memAccessListCnt" parameterClass="homeVO" resultClass="int">
+	<![CDATA[
+	   select count(*) as CNT 
+	   from sh_user_info as b, sh_user_log as c
+	   where b.user_id = c.user_id and c.in_out = 'in'   
+	]]>	 
+	</select>
+	<!-- 사용자 목록 가져오기 --> 
+	<select id="homeDAO.memAccessList"  parameterClass="homeVO" resultClass="homeVO">
+    <![CDATA[
+    	select * from (
+    	select A.*, (ROW_NUMBER() OVER()) AS RNO 
+    	from ( 
+		select
+		b.user_id,
+		b.user_name,
+		b.user_position,
+			c.reg_date,
+		case
+          when b.top_cd = '01' then 'SH도시연구원'
+          when b.top_cd = '02' then 'SH교육원'
+          when b.top_cd = '03' then '감사'
+          when b.top_cd = '04' then '기획경영본부'
+          when b.top_cd = '05' then '공공개발사업본부'
+          when b.top_cd = '06' then '건설안전사업본부'
+          when b.top_cd = '07' then '도시재생본부'
+          when b.top_cd = '08' then '주거복지본부'
+          when b.top_cd = '09' then '택지사업본부'
+		ELSE '관리자'
+		END as topDept_name ,
+		case
+          when b.top_cd = '03' and b.middle_cd = '01' then '감사실'
+          when b.top_cd = '04' and b.middle_cd = '01' then '기획조정처'
+          when b.top_cd = '04' and b.middle_cd = '02' then '경영지원처'
+          when b.top_cd = '04' and b.middle_cd = '03' then '소통홍보처'
+          when b.top_cd = '04' and b.middle_cd = '04' then '서울시정책수출사업단'
+          when b.top_cd = '04' and b.middle_cd = '05' then '범무지원실'
+          when b.top_cd = '04' and b.middle_cd = '06' then '금융사원추진단'
+          when b.top_cd = '05' and b.middle_cd = '01' then '공공요지처'
+          when b.top_cd = '05' and b.middle_cd = '02' then '공공개발사업처'
+          when b.top_cd = '05' and b.middle_cd = '03' then '마케팅처'
+          when b.top_cd = '05' and b.middle_cd = '04' then '가든파이브사업단'
+          when b.top_cd = '06' and b.middle_cd = '01' then '건축설계처'
+          when b.top_cd = '06' and b.middle_cd = '02' then '건설사업처'
+          when b.top_cd = '06' and b.middle_cd = '03' then '첨단기술사업처'
+          when b.top_cd = '06' and b.middle_cd = '04' then '안전하자관리상황실' 
+          when b.top_cd = '07' and b.middle_cd = '01' then '재생사업기획처'
+          when b.top_cd = '07' and b.middle_cd = '02' then '근린재생사업처'
+          when b.top_cd = '07' and b.middle_cd = '03' then '공유재산관리단'
+          when b.top_cd = '08' and b.middle_cd = '01' then '주거복지처'
+          when b.top_cd = '08' and b.middle_cd = '02' then '주거복지센터'
+          when b.top_cd = '08' and b.middle_cd = '01' then '택지계획처'
+          when b.top_cd = '09' and b.middle_cd = '02' then '택지조성처'
+          when b.top_cd = '09' and b.middle_cd = '03' then '마곡위례사업단'
+		ELSE '-'
+		END as midDept_name , 
+		case
+          when b.top_cd = '03' and b.middle_cd = '01' and b.sub_cd = '01' then '행정감사부'
+          when b.top_cd = '03' and b.middle_cd = '01' and b.sub_cd = '02' then '기술감사부'
+          when b.top_cd = '04' and b.middle_cd = '01' and b.sub_cd = '01' then '기획부'
+          when b.top_cd = '04' and b.middle_cd = '01' and b.sub_cd = '02' then '재정관리부'
+          when b.top_cd = '04' and b.middle_cd = '01' and b.sub_cd = '03' then '경영관리부'
+          when b.top_cd = '04' and b.middle_cd = '01' and b.sub_cd = '04' then '예산자금부'
+          when b.top_cd = '04' and b.middle_cd = '01' and b.sub_cd = '05' then '미래전략부'
+          when b.top_cd = '04' and b.middle_cd = '01' and b.sub_cd = '06' then '조기집행추진단'
+          when b.top_cd = '04' and b.middle_cd = '02' and b.sub_cd = '01' then '총무부'
+          when b.top_cd = '04' and b.middle_cd = '02' and b.sub_cd = '02' then '인사노무부'
+          when b.top_cd = '04' and b.middle_cd = '02' and b.sub_cd = '03' then '계약부'
+          when b.top_cd = '04' and b.middle_cd = '02' and b.sub_cd = '04' then '회계심사부'
+          when b.top_cd = '04' and b.middle_cd = '02' and b.sub_cd = '05' then '계약심사부'
+          when b.top_cd = '04' and b.middle_cd = '03' and b.sub_cd = '01' then '정보시스템부'
+          when b.top_cd = '04' and b.middle_cd = '03' and b.sub_cd = '02' then '홍보부'
+          when b.top_cd = '04' and b.middle_cd = '06' and b.sub_cd = '01' then '금융기획부'
+          when b.top_cd = '04' and b.middle_cd = '06' and b.sub_cd = '02' then '금융사업부'
+          when b.top_cd = '05' and b.middle_cd = '01' and b.sub_cd = '01' then '보상총괄부'
+          when b.top_cd = '05' and b.middle_cd = '01' and b.sub_cd = '02' then '용지보상부'
+          when b.top_cd = '05' and b.middle_cd = '01' and b.sub_cd = '03' then '수탁보상부'
+          when b.top_cd = '05' and b.middle_cd = '02' and b.sub_cd = '01' then '개발기획부'
+          when b.top_cd = '05' and b.middle_cd = '02' and b.sub_cd = '02' then '개발사업부'
+          when b.top_cd = '05' and b.middle_cd = '02' and b.sub_cd = '03' then '역세권개발부'
+          when b.top_cd = '05' and b.middle_cd = '03' and b.sub_cd = '01' then '판매부'
+          when b.top_cd = '05' and b.middle_cd = '03' and b.sub_cd = '02' then '분양수납부'
+          when b.top_cd = '05' and b.middle_cd = '04' and b.sub_cd = '01' then '운영관리부'
+          when b.top_cd = '05' and b.middle_cd = '04' and b.sub_cd = '02' then '공급수납부'
+          when b.top_cd = '06' and b.middle_cd = '01' and b.sub_cd = '01' then '건축기술부'
+          when b.top_cd = '06' and b.middle_cd = '01' and b.sub_cd = '02' then '건축설계부'
+          when b.top_cd = '06' and b.middle_cd = '01' and b.sub_cd = '03' then '토목조경설계부'
+          when b.top_cd = '06' and b.middle_cd = '01' and b.sub_cd = '04' then '기전설계부'
+          when b.top_cd = '06' and b.middle_cd = '02' and b.sub_cd = '01' then '건설사업부'
+          when b.top_cd = '06' and b.middle_cd = '02' and b.sub_cd = '02' then '건축공사부'
+          when b.top_cd = '06' and b.middle_cd = '02' and b.sub_cd = '03' then '토목조경공사부'
+          when b.top_cd = '06' and b.middle_cd = '03' and b.sub_cd = '01' then '미래기술사업부'
+          when b.top_cd = '06' and b.middle_cd = '03' and b.sub_cd = '02' then '기계공사부'
+          when b.top_cd = '06' and b.middle_cd = '03' and b.sub_cd = '03' then '전기공사부'
+          when b.top_cd = '06' and b.middle_cd = '04' and b.sub_cd = '01' then '재난안전부'
+          when b.top_cd = '06' and b.middle_cd = '04' and b.sub_cd = '02' then '하자관리부'
+          when b.top_cd = '07' and b.middle_cd = '01' and b.sub_cd = '01' then '재생기획부'
+          when b.top_cd = '07' and b.middle_cd = '01' and b.sub_cd = '02' then '도시재생사업부'
+          when b.top_cd = '07' and b.middle_cd = '01' and b.sub_cd = '03' then '세운사업부'
+          when b.top_cd = '07' and b.middle_cd = '02' and b.sub_cd = '01' then '주거재생사업부'
+          when b.top_cd = '07' and b.middle_cd = '02' and b.sub_cd = '02' then '공동주택사업부'
+          when b.top_cd = '07' and b.middle_cd = '02' and b.sub_cd = '03' then '매입주택부'
+          when b.top_cd = '07' and b.middle_cd = '03' and b.sub_cd = '01' then '공유재산관리부'
+          when b.top_cd = '07' and b.middle_cd = '03' and b.sub_cd = '02' then '공유재산개발부'
+          when b.top_cd = '08' and b.middle_cd = '01' and b.sub_cd = '01' then '주거복지부'
+          when b.top_cd = '08' and b.middle_cd = '01' and b.sub_cd = '02' then '공동체지원부'
+          when b.top_cd = '08' and b.middle_cd = '01' and b.sub_cd = '03' then '공공임대부'
+          when b.top_cd = '08' and b.middle_cd = '01' and b.sub_cd = '04' then '맞춤임대부'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '01' then '강남센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '02' then '송파센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '03' then '관약센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '04' then '강서센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '05' then '양천센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '06' then '마포센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '07' then '성동센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '08' then '은평센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '09' then '노원센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '10' then '성북센터'
+          when b.top_cd = '08' and b.middle_cd = '02' and b.sub_cd = '11' then '동대문센터'
+          when b.top_cd = '08' and b.middle_cd = '03' and b.sub_cd = '01' then '시설계획부'
+          when b.top_cd = '08' and b.middle_cd = '03' and b.sub_cd = '02' then '시설지원부'
+          when b.top_cd = '08' and b.middle_cd = '03' and b.sub_cd = '03' then '시설활용부'
+          when b.top_cd = '09' and b.middle_cd = '01' and b.sub_cd = '01' then '토목기술부'
+          when b.top_cd = '09' and b.middle_cd = '01' and b.sub_cd = '02' then '택지계획부'
+          when b.top_cd = '09' and b.middle_cd = '01' and b.sub_cd = '03' then '택지설계부'
+          when b.top_cd = '09' and b.middle_cd = '02' and b.sub_cd = '01' then '택지조성부'
+          when b.top_cd = '09' and b.middle_cd = '02' and b.sub_cd = '02' then '기반시설사업부'
+          when b.top_cd = '09' and b.middle_cd = '02' and b.sub_cd = '03' then '조경부'
+          when b.top_cd = '09' and b.middle_cd = '03' and b.sub_cd = '01' then '마곡사업부'
+          when b.top_cd = '09' and b.middle_cd = '03' and b.sub_cd = '02' then '위례사업부'
+          when b.top_cd = '09' and b.middle_cd = '03' and b.sub_cd = '03' then '건축사업부'
+          when b.top_cd = '09' and b.middle_cd = '03' and b.sub_cd = '04' then '조경사업부'
+          when b.top_cd = '09' and b.middle_cd = '03' and b.sub_cd = '05' then '기전사업부'
+		ELSE '-'
+		END as subDept_name
+		from sh_user_info as b, sh_user_log as c where b.user_id = c.user_id and c.in_out = 'in' ORDER BY c.reg_date desc ) as A
+		) as Z
+		  WHERE Z.RNO BETWEEN #firstIndex# AND #lastIndex#
+		  
+    
+    ]]>
+    </select> 
+    <!-- 사용자 목록 총 건수 가져오기   -->
+	<select id="homeDAO.userListCnt" parameterClass="homeVO" resultClass="int">
+	    select count(*) as CNT
+	    from sh_user_info
+	</select>	
+	<!-- 사용자 목록 가져오기  -->
+	<select id="homeDAO.userListPage"  parameterClass="homeVO" resultClass="homeVO">
+    <![CDATA[
+		select * from (
+		select 
+		(ROW_NUMBER() OVER()) AS RNO ,
+		user_id,
+		user_name,
+		user_pass,
+		user_position,
+		user_hp,
+		user_phone,
+		user_mail,
+		user_auth,
+		del_yn,
+		top_cd,
+		middle_cd,
+		sub_cd,
+		reg_date,
+		updt_date,
+		case
+          when top_cd = '01' then 'SH도시연구원'
+          when top_cd = '02' then 'SH교육원'
+          when top_cd = '03' then '감사'
+          when top_cd = '04' then '기획경영본부'
+          when top_cd = '05' then '공공개발사업본부'
+          when top_cd = '06' then '건설안전사업본부'
+          when top_cd = '07' then '도시재생본부'
+          when top_cd = '08' then '주거복지본부'
+          when top_cd = '09' then '택지사업본부'
+		ELSE '관리자'
+		END as topDept_name ,
+		case
+          when top_cd = '03' and middle_cd = '01' then '감사실'
+          when top_cd = '04' and middle_cd = '01' then '기획조정처'
+          when top_cd = '04' and middle_cd = '02' then '경영지원처'
+          when top_cd = '04' and middle_cd = '03' then '소통홍보처'
+          when top_cd = '04' and middle_cd = '04' then '서울시정책수출사업단'
+          when top_cd = '04' and middle_cd = '05' then '범무지원실'
+          when top_cd = '04' and middle_cd = '06' then '금융사원추진단'
+          when top_cd = '05' and middle_cd = '01' then '공공요지처'
+          when top_cd = '05' and middle_cd = '02' then '공공개발사업처'
+          when top_cd = '05' and middle_cd = '03' then '마케팅처'
+          when top_cd = '05' and middle_cd = '04' then '가든파이브사업단'
+          when top_cd = '06' and middle_cd = '01' then '건축설계처'
+          when top_cd = '06' and middle_cd = '02' then '건설사업처'
+          when top_cd = '06' and middle_cd = '03' then '첨단기술사업처'
+          when top_cd = '06' and middle_cd = '04' then '안전하자관리상황실' 
+          when top_cd = '07' and middle_cd = '01' then '재생사업기획처'
+          when top_cd = '07' and middle_cd = '02' then '근린재생사업처'
+          when top_cd = '07' and middle_cd = '03' then '공유재산관리단'
+          when top_cd = '08' and middle_cd = '01' then '주거복지처'
+          when top_cd = '08' and middle_cd = '02' then '주거복지센터'
+          when top_cd = '08' and middle_cd = '01' then '택지계획처'
+          when top_cd = '09' and middle_cd = '02' then '택지조성처'
+          when top_cd = '09' and middle_cd = '03' then '마곡위례사업단'
+		ELSE '-'
+		END as midDept_name , 
+		case
+          when top_cd = '03' and middle_cd = '01' and sub_cd = '01' then '행정감사부'
+          when top_cd = '03' and middle_cd = '01' and sub_cd = '02' then '기술감사부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '01' then '기획부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '02' then '재정관리부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '03' then '경영관리부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '04' then '예산자금부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '05' then '미래전략부'
+          when top_cd = '04' and middle_cd = '01' and sub_cd = '06' then '조기집행추진단'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '01' then '총무부'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '02' then '인사노무부'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '03' then '계약부'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '04' then '회계심사부'
+          when top_cd = '04' and middle_cd = '02' and sub_cd = '05' then '계약심사부'
+          when top_cd = '04' and middle_cd = '03' and sub_cd = '01' then '정보시스템부'
+          when top_cd = '04' and middle_cd = '03' and sub_cd = '02' then '홍보부'
+          when top_cd = '04' and middle_cd = '06' and sub_cd = '01' then '금융기획부'
+          when top_cd = '04' and middle_cd = '06' and sub_cd = '02' then '금융사업부'
+          when top_cd = '05' and middle_cd = '01' and sub_cd = '01' then '보상총괄부'
+          when top_cd = '05' and middle_cd = '01' and sub_cd = '02' then '용지보상부'
+          when top_cd = '05' and middle_cd = '01' and sub_cd = '03' then '수탁보상부'
+          when top_cd = '05' and middle_cd = '02' and sub_cd = '01' then '개발기획부'
+          when top_cd = '05' and middle_cd = '02' and sub_cd = '02' then '개발사업부'
+          when top_cd = '05' and middle_cd = '02' and sub_cd = '03' then '역세권개발부'
+          when top_cd = '05' and middle_cd = '03' and sub_cd = '01' then '판매부'
+          when top_cd = '05' and middle_cd = '03' and sub_cd = '02' then '분양수납부'
+          when top_cd = '05' and middle_cd = '04' and sub_cd = '01' then '운영관리부'
+          when top_cd = '05' and middle_cd = '04' and sub_cd = '02' then '공급수납부'
+          when top_cd = '06' and middle_cd = '01' and sub_cd = '01' then '건축기술부'
+          when top_cd = '06' and middle_cd = '01' and sub_cd = '02' then '건축설계부'
+          when top_cd = '06' and middle_cd = '01' and sub_cd = '03' then '토목조경설계부'
+          when top_cd = '06' and middle_cd = '01' and sub_cd = '04' then '기전설계부'
+          when top_cd = '06' and middle_cd = '02' and sub_cd = '01' then '건설사업부'
+          when top_cd = '06' and middle_cd = '02' and sub_cd = '02' then '건축공사부'
+          when top_cd = '06' and middle_cd = '02' and sub_cd = '03' then '토목조경공사부'
+          when top_cd = '06' and middle_cd = '03' and sub_cd = '01' then '미래기술사업부'
+          when top_cd = '06' and middle_cd = '03' and sub_cd = '02' then '기계공사부'
+          when top_cd = '06' and middle_cd = '03' and sub_cd = '03' then '전기공사부'
+          when top_cd = '06' and middle_cd = '04' and sub_cd = '01' then '재난안전부'
+          when top_cd = '06' and middle_cd = '04' and sub_cd = '02' then '하자관리부'
+          when top_cd = '07' and middle_cd = '01' and sub_cd = '01' then '재생기획부'
+          when top_cd = '07' and middle_cd = '01' and sub_cd = '02' then '도시재생사업부'
+          when top_cd = '07' and middle_cd = '01' and sub_cd = '03' then '세운사업부'
+          when top_cd = '07' and middle_cd = '02' and sub_cd = '01' then '주거재생사업부'
+          when top_cd = '07' and middle_cd = '02' and sub_cd = '02' then '공동주택사업부'
+          when top_cd = '07' and middle_cd = '02' and sub_cd = '03' then '매입주택부'
+          when top_cd = '07' and middle_cd = '03' and sub_cd = '01' then '공유재산관리부'
+          when top_cd = '07' and middle_cd = '03' and sub_cd = '02' then '공유재산개발부'
+          when top_cd = '08' and middle_cd = '01' and sub_cd = '01' then '주거복지부'
+          when top_cd = '08' and middle_cd = '01' and sub_cd = '02' then '공동체지원부'
+          when top_cd = '08' and middle_cd = '01' and sub_cd = '03' then '공공임대부'
+          when top_cd = '08' and middle_cd = '01' and sub_cd = '04' then '맞춤임대부'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '01' then '강남센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '02' then '송파센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '03' then '관약센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '04' then '강서센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '05' then '양천센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '06' then '마포센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '07' then '성동센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '08' then '은평센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '09' then '노원센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '10' then '성북센터'
+          when top_cd = '08' and middle_cd = '02' and sub_cd = '11' then '동대문센터'
+          when top_cd = '08' and middle_cd = '03' and sub_cd = '01' then '시설계획부'
+          when top_cd = '08' and middle_cd = '03' and sub_cd = '02' then '시설지원부'
+          when top_cd = '08' and middle_cd = '03' and sub_cd = '03' then '시설활용부'
+          when top_cd = '09' and middle_cd = '01' and sub_cd = '01' then '토목기술부'
+          when top_cd = '09' and middle_cd = '01' and sub_cd = '02' then '택지계획부'
+          when top_cd = '09' and middle_cd = '01' and sub_cd = '03' then '택지설계부'
+          when top_cd = '09' and middle_cd = '02' and sub_cd = '01' then '택지조성부'
+          when top_cd = '09' and middle_cd = '02' and sub_cd = '02' then '기반시설사업부'
+          when top_cd = '09' and middle_cd = '02' and sub_cd = '03' then '조경부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '01' then '마곡사업부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '02' then '위례사업부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '03' then '건축사업부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '04' then '조경사업부'
+          when top_cd = '09' and middle_cd = '03' and sub_cd = '05' then '기전사업부'
+		ELSE '-'
+		END as subDept_name
+		from sh_user_info ) A
+		
+		  WHERE RNO BETWEEN #firstIndex# AND #lastIndex# 
+		  ORDER BY user_auth desc, reg_date, user_name 
+     ]]>     
+    </select>
+    <!-- 로그인이력테이블 등록액션(승인관청 주민번호 수집용) -->
+    <insert id="homeDAO.insertHomeLogincolctins01" parameterClass="homeVO" >
+		<selectKey resultClass="java.lang.String" keyProperty="conect_id">
+            /* 로그인이력테이블 이력정보 ID key생성(승인관청 주민번호 수집용) */
+			SELECT NVL( MAX ( CONECT_ID ),0 ) + 1 AS CONECT_ID /* 불이행번호 */
+            FROM TN_LOGINHIST /* 로그인이력테이블 */
+		</selectKey>
+    <![CDATA[
+        /* 로그인이력테이블 등록액션(승인관청 주민번호 수집용) */
+        INSERT INTO TN_LOGINHIST   /* 로그인이력테이블 */
+        (
+            CONECT_ID    /* 이력정보 ID */
+           ,USER_ID      /* 사용자ID */
+           ,USER_NM      /* 사용자명 */
+           ,CONECT_IP    /* 접속자IP */
+           ,REGIST_DATE  /* 등록일시 */
+           ,REGIST_ID    /* 등록한 사용자ID */
+        )VALUES(
+            #conect_id#    /* 이력정보 ID */
+           ,#user_id#      /* 사용자ID */
+           ,#user_nm#      /* 사용자명 */
+           ,#conect_ip#    /* 접속자IP */
+           ,SYSDATE        /* 등록일시 */
+           ,#user_id#      /* 등록한 사용자ID */
+        )
+    ]]>
+    </insert>
+
+
+	<!-- 공지사항 팝업창 알림 -->
+    <select id="homeDAO.noticePopup" parameterClass="homeVO"  resultClass="java.util.HashMap">
+                select 
+                     seq,
+					 board_gubun, 
+					 reg_name,  
+					 user_dept_all,  
+					 open_gb,  
+					 board_sjt, 
+					 board_contents as content, 
+					 board_cnt,  
+					 refer_no,  
+					 board_step, 
+					 level_ling,  
+					 regest_id, 
+					 regest_date,  
+					 udpate_date,
+					 use_at
+              from sh_boad_data 
+              where use_at = '1'
+		    	<isNotEmpty prepend="AND" property="seq">
+		    		seq = (#seq#)::Integer 
+		    	</isNotEmpty>   
+    </select>
+    
+</sqlMap>

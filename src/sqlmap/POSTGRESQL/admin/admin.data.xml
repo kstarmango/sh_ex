@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="admin.data">
+    
+    <select id="admin.data.selectDataList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 수정 승인 요청 데이터 목록 조회  */
+			SELECT * 
+			  FROM (		
+			    	SELECT ROW_NUMBER() OVER(ORDER BY $PAGE_SORT$ $PAGE_ORDER$) AS RNO,
+			    	       AA.*
+			    	  FROM (
+							 SELECT ER.REQ_NO,
+							        ER.LAYER_NO,
+									LI.LAYER_DP_NM,
+									LI.TABLE_NM,
+									(SELECT SCHEMANAME FROM PG_TABLES WHERE UPPER(TABLENAME) = upper(LI.TABLE_NM)) || '.' || LI.TABLE_NM AS TABLE_FULL_NM,
+									ER.REQ_DATA,
+									ER.BEFORE_DATA,
+									ER.BEFORE_CTID,
+							        LANDSYS_ADM.FN_DECRYPT(ER.INS_USER, #KEY#)   AS INS_USER,
+									LANDSYS_ADM.FN_DECRYPT(UI1.USER_NM, #KEY#)   AS INS_USER_NM, 
+							 		LANDSYS_ADM.FN_DECRYPT(ER.UPD_USER, #KEY#)   AS UPD_USER,
+									LANDSYS_ADM.FN_DECRYPT(UI2.USER_NM, #KEY#)   AS UPD_USER_NM, 
+							 		LANDSYS_ADM.FN_DECRYPT(ER.CONFM_USER, #KEY#) AS CFM_USER,
+									LANDSYS_ADM.FN_DECRYPT(UI3.USER_NM, #KEY#)   AS CFM_USER_NM, 
+									TO_CHAR(ER.INS_DT,   'YYYY/MM/DD HH24:MI')   AS INS_DT,
+						  			TO_CHAR(ER.UPD_DT,   'YYYY/MM/DD HH24:MI')   AS UPD_DT,
+									TO_CHAR(ER.CONFM_DT, 'YYYY/MM/DD HH24:MI')   AS CFM_DT,
+									ER.CONFM_YN                                  AS CFM_YN_ENG,
+									CASE WHEN ER.CONFM_YN <> 'Y' THEN '미승인' ELSE '승인' END 
+																				 AS CFM_YN_KOR 
+							   FROM LANDSYS_ADM.TB_LAYER_EDIT_REQ ER,
+					    	        LANDSYS_ADM.TB_USER_INFO  UI1,
+						  			LANDSYS_ADM.TB_USER_INFO  UI2,
+						  			LANDSYS_ADM.TB_USER_INFO  UI3,
+									LANDSYS_ADM.TB_LAYER_INFO LI
+					    	  WHERE ER.INS_USER   = UI1.USER_ID 
+						        AND ER.UPD_USER   = UI2.USER_ID
+						        AND ER.CONFM_USER = UI3.USER_ID
+						        AND ER.LAYER_NO   = LI.LAYER_NO
+		]]>
+						<isNotEmpty  prepend="AND" property="CONFM_YN">
+						       	    ER.CONFM_YN  = #CONFM_YN#
+						</isNotEmpty>
+						<isNotEmpty  prepend="AND" property="START_DATE">
+						       	    ER.INS_DT::date >= #START_DATE#::date
+						</isNotEmpty>	
+						<isNotEmpty property="SERCH_NM">
+							<isEqual prepend="AND" property="SERCH_GB" compareValue="user_id">
+							        LANDSYS_ADM.FN_DECRYPT(UI1.USER_ID, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+							</isEqual>
+							<isEqual prepend="AND" property="SERCH_GB" compareValue="user_nm">
+							        LANDSYS_ADM.FN_DECRYPT(UI1.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+							</isEqual>
+							<isEqual prepend="AND" property="SERCH_GB" compareValue="dept_nm">
+							        UI1.DEPT_NM IS NOT NULL AND UI1.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI1.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+							</isEqual>		
+							<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+									(
+										LANDSYS_ADM.FN_DECRYPT(UI1.USER_ID, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+										LANDSYS_ADM.FN_DECRYPT(UI1.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+										( UI1.DEPT_NM IS NOT NULL AND UI1.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI1.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' )
+									)
+							</isEqual>
+						</isNotEmpty>
+		<![CDATA[				
+			    	       ) AA
+		    	   ) AAA
+	    	 WHERE AAA.RNO BETWEEN #FIRST_INDEX# AND #LAST_INDEX#
+		]]>    	 		
+    </select>
+        
+   	<select id="admin.data.selectDataListCount" parameterClass="java.util.HashMap" resultClass="int">
+		<![CDATA[
+			/* 수정 승인 요청 데이터 목록 조회  */
+			 SELECT COUNT(ER.REQ_NO) AS CNT
+			   FROM LANDSYS_ADM.TB_LAYER_EDIT_REQ ER,
+	    	        LANDSYS_ADM.TB_USER_INFO  UI1,
+		  			LANDSYS_ADM.TB_USER_INFO  UI2,
+		  			LANDSYS_ADM.TB_USER_INFO  UI3,
+					LANDSYS_ADM.TB_LAYER_INFO LI
+	    	  WHERE ER.INS_USER   = UI1.USER_ID 
+		        AND ER.UPD_USER   = UI2.USER_ID
+		        AND ER.CONFM_USER = UI3.USER_ID
+		        AND ER.LAYER_NO   = LI.LAYER_NO
+		]]>
+		<isNotEmpty  prepend="AND" property="CONFM_YN">
+		       	    ER.CONFM_YN  = #CONFM_YN#
+		</isNotEmpty>
+		<isNotEmpty  prepend="AND" property="START_DATE">
+		       	    ER.INS_DT::date >= #START_DATE#::date
+		</isNotEmpty>	
+		<isNotEmpty property="SERCH_NM">
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="user_id">
+			        LANDSYS_ADM.FN_DECRYPT(UI1.USER_ID, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="user_nm">
+			        LANDSYS_ADM.FN_DECRYPT(UI1.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="dept_nm">
+			        UI1.DEPT_NM IS NOT NULL AND UI1.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI1.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>		
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+					(
+						LANDSYS_ADM.FN_DECRYPT(UI1.USER_ID, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+						LANDSYS_ADM.FN_DECRYPT(UI1.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+						( UI1.DEPT_NM IS NOT NULL AND UI1.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI1.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' )
+					)
+			</isEqual>
+		</isNotEmpty>
+    </select>
+ 
+   	<select id="admin.data.selectDataDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 승인 요청 데이터 조회  */		
+			 SELECT REQ_DATA,
+			 		BEFORE_DATA
+			   FROM LANDSYS_ADM.TB_LAYER_EDIT_REQ
+			  WHERE REQ_NO = #REQ_NO#
+		]]>		
+	</select>          
+     
+    <update id="admin.data.updateDataToOriginalTable" parameterClass="java.util.HashMap">
+		<![CDATA[
+			/* 승인 데이터 업데이트  */
+			 UPDATE $TABLE_NM$
+		]]>			 	 
+		<dynamic>
+		<iterate prepend="SET" conjunction=", " property="REQ_DATA">
+			<isEqual property="REQ_DATA[].col_type" compareValue="">
+				$REQ_DATA[].col_nm$ = #REQ_DATA[].col_val#
+			</isEqual>
+			<isNotEqual property="REQ_DATA[].col_type" compareValue="">
+				$REQ_DATA[].col_nm$ = CAST(#REQ_DATA[].col_val# as $REQ_DATA[].col_type$)
+			</isNotEqual>
+		</iterate>
+		</dynamic>		
+		<![CDATA[			 	
+	  		  WHERE CTID =  (
+						SELECT BEFORE_CTID::TID 
+						  FROM LANDSYS_ADM.TB_LAYER_EDIT_REQ  
+						 WHERE REQ_NO = #REQ_NO#
+				    )	 	
+		]]>		
+	</update>      
+
+   	<update id="admin.data.updateDataByReqNo" parameterClass="java.util.HashMap">
+		<![CDATA[
+			/* 승인 처리 업데이트  */		
+			 UPDATE LANDSYS_ADM.TB_LAYER_EDIT_REQ
+			 	SET	CONFM_YN   = 'Y',
+			 		CONFM_USER = LANDSYS_ADM.FN_ENCRYPT(#CFM_USER#, #KEY#),
+					CONFM_DT   = CURRENT_TIMESTAMP
+			  WHERE REQ_NO = #REQ_NO#
+		]]>		
+	</update> 
+	            
+</sqlMap>

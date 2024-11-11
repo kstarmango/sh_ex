@@ -1,0 +1,1008 @@
+@charset "utf-8";
+
+// 컬러
+$primary:#085454;
+$gray100:#373737;
+$gray90:#344454;
+$grayPlacehold:#798A89;
+$grayLine:#E0E6EC;
+
+
+
+
+// 공통
+.clearBoth{
+    clear: both;
+}
+.disFlex{
+    display:flex;
+    align-items: center;
+}
+label{
+    font-size:1.4rem;
+    color:$gray90;
+}
+p.info{
+    margin-top:0.4rem;
+    font-size:1.3rem;
+    color:$gray100;
+    line-height: 2rem;
+    font-weight: 500;
+}
+h2.tit{
+    font-size: 1.8rem;
+    color: $gray100;
+    font-weight: 700;
+}
+h3.tit{
+    font-size: 1.4rem;
+    color: #373737;
+    font-weight: 700;
+}
+.breakLine{
+    width:100%;
+    height: 0.8rem;
+    background-color: #EAEAEA;
+}
+
+caption{
+    display: none;
+}
+.thead-hidden{
+    position: absolute;
+    width:0;
+    height: 0;
+    overflow: hidden;
+}
+
+.ListWrap{
+    margin-top:1.2rem;
+    .tit{
+        margin:0 0 0.8rem;
+        h3{
+            font-size:1.4rem;
+            color:$gray100;
+            font-weight: 700;
+        }
+        .dataNum{
+            margin-left: auto;
+        }
+    }
+    .listBox{
+        padding:0.2rem 0.8rem;
+        height: 20rem;
+        overflow-y: auto;
+        background-color:#fff;
+        border:1px solid $grayLine;
+        border-radius: 0.4rem;
+        li{
+            padding:0.4rem;
+            font-size:1.3rem;
+            font-weight: 400;
+            color: $gray100;
+            .searchText{
+                color:$primary;
+                font-weight: 600;
+            }
+            &.hover, &:hover{
+                background: rgba(203, 221, 255, 0.30);
+            }
+        }
+        
+    }
+}
+
+.searchTxtInput{
+    position: relative;
+    input[type="text"]{
+        position: relative;
+        padding:0.8rem;
+        width: 28rem;
+        height: 4rem;
+        border:1px solid $primary;
+        border-radius: 0.4rem;
+        background-color: #fff;
+        font-size:1.5rem;
+        &::placeholder{
+            color:$grayPlacehold;
+        }
+    }
+    button{
+        position: absolute;
+        right:0.8rem;
+        top:50%;
+        background-color: unset;
+        transform: translate(0, -50%);
+        width:2.4rem;
+        height: 2.4rem;
+    }
+}
+.dataNum{
+    font-size:1.3rem;
+    color:$grayPlacehold;
+    span{
+        color:$primary;
+        font-weight:700 ;
+    }
+    span.tit{
+        font-weight: 600;
+        color:$grayPlacehold;
+    }
+}
+.selectSM{
+    font-size:1.3rem;
+    min-width: 8rem;
+    height: 2.4rem;
+}
+
+// 작은 버튼 나열
+.BtnWrapSM{
+    display: flex;
+    border-radius: 0.4rem;
+    overflow: hidden;
+    button{
+        color:$grayPlacehold;
+        border-radius: 0;
+        border-right:1px solid $grayLine;
+        &:last-child{
+            border-right:0;
+        }
+        &.hover, &:hover{
+            color:$primary;
+            font-weight: 700;
+        }
+    }
+}
+// 큰탭
+.tabWrapMD{
+    display: flex;
+    position: relative;
+    z-index: 2;
+    & > div{
+        display: flex;
+        align-items: center;
+        padding:0 1.2rem;
+        height: 4rem;
+        font-size:1.4rem;
+        color:$grayPlacehold;
+        border:1px solid $grayLine;
+        border-bottom:0;
+        border-radius: 0.4rem 0.4rem 0 0 ;
+        cursor: pointer;
+    }
+    .hover{
+        background-color: #fff;
+        cursor: default;
+    }
+    span{
+        display: flex;
+        flex-direction: column;
+        padding:0 1.2rem;
+        text-align: center;
+        font-size:1.3rem;
+        color:$grayPlacehold;
+        cursor: pointer;
+    }
+}
+// on/off스위치
+.swichBtn{
+    height: 2rem;
+    label {
+       display: inline-flex;
+       align-items: center;
+       gap: 0.5rem;
+       cursor: pointer;
+     }
+
+  
+  [type="checkbox"] {
+    appearance: none;
+    position: relative;
+    border: max(2px, 0.1rem) solid gray;
+    border-radius: 50px;
+    width: 3.6rem;
+    height: 2rem;
+    min-width:unset;
+  }
+  
+  [type="checkbox"]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    transform: scale(0.8);
+    background-color: gray;
+    transition: left 250ms linear;
+  }
+  
+  [type="checkbox"]:checked {
+    background-color: $primary;
+    border-color: $primary;
+  }
+  
+  [type="checkbox"]:checked::before {
+    background-color: white;
+    left: 1.6rem;
+  }
+  
+  [type="checkbox"]:disabled {
+    border-color: lightgray;
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  [type="checkbox"]:disabled:before {
+    background-color: lightgray;
+  }
+  
+  [type="checkbox"]:disabled + span {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  [type="checkbox"]:focus-visible {
+    outline-offset: max(2px, 0.1rem);
+    outline: max(2px, 0.1rem) solid $primary;
+  }
+  
+  [type="checkbox"]:enabled:hover {
+    box-shadow: 0 0 0 max(0.4rem, 0.2rem) lightgray;
+  }
+}
+.contGrayBGInner{
+    margin-top:-2px;
+    padding:1.6rem;
+    background-color: #fff;
+    border:1px solid #E0E6EC;
+}
+
+button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding:0 0.8rem;
+    height: 3.2rem;
+    background-color:#fff;
+    border-radius: 0.4rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    
+    &.primaryLine{
+        color:$primary;
+        border:1px solid $primary;
+    }
+    &.primaryBG{
+        padding:0;
+        width:3.2rem;
+        background-color:$primary;
+        color:#fff;
+        img{
+            object-fit: cover;
+        }
+    }
+    &.gray100Line{
+        border:1px solid $grayPlacehold;
+        color:$gray90;
+    }
+}
+
+.TablethGray{
+    width:100%;
+    tr{
+        border-top:1px solid $grayLine;
+        border-left:1px solid $grayLine;
+        th, td{
+            padding:0.8rem 0.4rem;
+            border-bottom:1px solid $grayLine;
+            border-right:1px solid $grayLine;
+            font-size:1.4rem;
+        }
+        th{
+            background-color: #F7F9FB;
+        }
+        td{
+            background-color: #fff;
+        }
+        .center{
+            text-align: center;
+        }
+    }
+    &.lineHidden td{
+        width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden; 
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 헤더
+header{
+    display: flex;
+    align-items: center;
+    padding:0 1.6rem;
+    width:100%;
+    height: 4.8rem;
+    background-color:$primary;
+    nav {
+        margin-left: auto;
+        ul{
+        display: flex;
+        align-items: center;
+        gap:4rem;
+            li{
+                display: flex;
+                align-items: center;
+                gap: 0.8rem;
+                padding:0.4rem 1.2rem;
+                border-radius: 0.4rem;
+                color:#F0ECE3;
+                font-size:1.5rem;
+                cursor: pointer;
+                &.hover{
+                    background-color:#5EBE40;
+                    color:#fff;
+                }
+                &:hover{
+                    color:#fff;
+                }
+            }
+        }
+    }
+}
+
+
+.mainWrap{
+    display: flex;
+}
+aside.left{
+    display: flex;
+    
+    .leftMenu{
+        padding:0 0.4rem;
+        width:12rem;
+        height: calc( 100vh - 4.8rem );
+        background-color:#FBFBFB;
+        box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.08);
+        overflow-y: auto;
+        z-index: 2;
+        // 스크롤 안보이게
+        -ms-overflow-style: none; /* 인터넷 익스플로러 */
+        scrollbar-width: none; /* 파이어폭스 */
+        &::-webkit-scrollbar {
+        display: none;
+        }
+    }
+    .leftMenu > li{
+        margin:1.6rem auto;
+        padding:1.2rem 0 0;
+        width:7.2rem;
+        text-align: center;
+        cursor: pointer;
+        span{
+            display: block;
+            margin-bottom:1.2rem;
+            font-size:1.4rem;
+            color:$grayPlacehold;
+            font-weight: 600;
+            line-height: 120%;
+        }
+        &.hover{
+            border:1px solid $primary;
+            background-color: #fff;;
+            border-radius: 0.4rem;
+            cursor: default;
+            span{
+                color:$primary;
+            }
+        }
+        &:hover span{
+            color:$primary;
+        }
+        &::before{
+            content: '';
+            display: inline-block;
+            width:2.8rem;
+            height: 2.8rem;
+            background-size: cover !important;
+        }
+        &:nth-child(1)::before, 
+        &:nth-child(2)::before{
+            background: url('../../../img/map/icMenu01.svg');
+        }
+        &:nth-child(3)::before{
+            background: url('../../../img/map/icMenu02.svg');
+        }
+        &:nth-child(4)::before{
+            background: url('../../../img/map/icMenu03.svg');
+        }
+        &:nth-child(5)::before{
+            background: url('../../../img/map/icMenu04.svg');
+        }
+        &:nth-child(6)::before{
+            background: url('../../../img/map/icMenu05.svg');
+        }
+        &:nth-child(7)::before{
+            background: url('../../../img/map/icMenu06.svg');
+        }
+        &:nth-child(8)::before{
+            background: url('../../../img/map/icMenu07.svg');
+        }
+        &:nth-child(9)::before{
+            background: url('../../../img/map/icMenu08.svg');
+        }
+        
+        // li 마우스오버했을 때 아이콘 색상 변경
+        &.hover:nth-child(1)::before, &:hover:nth-child(1)::before,
+        &.hover:nth-child(2)::before, &:hover:nth-child(2)::before{
+            background: url('../../../img/map/icMenu01_hover.svg');
+        }
+        &.hover:nth-child(3)::before, &:hover:nth-child(3)::before{
+            background: url('../../../img/map/icMenu02_hover.svg');
+        }
+        &.hover:nth-child(4)::before, &:hover:nth-child(4)::before{
+            background: url('../../../img/map/icMenu03_hover.svg');
+        }
+        &.hover:nth-child(5)::before, &:hover:nth-child(5)::before{
+            background: url('../../../img/map/icMenu04_hover.svg');
+        }
+        &.hover:nth-child(6)::before, &:hover:nth-child(6)::before{
+            background: url('../../../img/map/icMenu05_hover.svg');
+        }
+        &.hover:nth-child(7)::before, &:hover:nth-child(7)::before{
+            background: url('../../../img/map/icMenu06_hover.svg');
+        }
+        &.hover:nth-child(8)::before, &:hover:nth-child(8)::before{
+            background: url('../../../img/map/icMenu07_hover.svg');
+        }
+        &.hover:nth-child(9)::before, &:hover:nth-child(9)::before{
+            background: url('../../../img/map/icMenu08_hover.svg');
+        }
+    }
+    .leftMenu .subMenu li{
+        margin:0.8rem auto;
+        padding:1.2rem 0;
+        border-radius: 0.4rem;
+        width:90%;
+        font-size:1.4rem;
+        color:$gray90;
+        border:1px solid $grayLine;
+        background-color:#fff;
+        cursor: pointer;
+        &.hover, &:hover{
+            background-color:$primary;
+            color:#fff;
+            cursor: pointer;
+        }
+    }
+
+
+    // 좌측패널
+    .leftPanner{
+        width:30rem;
+        background-color:#F7F9FB;    
+        border-right:1px solid $grayLine;
+        .areaSearch{
+            padding:1.6rem;
+            background-color:#fff;
+        }
+        h3.tit{
+            margin-top:1.6rem;
+            margin-bottom:0.8rem;
+        }
+        label{
+            margin-left: 0.4rem;
+            margin-right:1.2rem;
+        }
+        select{
+            font-size:1.4rem;
+        }
+        .selectWrap{
+            .disFlex{
+                margin-bottom:0.8rem;
+            }
+            label{
+                width:8rem;
+            }
+            select{
+                width:100%;
+            }
+        }
+        .radioWrap{
+            .disFlex{
+                margin-bottom:0.8rem;
+            }
+            label{
+                width:4rem;
+            }
+            input[type=radio]{
+                width:1.6rem;
+            }
+            input[type=num]{
+                height: 3.2rem;
+            }
+        }
+        .moreBtn{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap:0.8rem;
+            margin-top:1.6rem;
+            color:$gray90;
+            font-size:1.3rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .primaryBG{
+            margin-top:1.8rem;
+            padding:1.2rem 0.8rem;
+            width:100%;
+            font-size:1.6rem;
+        }
+
+
+
+        .newDevSearch{
+            padding:1.6rem;
+            // background-color:#F5F5F5;
+        }
+        .searchTxtInput {
+            label{
+                margin:0;
+            }
+            input[type=text]{
+                width:100%;
+            }
+        }
+    }
+}
+.depth2Panner{
+    position: relative;
+    width:22rem;
+    background-color:#F7F9FB ;
+    .depthWrap{
+        padding:1.6rem;
+        h3.tit{
+            margin-top: 1.6rem;
+            margin-bottom: 0.8rem;
+        }
+    }
+    .searchTxtInput{
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-top:0.8rem;
+        input[type=num]{
+            margin-left: auto;
+            width:12rem;
+        }
+    }
+    .HideBtn{
+        content: '';
+        position: absolute;
+        right:0rem;
+        top:1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width:2.4rem;
+        height: 4rem;
+        background-color: #fff;
+        border-radius: 0.4rem 0 0 0.4rem;
+        border:1px solid $grayLine;
+        box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        img{
+            rotate: 90deg;
+            &.open{
+                rotate: 270deg;
+            }
+        }
+    }
+}
+.smBtnWrap{
+    margin-top:1.6rem;
+    gap: 0.8rem;
+    justify-content: flex-end;
+    button{
+        padding:0.8rem;
+        width:auto;
+    }
+}
+
+
+
+
+
+///////////////// 지도
+
+
+//좌측 검색영역
+main{
+    position: relative;
+    width:100%;
+    height: calc( 100vh - 4.8rem );
+    overflow: hidden;
+}
+.mapArea{
+    z-index: 0;
+}
+.addrSearch{
+    z-index: 1;
+    position: absolute;
+    left:1.2rem;
+    top:1.6rem;
+}
+.mapModal{
+    margin-top:0.8rem;
+    background-color:#F7F9FB;
+    border-radius: 0.4rem;
+    box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.16);
+     .head{
+        padding:0 1.6rem;
+        height: 4rem;
+        background-color: #fff;
+        border-radius: 0.4rem 0.4rem 0 0;
+        h2{
+            font-weight: 600;
+            font-size:1.6rem;
+            color:$gray100;
+        }
+        .closeBtn{
+            margin-left: auto;
+            cursor: pointer;
+        }
+    }
+    .cont{
+        padding:1.2rem;
+    }
+    .tableTop .selectSM, .tableTop .primaryBG{
+        margin-left:auto;
+    }
+    
+}
+
+.tableTop{
+    margin:1.2rem 0;
+    .primaryBG{
+    padding: 0 0.8rem ;
+    width: auto;
+    color:#fff;
+    }
+} 
+
+//우상단 버튼영역
+.mapTopBtn{
+    position: absolute;
+    right:1.6rem;
+    top:1.6rem;
+    display: flex;
+    align-items: center;
+    gap:0 0.8rem;
+    .mapModal{
+        position: absolute;
+        right:0;
+        top:3rem;
+        padding:1.2rem;
+        .searchTxtInput button{
+            padding:0;
+        }
+    }
+}
+.mapBTBtn{
+    position: absolute;
+    right:1.6rem;
+    bottom:1.6rem;
+    width:3.2rem;
+    button{
+        margin-top:0.8rem;
+        padding:0;
+        width:32px;
+        height: 32px;
+    }
+    .txtNotice{
+        position: absolute;
+        right:4rem;
+        bottom:0rem;
+        padding:0.4rem 0.8rem;
+        width: 54rem;
+        line-height: 100%;
+        text-align: right;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.50);
+        backdrop-filter: blur(2px);
+        p:nth-child(1){
+            margin-bottom:0.4rem;
+            color:#FF6443;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        p:nth-child(2){
+            color:$gray100;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+    }
+}
+
+.hideList{
+    .tit{
+        display: flex;
+        align-items: center;
+        font-size:1.5rem;
+        color:$gray100;
+        font-weight:500 ;
+        cursor: pointer;
+    }
+    .arrowBtn{
+        margin-left: auto;
+        rotate: 180deg;
+        &.off{
+            rotate:0deg;
+        }
+    }
+    .listWrap{
+        margin-top:0.8rem;
+        border-top:1px solid $grayLine;
+        li{
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding:0.4rem;
+            border-bottom:1px solid $grayLine;
+            font-size:1.4rem;
+            color:$gray100;
+            font-weight: 400;
+            button{
+                padding:0;
+            }
+            .downloadBtn{
+                margin-left: auto;
+            }
+        }
+    }
+}
+
+
+aside.right{
+    position: relative;
+    border-left:1.2rem solid $primary;
+    .rightHideBtn{
+        content: '';
+        position: absolute;
+        left:-3.6rem;
+        top:50%;
+        transform: translate(0, -50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width:2.4rem;
+        height: 4rem;
+        background-color: $primary;
+        border-radius: 0.4rem 0 0 0.4rem;
+        cursor: pointer;
+        img{
+            rotate: 270deg;
+            &.off{
+                rotate: 90deg;
+            }
+        }
+    }
+    .mapModal{
+        margin-top:0;
+        padding:1.2rem;
+        height: 100%;
+        box-shadow: unset;
+        width:36rem;
+        .searchTxtInput input{
+            width:100%;
+        } 
+    }
+    .buttonWrap{
+        margin-top:1.6rem;
+        gap: 0.8rem;
+        button{
+            width:50%;
+        }
+    }
+    button.btn100{
+        margin-top:0.8rem;
+        width:100%;
+    }
+}
+
+
+
+.mapPopup{
+    position: absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+    min-width: 64rem;
+    background-color:#fff;
+    border-radius: 0.8rem;
+    box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.16);
+    .head{
+        display: flex;
+        align-items: center;
+        padding:1.2rem 1.6rem;
+        border-bottom: 1px solid $grayLine;
+        h2{
+            font-weight: 600;
+            font-size:1.8rem;
+            color:$gray100;
+            font-weight: 700;
+        }
+        .disFlex{
+            margin-left: auto;
+            gap:0.4rem;
+            img{
+                cursor: pointer;
+            }
+        }
+    }
+    .cont{
+        padding:2rem;
+        max-height:68vh;
+        overflow-y: auto;
+        background-color: #fff;
+        label{
+            display: inline-block;
+            width:8rem;
+            line-height: 120%;
+            .depth{
+                margin-left: 0.8rem;
+            }
+        }
+    }
+    .blockLine{
+        margin-top:1.2rem;
+        display: flex;
+        align-items: center;
+        gap:4rem;
+        .primaryBG{
+            width:100%;
+            height: 4rem;    
+        }
+    }
+    select{
+        width:20rem;
+    }
+    .resultWrap{
+        margin-top:2rem;
+        padding: 2rem;
+        border:1px solid $grayLine;
+        .tit button{
+            width:4rem;
+            height: 4rem;
+            margin-left: auto;
+            box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.08);
+            border:1px solid $primary;
+            background-color: #fff;
+            border-radius: 0.4rem;
+        }
+        .resultTit{
+            input{
+                width:26rem;
+            }
+        }
+        h3.tit{
+            font-weight: 400;
+            &.mgTB{
+                margin:1.6rem 0 0.8rem;
+            }
+        }
+        .disFlex{
+            margin-left: auto;
+            gap: 0.8rem;
+        }
+    }
+    
+    .shareRow{
+        align-items: unset;
+        .depth2Panner{
+            border-left:1px solid $grayLine;
+        }
+    }
+
+
+
+    .foot{
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        gap:1.2rem;
+        padding:2rem;
+        border-radius: 0 0 0.8rem 0.8rem;
+        background-color: #fff;
+        border-top:1px solid $grayLine;
+        button{
+            padding:2rem 2.4rem;
+            width:auto;
+        }
+    }
+}
+
+.fileInput input{
+    position: relative;
+    border:1px solid $grayLine;
+    border-radius: 0.4rem;
+    padding:0.4rem;
+    &::after{
+        content: '';
+        position: absolute;
+        right:1rem;
+        top:50%;
+        transform: translate(0, -50%);
+        width:1.6rem;
+        height: 1.6rem;
+        background-image: url(../../../img/map/icClose24.svg);
+        background-size: cover;
+        cursor: pointer;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 테스크탑 (가로 해상도가 1200px 보다 작은 화면에 적용)
+@media (max-width: 1199px) {
+    html{
+        font-size:8px;
+    }
+} 
+
+// 태블릿 디바이스 (가로 해상도가 992px 보다 작은 화면에 적용) 
+@media (max-width: 991px) { 
+} 
+
+// 가로모드 모바일 디바이스 (가로 해상도가 768px 보다 작은 화면에 적용) 
+@media (max-width: 767px) {
+} 
+ 
+ 
+@media (max-width: 575px) {
+} 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

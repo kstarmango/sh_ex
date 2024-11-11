@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="admin.apikey">
+ 
+    <select id="admin.apikey.selectApikeyInfos" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		
+			/* Apikey 목록 조회  */
+			SELECT * 
+			  FROM (		 
+			    	SELECT ROW_NUMBER()
+			    	<isEqual prepend="OVER" property="PAGE_ORDER" compareValue="ASC">
+							       (ORDER BY INS_DT ASC) AS RNO,
+					</isEqual>
+					<isEqual prepend="OVER" property="PAGE_ORDER" compareValue="DESC">
+							       (ORDER BY INS_DT DESC) AS RNO,
+					</isEqual>
+					<![CDATA[ 
+			    	       AA.*, 
+					       CASE WHEN CHAR_LENGTH(AA.SYS_NM) < 3 THEN
+					        	CONCAT( SUBSTRING(AA.SYS_NM, 1, 1), LPAD('*', CHAR_LENGTH(AA.SYS_NM) - 1, '*'))
+					       ELSE 
+					        	CONCAT( SUBSTRING(AA.SYS_NM, 1, 1), LPAD('*', CHAR_LENGTH(AA.SYS_NM) - 2, '*'), 
+					        			SUBSTRING(AA.SYS_NM, CHAR_LENGTH(AA.SYS_NM), CHAR_LENGTH(AA.SYS_NM)))
+						   END 																						AS MASK_SYS_NM,			    	       
+					       CASE WHEN CHAR_LENGTH(AA.USER_ID) < 3 THEN
+					        	CONCAT( SUBSTRING(AA.USER_ID, 1, 1), LPAD('*', CHAR_LENGTH(AA.USER_ID) - 1, '*'))
+					       ELSE 
+					        	CONCAT( SUBSTRING(AA.USER_ID, 1, 1), LPAD('*', CHAR_LENGTH(AA.USER_ID) - 2, '*'), 
+					        			SUBSTRING(AA.USER_ID, CHAR_LENGTH(AA.USER_ID), CHAR_LENGTH(AA.USER_ID)))
+						   END 																						AS MASK_USER_ID,
+					       CASE WHEN CHAR_LENGTH(AA.USER_NM) < 3 THEN
+					        	CONCAT( SUBSTRING(AA.USER_NM, 1, 1), LPAD('*', CHAR_LENGTH(AA.USER_NM) - 1, '*'))
+					       ELSE 
+					        	CONCAT( SUBSTRING(AA.USER_NM, 1, 1), LPAD('*', CHAR_LENGTH(AA.USER_NM) - 2, '*'), 
+					        			SUBSTRING(AA.USER_NM, CHAR_LENGTH(AA.USER_NM), CHAR_LENGTH(AA.USER_NM)))
+						   END 																						AS MASK_USER_NM,
+					       CASE WHEN CHAR_LENGTH(AA.DEPT_NM) < 3 THEN
+					        	CONCAT( SUBSTRING(AA.DEPT_NM, 1, 1), LPAD('*', CHAR_LENGTH(AA.DEPT_NM) - 1, '*'))
+					       ELSE 
+					        	CONCAT( SUBSTRING(AA.DEPT_NM, 1, 1), LPAD('*', CHAR_LENGTH(AA.DEPT_NM) - 2, '*'), 
+					        			SUBSTRING(AA.DEPT_NM, CHAR_LENGTH(AA.DEPT_NM), CHAR_LENGTH(AA.DEPT_NM)))
+						   END 																						AS MASK_DEPT_NM,
+					       CASE WHEN CHAR_LENGTH(AA.TELNO) > 9 THEN 
+					        	REGEXP_REPLACE(AA.TELNO,'^(\d{3})-?(\d{1,2})\d{2}-?\d(\d{3})$', '\1-\2**-*\3 ')
+					       ELSE 
+								REGEXP_REPLACE(AA.TELNO,'^(\d{2})-?(\d{1,2})\d{2}-?\d(\d{3})$', '\1-\2**-*\3 ')  
+						   END  																					AS MASK_TELNO,	
+						   CASE WHEN CHAR_LENGTH(AA.EMAIL) > 0 THEN 				
+						   		SUBSTR(AA.EMAIL, 0, 
+						   		  	   POSITION('@' in AA.EMAIL)-3 ) || REGEXP_REPLACE(SUBSTR(AA.EMAIL, POSITION('@' in AA.EMAIL)-3 ), '[^@]', '*', 'g') 
+						   ELSE ''
+						   END  																					AS MASK_EMAIL
+			    	  FROM (
+							SELECT LANDSYS_ADM.FN_DECRYPT(UI.USER_ID, #KEY#)  AS USER_ID,
+								   LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#)  AS USER_NM,
+								   CASE WHEN UI.DEPT_NM <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) 
+								        ELSE '' END                           AS DEPT_NM,
+								   CASE WHEN UI.TELNO   <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.TELNO,   #KEY#) 
+								   		ELSE '' END                           AS TELNO,
+								   CASE WHEN UI.EMAIL   <> '' THEN LANDSYS_ADM.FN_DECRYPT(UI.EMAIL,   #KEY#) 
+								   		ELSE '' END                           AS EMAIL,
+								   UI.P_AUTH_NO,
+								   PAM.AUTH_DC AS P_AUTH_DESC,
+								   PAM.ADMIN_YN  AS P_ADMIN_YN,
+								   UI.L_AUTH_NO,
+								   LAM.auth_dc AS L_AUTH_DESC,
+								   UI.USE_YN,
+								   CASE WHEN  UI.USE_YN   = 'Y' THEN '사용' ELSE '미사용'  END AS STAT_USE,
+								   UI.LOCK_YN,
+								   CASE WHEN  UI.LOCK_YN  = 'Y' THEN '잠김' ELSE '접속가능'	END AS STAT_LOCK,
+								   UI.CONFM_YN,
+								   CASE WHEN  UI.CONFM_YN = 'Y' THEN '승인' ELSE '미승인'  END AS STAT_CONFM,
+								   TO_CHAR(UI.INS_DT, 'YYYY/MM/DD HH24:MI')  AS INS_DT,
+								   AKM.CONFM_KEY,
+								   LANDSYS_ADM.FN_DECRYPT(AKM.SYS_NM, #KEY#)   AS SYS_NM,
+								   LANDSYS_ADM.FN_DECRYPT(AKM.SITE_URL, #KEY#) AS SITE_URL,
+								   AKM.SYS_DC,
+								   AKM.USE_PURPS,
+								   AKM.DEVLOP_SERVER1,
+								   AKM.USE_LAST_DT1,
+								   AKM.DEVLOP_SERVER2,
+								   AKM.USE_LAST_DT2								   
+							  FROM LANDSYS_ADM.TB_USER_INFO UI,
+							       LANDSYS_ADM.TB_PROGRM_AUTH_MNG PAM,
+							       LANDSYS_ADM.TB_LAYER_AUTH_MNG LAM,
+							       LANDSYS_ADM.TB_API_KEY_MNG AKM
+							 WHERE UI.P_AUTH_NO = PAM.P_AUTH_NO
+							   AND UI.L_AUTH_NO = LAM.L_AUTH_NO
+							   AND UI.USER_ID   = AKM.USER_ID
+	   	]]>				   
+						<isNotEmpty  prepend="AND" property="USE_YN">
+						       	   UI.USE_YN    = #USE_YN#
+						</isNotEmpty>    		      
+						<isNotEmpty  prepend="AND" property="LOCK_YN">
+						       	   UI.LOCK_YN   = #LOCK_YN#
+						</isNotEmpty>	       	   
+						<isNotEmpty  prepend="AND" property="CONFM_YN">
+						       	   UI.CONFM_YN  = #CONFM_YN#
+						</isNotEmpty>
+						<isNotEmpty  prepend="AND" property="START_DATE">
+						       	   UI.INS_DT::date >= #START_DATE#::date
+						</isNotEmpty>	
+						<isNotEmpty property="SERCH_NM">
+							<isEqual prepend="AND" property="SERCH_GB" compareValue="user_nm">
+							       LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+							</isEqual>
+							<isEqual prepend="AND" property="SERCH_GB" compareValue="dept_nm">
+							       UI.DEPT_NM IS NOT NULL AND UI.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+							</isEqual>		
+							<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+									(
+										LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+										( UI.DEPT_NM IS NOT NULL AND UI.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' )
+									)
+							</isEqual>
+						</isNotEmpty>
+		<![CDATA[			
+			    	       ) AA
+		    	   ) AAA
+	    	 WHERE AAA.RNO BETWEEN #FIRST_INDEX# AND #LAST_INDEX#
+	   	]]>	
+    </select>
+
+   <select id="admin.apikey.selectApikeyInfosCount" parameterClass="java.util.HashMap" resultClass="int">
+	    <![CDATA[
+			/* Apikey 목록 개수 조회  */
+			SELECT COUNT(UI.USER_ID) AS USER_COUNT
+			  FROM LANDSYS_ADM.TB_USER_INFO UI,
+			       LANDSYS_ADM.TB_PROGRM_AUTH_MNG PAM,
+			       LANDSYS_ADM.TB_LAYER_AUTH_MNG LAM,
+				   LANDSYS_ADM.TB_API_KEY_MNG AKM
+			 WHERE UI.P_AUTH_NO = PAM.P_AUTH_NO
+			   AND UI.L_AUTH_NO = LAM.L_AUTH_NO
+			   AND UI.USER_ID   = AKM.USER_ID
+	    ]]>		   
+		<isNotEmpty  prepend="AND" property="USE_YN">
+		       	   UI.USE_YN    = #USE_YN#
+		</isNotEmpty>    		      
+		<isNotEmpty  prepend="AND" property="LOCK_YN">
+		       	   UI.LOCK_YN   = #LOCK_YN#
+		</isNotEmpty>	       	   
+		<isNotEmpty  prepend="AND" property="CONFM_YN">
+		       	   UI.CONFM_YN  = #CONFM_YN#
+		</isNotEmpty>
+		<isNotEmpty  prepend="AND" property="START_DATE">
+		       	   UI.INS_DT::date >= #START_DATE#::date
+		</isNotEmpty>	
+		<isNotEmpty property="SERCH_NM">
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="user_nm">
+			       LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="dept_nm">
+			       UI.DEPT_NM IS NOT NULL AND UI.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>		
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+					(
+						LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' OR
+						( UI.DEPT_NM IS NOT NULL AND UI.DEPT_NM <![CDATA[<>]]> '' AND LANDSYS_ADM.FN_DECRYPT(UI.DEPT_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%' )
+					)
+			</isEqual>
+		</isNotEmpty>
+    </select>
+    
+  <select id="admin.apikey.selectApikeyInfoDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+	    	/* Apikey 상세 조회  */
+			SELECT LANDSYS_ADM.FN_DECRYPT(AKM.SYS_NM, #KEY#)   AS SYS_NM,
+				   LANDSYS_ADM.FN_DECRYPT(AKM.SITE_URL, #KEY#) AS SITE_URL,
+				   AKM.SYS_DC AS SYS_DESC,
+				   AKM.USE_PURPS,
+				   AKM.CONFM_KEY,
+				   AKM.DEVLOP_SERVER1,				   
+				   CASE WHEN AKM.USE_LAST_DT1 IS NOT NULL THEN TO_CHAR(AKM.USE_LAST_DT1, 'YYYY/MM/DD') ELSE '' END 
+				   													AS USE_LAST_DT1,
+				   AKM.DEVLOP_SERVER2,				   
+				   CASE WHEN AKM.USE_LAST_DT2 IS NOT NULL THEN TO_CHAR(AKM.USE_LAST_DT2, 'YYYY/MM/DD') ELSE '' END
+				   													AS USE_LAST_DT2,
+				   CASE WHEN AKM.INS_DT IS NOT NULL THEN TO_CHAR(AKM.INS_DT, 'YYYY/MM/DD HH24:MI') ELSE '' END
+				   										            AS INS_DT,
+				   CASE WHEN AKM.UPD_DT IS NOT NULL THEN TO_CHAR(AKM.UPD_DT, 'YYYY/MM/DD HH24:MI') ELSE '' END
+				   													AS UPD_DT
+			  FROM LANDSYS_ADM.TB_API_KEY_MNG AKM
+			 WHERE LANDSYS_ADM.FN_DECRYPT(AKM.USER_ID, #KEY#)     = #USER_ID#
+	   	]]>	
+    </select>    
+
+    <update id="admin.apikey.updateApikey" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+	    	/* Apikey 수정 */	
+	    	UPDATE LANDSYS_ADM.TB_API_KEY_MNG
+	           SET SYS_NM			  =  LANDSYS_ADM.FN_ENCRYPT(#SYS_NM#, #KEY#),		
+				   SITE_URL           =  LANDSYS_ADM.FN_ENCRYPT(#SITE_URL#, #KEY#),
+				   SYS_DC           =  #SYS_DESC#,
+				   USE_PURPS          =  #USE_PURPS#,
+		]]> 	           	
+		<isNotEmpty  prepend="" property="USE_LAST_DT1">
+		       	   USE_LAST_DT1		  = TO_DATE(#USE_LAST_DT1# || ' 23:59:59', 'YYYY-MM-DDHH24:MI:SS'),
+		</isNotEmpty>		    		
+				   DEVLOP_SERVER1     = #DEVLOP_SERVER1#,
+		<isNotEmpty  prepend="" property="USE_LAST_DT2">
+				   USE_LAST_DT2   	  = TO_DATE(#USE_LAST_DT2# || ' 23:59:59', 'YYYY-MM-DDHH24:MI:SS'),
+		</isNotEmpty>
+				   DEVLOP_SERVER2     = #DEVLOP_SERVER2#,
+				   UPD_USER           = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+				   UPD_DT             = CURRENT_TIMESTAMP
+	    <![CDATA[	           	
+	         WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#
+		]]>
+    </update>
+
+	<insert id="admin.apikey.insertUserInfo" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+	    	/* Apikey 사용자 등록 */
+	    	INSERT INTO LANDSYS_ADM.TB_USER_INFO
+	    	(
+		   		USER_ID,
+		   		USER_NM,
+		   		PSWD,
+		   		DEPT_NM,
+		   		TELNO,
+		   		EMAIL,
+		   		P_AUTH_NO,
+		   		L_AUTH_NO,
+		   		ADMIN_YN,
+		   		LOCK_YN,
+		   		ATTEMPT_CNT,
+		   		SBSCRB_CD,
+		   		USE_YN,
+		   		CONFM_YN,
+		   		PWD_RESET_YN,
+		   		INS_USER,
+		   		UPD_USER,
+		   		INS_DT,
+		   		UPD_DT
+	    	)
+	    	VALUES
+	    	(
+	    		LANDSYS_ADM.FN_ENCRYPT(#USER_NM#, #KEY#),
+	    		LANDSYS_ADM.FN_ENCRYPT(#USER_NM#, #KEY#),
+		   		LANDSYS_ADM.FN_CRYPT(#PASSWORD#),
+		   		LANDSYS_ADM.FN_ENCRYPT(#DEPT_NM#, #KEY#),
+		   		LANDSYS_ADM.FN_ENCRYPT(#TELNO#, #KEY#),
+		   		LANDSYS_ADM.FN_ENCRYPT(#EMAIL#, #KEY#),
+		   		#P_AUTH_NO#,
+		   		#L_AUTH_NO#,
+		   		(SELECT ADMIN_YN FROM LANDSYS_ADM.TB_PROGRM_AUTH_MNG WHERE P_AUTH_NO = #P_AUTH_NO#),
+		   		'N',
+		   		0,
+		   		#SBSCRB_CD#,
+		   		'Y',
+		   		'Y',
+		   		'N',
+			    LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			    LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			   	CURRENT_TIMESTAMP,
+			   	CURRENT_TIMESTAMP
+	    	)
+		]]>
+    </insert>
+    	    		                
+	<insert id="admin.apikey.insertApikey" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+	    	/* Apikey 등록 */
+	    	INSERT INTO LANDSYS_ADM.TB_API_KEY_MNG
+	    	(
+	    	    API_KEY_NO,
+	    		SYS_NM,
+	    		SITE_URL,
+	    		SYS_DC,
+	    		USE_PURPS,
+		]]> 	           	
+		<isNotEmpty  prepend="" property="USE_LAST_DT1">
+		       	USE_LAST_DT1,
+		</isNotEmpty>		    		
+				DEVLOP_SERVER1,
+		<isNotEmpty  prepend="" property="USE_LAST_DT2">
+				USE_LAST_DT2,
+		</isNotEmpty>
+				DEVLOP_SERVER2,
+	    <![CDATA[
+	    		INS_USER,
+	    		UPD_USER,
+	    		INS_DT,
+	    		UPD_DT,
+	    		CONFM_KEY,
+	    		USER_ID	    		
+	    	)
+	    	VALUES
+	    	(
+	    		(SELECT COALESCE(MAX(API_KEY_NO::integer), 0) + 1 AS API_KEY_NO FROM LANDSYS_ADM.TB_API_KEY_MNG),
+	    		LANDSYS_ADM.FN_ENCRYPT(#SYS_NM#, #KEY#),
+	        	LANDSYS_ADM.FN_ENCRYPT(#SITE_URL#, #KEY#),
+	           	#SYS_DESC#,
+	           	#USE_PURPS#,
+		]]> 	           	
+		<isNotEmpty  prepend="" property="USE_LAST_DT1">
+		       	TO_DATE(#USE_LAST_DT1# || ' 23:59:59', 'YYYY-MM-DDHH24:MI:SS'),
+		</isNotEmpty>		    		
+				#DEVLOP_SERVER1#,
+		<isNotEmpty  prepend="" property="USE_LAST_DT2">
+				TO_DATE(#USE_LAST_DT2# || ' 23:59:59', 'YYYY-MM-DDHH24:MI:SS'),
+		</isNotEmpty>
+				#DEVLOP_SERVER2#,
+	    <![CDATA[
+			    LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			    LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#),
+			   	CURRENT_TIMESTAMP,
+			   	CURRENT_TIMESTAMP,
+			   	LANDSYS_ADM.FN_ENCRYPT(#SYS_NM#, #KEY#),
+			   	LANDSYS_ADM.FN_ENCRYPT(#USER_NM#, #KEY#)
+			)	    	
+		]]>
+    </insert>
+                    
+	<insert id="admin.apikey.insertBackupApikeyById" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+			SELECT #PREFIX# || LPAD(MAX_SEQ, 20 - LENGTH(#PREFIX#) - LENGTH(MAX_SEQ), '0') AS SEQ
+			  FROM (
+			  		SELECT (COALESCE(REPLACE(MAX(LOG_NO), #PREFIX#, ''), '0')::integer + 1)::varchar AS MAX_SEQ 
+					  FROM LANDSYS_ADM.TH_API_KEY_MNG			
+				   ) A
+		</selectKey>
+			
+	    <![CDATA[
+	    	/* Apikey 벡업 */
+	    	INSERT INTO LANDSYS_ADM.TH_API_KEY_MNG
+	    	(
+				  LOG_NO
+			    , LOG_INS_USER
+			    , LOG_INS_DT	    	                    
+				, API_KEY_NO		
+				, SYS_NM			
+				, SITE_URL		
+				, SYS_DC		
+				, USE_PURPS		
+				, DEVLOP_SERVER1	
+				, USE_LAST_DT1	
+				, DEVLOP_SERVER2	
+				, USE_LAST_DT2	
+				, USER_ID		
+				, CONFM_KEY		
+				, INS_USER		
+				, UPD_USER		
+				, INS_DT			
+				, UPD_DT			
+			)
+			 SELECT   #SEQ#
+					, LANDSYS_ADM.FN_ENCRYPT(#INS_USER#, #KEY#)
+					, CURRENT_TIMESTAMP	
+					, API_KEY_NO		
+					, SYS_NM			
+					, SITE_URL		
+					, SYS_DC		
+					, USE_PURPS		
+					, DEVLOP_SERVER1	
+					, USE_LAST_DT1	
+					, DEVLOP_SERVER2	
+					, USE_LAST_DT2	
+					, USER_ID		
+					, CONFM_KEY		
+					, INS_USER		
+					, UPD_USER		
+					, INS_DT			
+					, UPD_DT					
+			   FROM LANDSYS_ADM.TB_API_KEY_MNG
+	          WHERE LANDSYS_ADM.FN_DECRYPT(USER_ID, #KEY#) = #USER_ID#
+		]]>
+    </insert>
+                        
+</sqlMap>

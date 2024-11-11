@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="admin.code">
+
+	<select id="admin.code.selectCodeGroupList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 코드 그룹 조회 */
+			WITH RECURSIVE TC_CODE(CODE, P_CODE, CODE_ORDER, CODE_NM, CODE_DESC, LEVEL, PATH, CYCLE) AS 
+			(
+				SELECT G.CODE, 
+					   G.P_CODE, 
+				       G.CODE_ORDR,
+					   G.CODE_NM,
+					   G.CODE_DC,
+					   0, 
+					   ARRAY[G.CODE_ORDR], 
+					   FALSE, 
+					   LANDSYS_ADM.FN_DECRYPT(G.INS_USER, #KEY#) AS INS_USER,
+					   TO_CHAR(G.INS_DT, 'YYYY-MM-DD HH24:MI')   AS INS_DT,
+					   LANDSYS_ADM.FN_DECRYPT(G.UPD_USER, #KEY#) AS UPD_USER,
+					   TO_CHAR(G.UPD_DT, 'YYYY-MM-DD HH24:MI')   AS UPD_DT,
+					   G.USE_YN		
+				  FROM LANDSYS_ADM.TC_CODE G
+				 WHERE (G.P_CODE = '' OR G.P_CODE IS NULL AND USE_YN = 'Y')
+				   
+				UNION ALL
+		
+				SELECT G.CODE, 
+					   G.P_CODE, 
+				       G.CODE_ORDR,
+					   G.CODE_NM,
+					   G.CODE_DC,
+				       LEVEL + 1, 
+				       ARRAY_APPEND(PATH, G.CODE_ORDR), 
+				       G.CODE_ORDR = ANY(PATH),
+					   LANDSYS_ADM.FN_DECRYPT(G.INS_USER, #KEY#) AS INS_USER,
+					   TO_CHAR(G.INS_DT, 'YYYY-MM-DD HH24:MI')   AS INS_DT,
+					   LANDSYS_ADM.FN_DECRYPT(G.UPD_USER, #KEY#) AS UPD_USER,
+					   TO_CHAR(G.UPD_DT, 'YYYY-MM-DD HH24:MI')   AS UPD_DT,
+					   G.USE_YN
+				  FROM LANDSYS_ADM.TC_CODE G, TC_CODE SB
+				 WHERE G.P_CODE = SB.CODE AND G.USE_YN = 'Y' AND SB.USE_YN = 'Y'
+				   AND NOT CYCLE
+			)
+			SELECT GI.*, 
+				   LPAD('', 5*6*CAST(GI.LEVEL AS INT), '&nbsp;') SPACE, 
+				   LPAD('', 5*6*CAST(GI.LEVEL AS INT), '&nbsp;') || GI.CODE_NM AS VIEW_CODE_NM 
+			  FROM TC_CODE GI	
+			  WHERE USE_YN = 'Y'		
+          ORDER BY PATH		   
+		]]>
+	</select>
+	
+	<select id="admin.code.selectCodeListByGroupId" parameterClass="String" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 코드 조회 */
+			SELECT CODE, P_CODE, CODE_NM, CODE_DC as CODE_DESC
+			  FROM LANDSYS_ADM.TC_CODE
+			 WHERE P_CODE = #P_CODE#
+			   AND USE_YN = 'Y'
+		  ORDER BY CODE_ORDR
+		]]>
+	</select>
+	
+	<select id="admin.code.topcodesearch" resultClass="String">
+		<![CDATA[
+			/* 최상위 코드 조회 */
+			select 'CD'||LPAD(CAST(CAST(substr(code,3) AS INTEGER) + 1 AS VARCHAR),8,'0') as code
+			from landsys_adm.tc_code 
+			order by code desc limit 1
+		]]>
+	</select>
+	
+	<select id="admin.code.ordersearch" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		<![CDATA[
+			/* 코드 오더 조회 */
+			select COALESCE(max(CODE_ORDR) + 1,1) as max from landsys_adm.tc_code where p_code = #code#
+		]]>
+	</select>
+	
+	<select id="admin.code.ordervaluecheck" parameterClass="java.util.HashMap" resultClass="String">
+		<![CDATA[
+			/* 코드 오더 null 여부 조회 */
+			select * from landsys_adm.tc_code where p_code = #new_p_code# AND CODE_ORDR = #new_code_order#
+		]]>
+	</select>
+	
+	<update id="admin.code.codeeditupdminuse" parameterClass="java.util.HashMap">
+		 <![CDATA[
+            	update landsys_adm.tc_code 
+				set CODE_ORDR = CODE_ORDR - 1
+				where p_code = #p_code# and 
+                CODE_ORDR >  #defaultorder# and 
+				CODE_ORDR <= #code_order#
+            ]]>
+	</update>
+	
+	
+	<select id="admin.code.editcodeorder" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 편집창 코드 오더 조회 */
+			select CODE_ORDR as code_order from landsys_adm.tc_code where p_code = #code#
+			union
+			select CODE_ORDR+1 as code_order from landsys_adm.tc_code where p_code = #code# order by CODE_ORDR asc
+		]]>
+	</select>
+	
+	<select id="admin.code.maxorder" resultClass="java.lang.Integer">
+		<![CDATA[
+			/* 코드 오더 조회 */
+			select max(CODE_ORDR) + 1 as max from landsys_adm.tc_code where p_code = ''
+		]]>
+	</select>
+	
+	<select id="admin.code.pcodesearch" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 상위 코드 리스트 조회 */
+			select code from landsys_adm.tc_code where p_code = '' order by code asc
+		]]>
+	</select>
+	
+	<update id="admin.code.codeeditupd" parameterClass="java.util.HashMap">
+		<isNotEmpty property="checkorder">
+			 <![CDATA[
+            	update landsys_adm.tc_code 
+				set CODE_ORDR = CODE_ORDR + 1 
+				where p_code = #p_code# and 
+                CODE_ORDR <  #defaultorder# and 
+				CODE_ORDR >= #code_order#
+            ]]>
+		</isNotEmpty>
+		<isEmpty property="checkorder">
+			 <![CDATA[
+            	update landsys_adm.tc_code 
+				set CODE_ORDR = CODE_ORDR - 1
+				where p_code = #p_code# and 
+                CODE_ORDR >  #defaultorder# and 
+				CODE_ORDR <= #code_order#
+            ]]>
+		</isEmpty>
+	</update>
+	
+	<update id="admin.code.codeorderedit" parameterClass="java.util.HashMap">
+			 <![CDATA[
+			 	update landsys_adm.tc_code 
+				set CODE_ORDR = CODE_ORDR - 1
+				where p_code = #defaultpcode# and 
+                CODE_ORDR >  #defaultorder#;
+                
+				update landsys_adm.tc_code 
+				set CODE_ORDR = CODE_ORDR + 1 
+				where p_code = #p_code# and 
+				CODE_ORDR >= #code_order#;
+            ]]>
+
+	</update>
+	
+	
+	
+	<update id="admin.code.updateCode" parameterClass="java.util.HashMap">
+		<![CDATA[
+			/* 코드 수정 */
+			UPDATE landsys_adm.tc_code SET 
+				code = #code#, 
+				p_code = #p_code#, 
+				code_nm = #code_nm#,
+				CODE_DC = #code_desc#, 
+				CODE_ORDR = #code_order#, 
+				use_yn = #use_yn#,
+				UPD_USER = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+				UPD_DT = CURRENT_TIMESTAMP
+			WHERE code = #code#
+		]]>
+		
+	</update>
+	<update  id="admin.code.codeaddupd" parameterClass="java.util.HashMap">
+		<![CDATA[
+			/* CODE 테이블 추가 전 ORDER 변경*/
+			update landsys_adm.tc_code 
+				set CODE_ORDR = CODE_ORDR +1 
+				where CODE_ORDR >= #new_code_order# 
+				and p_code = #new_p_code#
+		]]>
+	</update>
+	<insert id="admin.code.codeadd" parameterClass="java.util.HashMap">
+		<![CDATA[
+			/* CODE 테이블 추가 */
+			insert into landsys_adm.tc_code values
+					(#new_code#,
+					#new_p_code#,
+					#new_code_nm#,
+					#new_code_desc#,
+					#new_code_order#,
+					#new_use_yn#,
+					LANDSYS_ADM.FN_ENCRYPT(#userId#, #KEY#),
+					LANDSYS_ADM.FN_ENCRYPT(#userId#, #KEY#),
+					CURRENT_TIMESTAMP,
+					CURRENT_TIMESTAMP)
+		]]>
+	</insert>
+	<delete id="admin.code.codeDelete" parameterClass="java.util.HashMap">
+		<![CDATA[
+			/* CODE 테이블 삭제 */
+			update landsys_adm.tc_code set use_yn = 'N' where code = #code#;
+			
+			update landsys_adm.tc_code 
+				set CODE_ORDR = CODE_ORDR - 1
+				where CODE_ORDR >= #code_order#
+				and p_code = #p_code#;
+		]]>
+	</delete>
+		
+</sqlMap>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process_config>
+  <env_param>
+    <!-- Framework Configuration Start -->
+    <param name="ProcessorSuffix" value="Processor"/>
+    <param name="ProcessorURISuffix" value=".auth"/>
+    <param name="BasePackage">
+      <value ref="#SpURIBase">com.tomato.sso.sp.process</value>
+      <value ref="#BizURIBase">com.tomato.sso.biz.process</value>
+    </param>
+    <param name="SpURIBase" value=""/>
+    <param name="BizURIBase" value="/biz/"/>
+    <!-- Framework Configuration End -->
+  </env_param>
+</process_config>

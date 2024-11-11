@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="admin.board">
+
+    <select id="admin.board.selectNoticeArticleList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			/* 공지사항 목록 조회  */
+			SELECT * 
+			  FROM (		
+			    	SELECT ROW_NUMBER() 
+			    	<isEqual prepend="OVER" property="PAGE_ORDER" compareValue="ASC">
+							       (ORDER BY INS_DT ASC) AS RNO,
+					</isEqual>
+					<isEqual prepend="OVER" property="PAGE_ORDER" compareValue="DESC">
+							       (ORDER BY INS_DT DESC) AS RNO,
+					</isEqual>
+					<![CDATA[ 
+			    	       AA.*
+			    	  FROM (
+			    	         SELECT BD.ARTICLE_NO,
+						            BD.ARTICLE_TITLE,
+						  			BD.ARTICLE_CONTS,
+						  			COALESCE(BD.ARTICLE_VIEW_CNT,0) AS VIEW_CNT,
+						  			CASE WHEN ARTICLE_POPUP_YN = 'Y' AND CURRENT_TIMESTAMP BETWEEN POPUP_START_DT AND POPUP_END_DT THEN 'Y' ELSE 'N' END AS POP_YN,
+						  			CASE WHEN CURRENT_TIMESTAMP BETWEEN POPUP_START_DT AND POPUP_END_DT THEN 'Y' ELSE 'N' END AS NEW_YN,
+						  			TO_CHAR(BD.POPUP_START_DT, 'YYYY/MM/DD')   AS POP_START_DT,
+						  			TO_CHAR(BD.POPUP_END_DT,   'YYYY/MM/DD')   AS POP_END_DT,
+						  			FILE_GRP,
+						  			TO_CHAR(BD.INS_DT, 'YYYY/MM/DD HH24:MI')   AS INS_DT,
+						  			TO_CHAR(BD.UPD_DT, 'YYYY/MM/DD HH24:MI')   AS UPD_DT,
+						            LANDSYS_ADM.FN_DECRYPT(UI1.USER_NM, #KEY#) AS INS_USER_NM,
+						  			LANDSYS_ADM.FN_DECRYPT(UI2.USER_NM, #KEY#) AS UPD_USER_NM,
+						  			CASE WHEN BD.USE_YN <> 'Y' THEN '미사용' ELSE '사용' END AS USE_YN 
+					    	   FROM LANDSYS_ADM.TB_BOARD BD,
+					    	        LANDSYS_ADM.TB_USER_INFO UI1,
+						  			LANDSYS_ADM.TB_USER_INFO UI2
+					    	  WHERE BD.INS_USER   = UI1.USER_ID 
+						        AND BD.UPD_USER   = UI2.USER_ID
+					    	    AND BD.ARTICLE_CD = #ARTICLE_CD#
+					    	   	
+		]]>
+					<isNotEmpty  prepend="AND" property="USE_YN">
+					       	   	    BD.USE_YN        = #USE_YN#
+					</isNotEmpty>	
+					<isNotEmpty  prepend="AND" property="START_DATE">
+					       	   	    BD.INS_DT::date >= #START_DATE#::date
+					</isNotEmpty>	
+					<isNotEmpty  prepend=""    property="SERCH_NM"> 
+						<isEqual prepend="AND" property="SERCH_GB" compareValue="article_title">
+						       	    BD.ARTICLE_TITLE LIKE '%' || #SERCH_NM# || '%'
+						</isEqual>
+						<isEqual prepend="AND" property="SERCH_GB" compareValue="article_conts">
+						       	    BD.ARTICLE_CONTS LIKE '%' || #SERCH_NM# || '%'
+						</isEqual>			   
+						<isEqual prepend="AND" property="SERCH_GB" compareValue="ins_user_nm">
+						       	    BD.INS_USER  	 IN (SELECT USER_ID FROM LANDSYS_ADM.TB_USER_INFO UI WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'  )
+						</isEqual>
+						<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+									(
+										BD.ARTICLE_TITLE LIKE '%' || #SERCH_NM# || '%' OR
+										BD.ARTICLE_CONTS LIKE '%' || #SERCH_NM# || '%' OR
+										BD.INS_USER  IN (SELECT USER_ID FROM LANDSYS_ADM.TB_USER_INFO UI WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'  )
+									)
+						</isEqual>					
+					</isNotEmpty>
+		<![CDATA[				
+			    	       ) AA
+		    	   ) AAA
+	    	 WHERE AAA.RNO BETWEEN #FIRST_INDEX# AND #LAST_INDEX#
+		]]>    	 		
+    </select> 	
+    
+    <select id="admin.board.selectNoticeArticleListCount" parameterClass="java.util.HashMap"  resultClass="int">
+		<![CDATA[    
+			 /* 공지사항 개수 조회  */
+			 SELECT COUNT(BD.ARTICLE_NO) AS ARTICLE_COUNT
+	    	   FROM LANDSYS_ADM.TB_BOARD BD,
+	    	        LANDSYS_ADM.TB_USER_INFO UI1,
+		  			LANDSYS_ADM.TB_USER_INFO UI2
+	    	  WHERE BD.INS_USER   = UI1.USER_ID 
+		        AND BD.UPD_USER   = UI2.USER_ID
+	    	    AND BD.ARTICLE_CD = #ARTICLE_CD#
+		]]>
+		<isNotEmpty  prepend="AND" property="USE_YN">
+		       	   	BD.USE_YN        = #USE_YN#
+		</isNotEmpty>	
+		<isNotEmpty  prepend="AND" property="START_DATE">
+		       	   	BD.INS_DT::date >= #START_DATE#::date
+		</isNotEmpty>	
+		<isNotEmpty  prepend=""    property="SERCH_NM"> 
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="article_title">
+			       	BD.ARTICLE_TITLE LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="article_conts">
+			       	BD.ARTICLE_CONTS LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>			   
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="ins_user_nm">
+			       	BD.INS_USER  	 IN (SELECT USER_ID FROM LANDSYS_ADM.TB_USER_INFO UI WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'  )
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+					(
+						BD.ARTICLE_TITLE LIKE '%' || #SERCH_NM# || '%' OR
+						BD.ARTICLE_CONTS LIKE '%' || #SERCH_NM# || '%' OR
+						BD.INS_USER  IN (SELECT USER_ID FROM LANDSYS_ADM.TB_USER_INFO UI WHERE LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#) LIKE '%' || #SERCH_NM# || '%'  )
+					)
+			</isEqual>					
+		</isNotEmpty>
+ 	</select>
+ 	
+
+    <select id="admin.board.selectQnaArticleList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		<![CDATA[
+			/* 질의응답 목록 조회  */
+			WITH RECURSIVE SEARCH_QNA(ARTICLE_NO, ANSWER_GRP, ANSWER_LEV, ARTICLE_TITLE, ARTICLE_CONTS, ARTICLE_VIEW_CNT, INS_USER, INS_DT, USE_YN, PATH, ARTICLE_CD) AS
+			(
+				SELECT g.ARTICLE_NO::integer, g.ANSWER_GRP, g.ANSWER_LEV, g.ARTICLE_TITLE, g.ARTICLE_CONTS, g.ARTICLE_VIEW_CNT, g.INS_USER, g.INS_DT, g.USE_YN, ARRAY[g.ARTICLE_NO::integer], ARTICLE_CD
+				  FROM LANDSYS_ADM.TB_BOARD G
+				 WHERE g.ARTICLE_NO::integer in 
+	                   (
+					   	  SELECT distinct a.PATH[1] FROM
+						  (
+							WITH RECURSIVE SEARCH_QNA(ARTICLE_NO, ANSWER_GRP, ANSWER_LEV, ARTICLE_TITLE, ARTICLE_CONTS, ARTICLE_VIEW_CNT, INS_USER, INS_DT, USE_YN, PATH,ARTICLE_CD) AS
+							(
+							  SELECT g.ARTICLE_NO::integer, g.ANSWER_GRP, g.ANSWER_LEV, g.ARTICLE_TITLE, g.ARTICLE_CONTS, g.ARTICLE_VIEW_CNT, g.INS_USER, g.INS_DT, g.USE_YN, ARRAY[g.ARTICLE_NO::integer], g.ARTICLE_CD 
+							  FROM LANDSYS_ADM.TB_BOARD G
+							  WHERE g.ARTICLE_NO = g.ANSWER_GRP
+							  UNION ALL
+							  SELECT g.ARTICLE_NO::integer, g.ANSWER_GRP, g.ANSWER_LEV, g.ARTICLE_TITLE, g.ARTICLE_CONTS, g.ARTICLE_VIEW_CNT, g.INS_USER, g.INS_DT, g.USE_YN, PATH || g.ARTICLE_NO::integer, g.ARTICLE_CD
+							  FROM LANDSYS_ADM.TB_BOARD G, SEARCH_QNA SQ
+							  WHERE g.ANSWER_GRP::integer = sq.ARTICLE_NO::integer
+							  AND g.ARTICLE_CD = #ARTICLE_CD#
+							  AND g.ARTICLE_NO <> g.ANSWER_GRP         
+							)
+							SELECT ARTICLE_NO::integer, ANSWER_GRP, ANSWER_LEV, ARTICLE_TITLE, ARTICLE_CONTS, ARTICLE_VIEW_CNT, INS_USER, INS_DT, g.USE_YN, PATH, g.ARTICLE_CD
+							  FROM SEARCH_QNA  
+						  ) A
+						  WHERE 1=1
+		]]>
+		<isNotEmpty  prepend="AND" property="USE_YN">
+		       	   				USE_YN        = #USE_YN#
+		</isNotEmpty>	
+		<isNotEmpty  prepend=""    property="SERCH_NM"> 
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="article_title">
+			       				ARTICLE_TITLE LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="article_conts">
+			       				ARTICLE_CONTS LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>			   
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+								(
+									ARTICLE_TITLE LIKE '%' || #SERCH_NM# || '%' OR
+									ARTICLE_CONTS LIKE '%' || #SERCH_NM# || '%'
+								)
+			</isEqual>					
+		</isNotEmpty>			
+		<![CDATA[							
+					   )  
+	
+				UNION ALL
+	
+				SELECT g.ARTICLE_NO::integer, g.ANSWER_GRP, g.ANSWER_LEV, g.ARTICLE_TITLE, g.ARTICLE_CONTS, g.ARTICLE_VIEW_CNT, g.INS_USER, g.INS_DT, g.USE_YN, PATH || g.ARTICLE_NO::integer, g.ARTICLE_CD
+				  FROM LANDSYS_ADM.TB_BOARD G, 
+	                   SEARCH_QNA SQ
+				 WHERE g.ANSWER_GRP::integer = sq.ARTICLE_NO::integer 
+	               AND g.ARTICLE_CD = #ARTICLE_CD#
+				   AND g.ARTICLE_NO <> g.ANSWER_GRP
+			)
+			SELECT * 
+			 FROM (
+					SELECT ROW_NUMBER() OVER(ORDER BY PATH[1] DESC, PATH) AS RNO, 
+						   ARTICLE_NO, 
+						   ANSWER_GRP, 
+						   ANSWER_LEV,
+						   ARTICLE_TITLE, 
+						   ARTICLE_CONTS, 
+						   ARTICLE_VIEW_CNT AS VIEW_CNT, 
+						   TO_CHAR(SQ.INS_DT, 'YYYY-MM-DD HH24:MI')              AS INS_DT,
+						   LANDSYS_ADM.FN_DECRYPT(UI.USER_NM, #KEY#)             AS INS_USER_NM,
+						   CASE WHEN SQ.USE_YN <> 'Y' THEN '미사용' ELSE '사용' END AS USE_YN,
+						   LPAD('', 5*6*CAST(ANSWER_LEV AS INT), '&nbsp;')       AS SPACE,
+						   PATH ,
+						   ARTICLE_CD
+					  FROM SEARCH_QNA SQ,
+	                       LANDSYS_ADM.TB_USER_INFO UI
+					 WHERE SQ.INS_USER = UI.USER_ID
+					 AND SQ.ARTICLE_CD = #ARTICLE_CD#
+				  ) R
+			WHERE R.RNO BETWEEN	#FIRST_INDEX# AND #LAST_INDEX#
+		]]>    	 		
+    </select> 	
+    
+    
+    <select id="admin.board.selectQnaArticleListCount" parameterClass="java.util.HashMap"  resultClass="int">
+		<![CDATA[ 
+			 /* 질의응답 개수 조회  */
+			 SELECT COUNT(BD.ARTICLE_NO) AS ARTICLE_COUNT
+	    	   FROM LANDSYS_ADM.TB_BOARD BD,
+	    	        LANDSYS_ADM.TB_USER_INFO UI1,
+		  			LANDSYS_ADM.TB_USER_INFO UI2
+	    	  WHERE BD.INS_USER   = UI1.USER_ID 
+		        AND BD.UPD_USER   = UI2.USER_ID
+	    	    AND BD.ARTICLE_CD = #ARTICLE_CD#
+		]]>
+		<isNotEmpty  prepend="AND" property="USE_YN">
+		       	   	BD.USE_YN        = #USE_YN#
+		</isNotEmpty>	
+		<isNotEmpty  prepend=""    property="SERCH_NM"> 
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="article_title">
+			       	BD.ARTICLE_TITLE LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="article_conts">
+			       	BD.ARTICLE_CONTS LIKE '%' || #SERCH_NM# || '%'
+			</isEqual>			   
+			<isEqual prepend="AND" property="SERCH_GB" compareValue="">
+					(
+						BD.ARTICLE_TITLE LIKE '%' || #SERCH_NM# || '%' OR
+						BD.ARTICLE_CONTS LIKE '%' || #SERCH_NM# || '%'
+					)
+			</isEqual>					
+		</isNotEmpty>			 
+    </select> 	
+    
+
+    <select id="admin.board.selectBoardArticleDetail" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    <![CDATA[
+	    	/* 공지사항 상세 조회  */
+   	         SELECT BD.ARTICLE_NO,
+		            BD.ARTICLE_TITLE,
+		  			BD.ARTICLE_CONTS,
+		  			COALESCE(BD.ARTICLE_VIEW_CNT,0) AS ARTICLE_VIEW_CNT,
+		  			CASE WHEN CURRENT_TIMESTAMP BETWEEN popup_start_dt AND popup_end_dt THEN 'Y' ELSE 'N' END AS POP_YN,
+		  			TO_CHAR(BD.POPUP_START_DT, 'YYYY/MM/DD')   AS POP_START_DT,
+		  			TO_CHAR(BD.POPUP_END_DT,   'YYYY/MM/DD')   AS POP_END_DT,
+		  			FILE_GRP,
+		  			TO_CHAR(BD.INS_DT, 'YYYY/MM/DD HH24:MI')   AS INS_DT,
+		  			TO_CHAR(BD.UPD_DT, 'YYYY/MM/DD HH24:MI')   AS UPD_DT,
+		  			LANDSYS_ADM.FN_DECRYPT(UI1.USER_ID, #KEY#) AS INS_USER_ID,
+		            LANDSYS_ADM.FN_DECRYPT(UI1.USER_NM, #KEY#) AS INS_USER_NM,
+		  			LANDSYS_ADM.FN_DECRYPT(UI2.USER_ID, #KEY#) AS UPD_USER_ID,
+		  			LANDSYS_ADM.FN_DECRYPT(UI2.USER_NM, #KEY#) AS UPD_USER_NM,
+					CASE WHEN BD.USE_YN <> 'Y' THEN '미사용' ELSE '사용' END AS USE_YN
+	    	   FROM LANDSYS_ADM.TB_BOARD BD,
+	    	        LANDSYS_ADM.TB_USER_INFO UI1,
+		  			LANDSYS_ADM.TB_USER_INFO UI2
+	    	  WHERE BD.INS_USER   = UI1.USER_ID 
+		        AND BD.UPD_USER   = UI2.USER_ID
+		        AND BD.ARTICLE_NO = #ARTICLE_NO#
+		]]>    	 	
+		<isNotEmpty  prepend="AND" property="USE_YN">
+		       	   	BD.USE_YN     = #USE_YN#
+		</isNotEmpty>			
+    </select>
+    
+    
+	<insert id="admin.board.insertBoardArticle" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+	    	/* 게시글 등록 */	
+	    	INSERT INTO LANDSYS_ADM.TB_BOARD
+	    	(
+	    		ARTICLE_NO,
+	    		ARTICLE_CD,
+	    		ARTICLE_TITLE,
+	    		ARTICLE_CONTS,
+		]]>    	 	
+		<isNotEmpty  prepend="" property="ARTICLE_POP_START_DT">
+		       	POPUP_START_DT,
+		</isNotEmpty>		    		
+		<isNotEmpty  prepend="" property="ARTICLE_POP_END_DT">
+		       	POPUP_END_DT,
+		</isNotEmpty>
+	    <![CDATA[			    		
+	    		ARTICLE_VIEW_CNT,
+	    		USE_YN,
+	    		ANSWER_GRP,
+	    		ANSWER_LEV,
+	    		INS_USER,
+	    		UPD_USER,
+	    		INS_DT,
+	    		UPD_DT
+	    	)
+	    	VALUES
+	    	(
+	    		(SELECT COALESCE(MAX(ARTICLE_NO::integer), 0) + 1 AS ARTICLE_NO FROM LANDSYS_ADM.TB_BOARD),
+	    		#ARTICLE_CD#,
+	        	#ARTICLE_TITLE#,
+	           	#ARTICLE_CONTENTS#,
+		]]> 	           	
+		<isNotEmpty  prepend="" property="ARTICLE_POP_START_DT">
+		       	TO_TIMESTAMP(#ARTICLE_POP_START_DT# || ' 00:00:00', 'YYYY-MM-DDHH24:MI:SS'),
+		</isNotEmpty>		    		
+		<isNotEmpty  prepend="" property="ARTICLE_POP_END_DT">
+		       	TO_TIMESTAMP(#ARTICLE_POP_END_DT#   || ' 23:59:59', 'YYYY-MM-DDHH24:MI:SS'),
+		</isNotEmpty>
+	    <![CDATA[	           	
+	           	0,
+	           	'Y',
+	           	(SELECT COALESCE(MAX(ARTICLE_NO::integer), 0) + 1 AS ARTICLE_NO FROM LANDSYS_ADM.TB_BOARD),
+	           	1,
+			    LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+			    LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+			   	CURRENT_TIMESTAMP,
+			   	CURRENT_TIMESTAMP
+			)
+		]]>
+    </insert>
+    
+	<insert id="admin.board.insertBoardArticleReply" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+	    	/* 게시글 답변 등록 */
+	    	INSERT INTO LANDSYS_ADM.TB_BOARD
+	    	(
+	    		ARTICLE_NO,
+	    		ARTICLE_CD,
+	    		ARTICLE_TITLE,
+	    		ARTICLE_CONTS,
+	    		ARTICLE_VIEW_CNT,
+	    		USE_YN,
+	    		ANSWER_GRP,
+	    		ANSWER_LEV,
+	    		INS_USER,
+	    		UPD_USER,
+	    		INS_DT,
+	    		UPD_DT
+	    	)
+	    	VALUES
+	    	(
+	    		(SELECT COALESCE(MAX(ARTICLE_NO::integer), 0) + 1 AS ARTICLE_NO FROM LANDSYS_ADM.TB_BOARD),
+	    		#ARTICLE_CD#,
+	        	#ARTICLE_TITLE#,
+	           	#ARTICLE_CONTENTS#,
+	           	0,
+	           	'Y',
+	           	#ARTICLE_NO#,
+	           	(SELECT COALESCE(ANSWER_LEV,0) + 1 FROM LANDSYS_ADM.TB_BOARD WHERE ARTICLE_NO = #ARTICLE_NO#),
+			    LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+			    LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+			   	CURRENT_TIMESTAMP,
+			   	CURRENT_TIMESTAMP
+			)	    	
+		]]>
+    </insert>
+    
+    <update id="admin.board.updateBoardArticle" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+	    	/* 게시글 수정 */	
+	    	UPDATE LANDSYS_ADM.TB_BOARD
+	           SET ARTICLE_TITLE  = #ARTICLE_TITLE#,
+	           	   ARTICLE_CONTS  = #ARTICLE_CONTENTS#,
+		]]> 	           	
+		<isNotEmpty  prepend="" property="ARTICLE_POP_START_DT">
+		       	   POPUP_START_DT = TO_TIMESTAMP(#ARTICLE_POP_START_DT# || ' 00:00:00', 'YYYY-MM-DDHH24:MI:SS'),
+		</isNotEmpty>		    		
+		<isNotEmpty  prepend="" property="ARTICLE_POP_END_DT">
+				   POPUP_END_DT   = TO_TIMESTAMP(#ARTICLE_POP_END_DT#   || ' 23:59:59', 'YYYY-MM-DDHH24:MI:SS'),
+		</isNotEmpty>
+	    <![CDATA[	           	
+			       UPD_USER       = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+			   	   UPD_DT         = CURRENT_TIMESTAMP	           	   
+	         WHERE ARTICLE_NO = #ARTICLE_NO#
+		]]>
+    </update>
+    
+    <update id="admin.board.updateBoardArticleViewCnt" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+	    	/* 게시글 조회수 증가 */	
+	    	UPDATE LANDSYS_ADM.TB_BOARD
+	           SET ARTICLE_VIEW_CNT = COALESCE(ARTICLE_VIEW_CNT, 0) + 1
+	         WHERE ARTICLE_NO = #ARTICLE_NO#
+		]]>
+    </update>
+
+    <insert id="admin.board.updateBoardArticleViewCntBySeq" parameterClass="java.util.HashMap" >
+		<selectKey resultClass="String" keyProperty="SEQ">
+		  	/* 일렬번호 생성 */
+	  		SELECT COALESCE(ARTICLE_VIEW_CNT, 0)::integer + 1 AS SEQ 
+			  FROM LANDSYS_ADM.TB_BOARD
+	         WHERE ARTICLE_NO = #ARTICLE_NO#			  
+		</selectKey>
+		    
+	    <![CDATA[
+	    	/* 게시글 조회수 증가 */	
+	    	UPDATE LANDSYS_ADM.TB_BOARD
+	           SET ARTICLE_VIEW_CNT = #SEQ#::integer
+	         WHERE ARTICLE_NO = #ARTICLE_NO#
+		]]>
+    </insert>
+
+    <update id="admin.board.updateBoardArticleUse" parameterClass="java.util.HashMap" >
+	    <![CDATA[
+	    	/* 사용 또는 미사용 변경 */	
+	    	UPDATE LANDSYS_ADM.TB_BOARD
+	           SET USE_YN = #USE_YN#,
+			       UPD_USER       = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#),
+			   	   UPD_DT         = CURRENT_TIMESTAMP	
+	         WHERE ARTICLE_NO = #ARTICLE_NO#
+		]]>
+    </update>
+
+    <select id="admin.board.selectBoardArticleCheckNew" resultClass="java.util.HashMap">
+	    <![CDATA[
+	    	/* 공지사항  팝업 체크  */
+   	        SELECT 'NOTI_NEW_YN' AS ITEM, CASE WHEN COUNT(ARTICLE_NO) > 0 THEN 'Y' ELSE 'N' END VAL 
+	    	  FROM LANDSYS_ADM.TB_BOARD BD
+	    	 WHERE BD.ARTICLE_CD = 'CD00000002' 
+	    	   AND BD.USE_YN = 'Y' 
+	    	   AND CURRENT_TIMESTAMP BETWEEN POPUP_START_DT AND POPUP_END_DT
+	    	   
+	    	UNION ALL
+	    	
+	    	/* 질의응답  신규 체크  */
+   	        SELECT 'QNA_NEW_YN'  AS ITEM, CASE WHEN COUNT(ARTICLE_NO) > 0 THEN 'Y' ELSE 'N' END VAL 
+	    	  FROM LANDSYS_ADM.TB_BOARD BD
+	    	 WHERE BD.ARTICLE_CD = 'CD00000003' 
+	    	   AND BD.USE_YN = 'Y' 
+	    	   AND UPD_DT >= TO_TIMESTAMP(TO_CHAR(CURRENT_DATE - 1, 'YYYYMMDD') || ' 00:00:00', 'YYYYMMDD HH24:MI:SS')  
+		]]>	    	    
+    </select>
+    
+    
+    
+    <!-- 2022.10.17 공지사항 삭제 추가  -->
+    <delete id="admin.board.deleteNoticeArticle" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 공지사항 삭제 */		
+           DELETE FROM LANDSYS_ADM.TB_BOARD
+            WHERE ARTICLE_NO = #ARTICLE_NO#
+            AND UPD_USER = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#)
+		]]>			   
+	</delete>
+	
+	
+	   <delete id="admin.board.deleteQnaArticle" parameterClass="java.util.HashMap">
+	    <![CDATA[
+			/* 공지사항 삭제 */		
+           DELETE FROM LANDSYS_ADM.TB_BOARD
+            WHERE ARTICLE_NO = #ARTICLE_NO#
+            AND UPD_USER = LANDSYS_ADM.FN_ENCRYPT(#UPD_USER#, #KEY#)
+		]]>			   
+	</delete>
+	
+
+</sqlMap>

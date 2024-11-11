@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="manageinfo">
+
+    <typeAlias alias="manageVO" type="egovframework.zaol.manage.service.ManageVO" />
+    
+    <!-- 사용자 목록 가져오기  -->
+	<select id="manageDAO.selectUserList"  parameterClass="manageVO" resultClass="manageVO">
+		select * from(
+		select (
+		  ROW_NUMBER() OVER()) AS rno , AAA.* from (
+			    select         		
+				AA.* 
+				   from (
+				select
+				user_id,
+				user_name,
+				user_position,
+				user_phone,
+				del_yn,
+				user_auth,
+				reg_date
+				from user_info ORDER BY reg_date desc 
+					) AA
+			)AAA where 1=1
+			<isNotEmpty property="s_sjt"> and AAA.user_id LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	    <isNotEmpty property="s_ctn">  and AAA.user_name LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+	    <isNotEmpty property="s_all"> and AAA.user_position LIKE '%' || #s_all# || '%' </isNotEmpty>
+	    <isNotEmpty  property="startDate"> and date(AAA.reg_date) = date(#startDate#) </isNotEmpty>
+		 )AAAA
+		 WHERE AAAA.rno BETWEEN #firstIndex# AND #lastIndex#
+    </select>
+    
+    <!-- 사용자 목록 총 건수 가져오기   -->
+	<select id="manageDAO.selectUserListCnt" parameterClass="manageVO" resultClass="int">
+	    select count(*) CNT from(
+		select (
+		  ROW_NUMBER() OVER()) AS rno , AAA.* from (
+			    select         		
+				AA.* 
+				   from (
+				select
+				user_id,
+				user_name,
+				user_position,
+				user_phone,
+				del_yn,
+				user_auth,
+				reg_date
+				from user_info ORDER BY reg_date desc 
+					) AA
+			)AAA where 1=1
+			<isNotEmpty property="s_sjt"> and AAA.user_id LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	    <isNotEmpty property="s_ctn">  and AAA.user_name LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+	    <isNotEmpty property="s_all"> and AAA.user_position LIKE '%' || #s_all# || '%' </isNotEmpty>
+	    <isNotEmpty  property="startDate"> and date(AAA.reg_date) = date(#startDate#) </isNotEmpty>
+		 )AAAA
+	</select>
+	
+	<!-- 사용자기초정보 조회 -->
+    <select id="manageDAO.selectUserInfo" parameterClass="manageVO"  resultClass="manageVO">
+        /* 사용자기초정보 조회 */
+        select
+               seq,
+               user_id,  
+      		   user_name, 
+      		   user_pass, 
+      		   user_position,
+      		   user_auth,
+      		   del_yn,
+      		   user_phone,
+      		   updt_id,
+      		   reg_date,
+      		   updt_date
+  		from user_info
+        WHERE user_id = #user_id#
+        <isEmpty property="adminYn"> and del_yn = 'N' </isEmpty>
+    </select>
+    
+     <!-- 비밀번호 초기화 -->
+    <update id="manageDAO.resetPass" parameterClass="manageVO" >
+        UPDATE user_info
+            SET
+            	user_pass = #user_pass# 
+            WHERE user_id = #user_id#
+    </update>
+    
+    <!-- 권한 수정 -->
+    <update id="manageDAO.memAuthudp01" parameterClass="manageVO" >  
+        UPDATE user_info
+            SET 
+               del_yn = #del_yn#,
+               user_auth = #user_auth#
+            WHERE user_id = #user_id#
+    </update>
+    
+    <!-- 사용자 접속 건수 가져오기   -->
+	<select id="manageDAO.memAccessListCnt" parameterClass="manageVO" resultClass="int">
+	   select count(*) AS CNT from(
+		    	select (
+		    	  ROW_NUMBER() OVER()) AS no , AAA.* from (
+				    select         		
+				        AA.* 
+					   from (
+					select
+					 user_id,
+					 user_name,
+					 user_position,
+					 reg_date,
+					 in_out	
+					from user_log ORDER BY reg_date desc 
+						) AA
+				)AAA where 1=1   
+				<isNotEmpty property="s_sjt"> and AAA.user_id LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	            <isNotEmpty property="s_ctn">  and AAA.user_name LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+	            <isNotEmpty property="s_all"> and AAA.user_position LIKE '%' || #s_all# || '%' </isNotEmpty>
+	            <isNotEmpty  property="startDate"> and date(AAA.reg_date) between date(#startDate#) and date(#endDate#) </isNotEmpty>
+			)AAAA
+	</select>
+	<!-- 사용자 접속 가져오기 --> 
+	<select id="manageDAO.memAccessList"  parameterClass="manageVO" resultClass="manageVO">
+    	  	select * from(
+		    	select (
+		    	  ROW_NUMBER() OVER()) AS rno , AAA.* from (
+				    select         		
+				        AA.* 
+					   from (
+					select
+					 seq,
+					 user_id,
+					 user_name,
+					 user_position,
+					 reg_date,
+					 in_out	
+					from user_log ORDER BY reg_date desc 
+						) AA
+				)AAA where 1=1
+				<isNotEmpty property="s_sjt"> and AAA.user_id LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	            <isNotEmpty property="s_ctn">  and AAA.user_name LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+	            <isNotEmpty property="s_all"> and AAA.user_position LIKE '%' || #s_all# || '%' </isNotEmpty>
+	            <isNotEmpty  property="startDate"> and date(AAA.reg_date) between date(#startDate#) and date(#endDate#) </isNotEmpty>
+			)AAAA
+ 			WHERE AAAA.rno BETWEEN #firstIndex# AND #lastIndex#
+    </select>
+    
+    <select id="manageDAO.noticeListPageCnt" parameterClass="manageVO" resultClass="int">
+	    select count(*) as CNT
+	    from  boad_data
+	    where board_gubun = #board_gubun#
+	    <isNotEmpty property="s_sjt"> and board_sjt LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	    <isNotEmpty property="s_ctn">  and board_contents LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+	</select>
+    <!-- 관리자 공지사항 조회  -->
+    <select id="manageDAO.noticeListPage" parameterClass="manageVO"  resultClass="manageVO">
+    
+              select * from (
+               	select (ROW_NUMBER() OVER()) AS rno , A.* from(
+               	 select
+					 seq,
+					 board_gubun,
+					 board_sjt, 
+					 board_contents, 
+					 board_cnt, 
+					 regest_id, 
+					 regest_date,  
+					 udpate_date,
+					 use_at,
+					 <![CDATA[ CASE 
+					 WHEN to_date(open_start_date, 'YYYY-MM-DD') <= now() AND to_date(close_end_date, 'YYYY-MM-DD') >= now() AND use_at = 'Y' THEN 'NEW'
+					 ELSE 'OLD' ]]>
+					 END asnew_flg,
+					 post_open,
+					 open_start_date,
+					  close_end_date 
+              from boad_data 
+              where board_gubun = #board_gubun#
+              <isNotEmpty property="s_sjt"> and board_sjt LIKE '%' || #s_sjt# || '%' </isNotEmpty>
+	          <isNotEmpty property="s_ctn">  and board_contents LIKE '%' || #s_ctn# || '%' </isNotEmpty>
+               order by   regest_date desc,asnew_flg asc  ) A
+			) as A1
+          WHERE rno BETWEEN #firstIndex# AND #lastIndex#
+    </select> 	
+    <!-- 공지사항 입력  -->
+    <insert id="manageDAO.noticeInserteStart" parameterClass="manageVO">
+    <!-- <selectKey resultClass="java.lang.String" keyProperty="seq">
+        /* 일렬번호 생성 */
+        SELECT COALESCE(MAX(seq), 0) + 1 AS seq FROM boad_data 
+    </selectKey> -->
+    <![CDATA[
+        INSERT INTO boad_data     /* 사용자접속 이력정보 */
+        (
+            seq
+           ,board_gubun
+           ,board_sjt  
+           ,board_contents  
+           ,regest_date   
+           ,regest_id
+           ,use_at
+           ,board_cnt
+           ,open_start_date
+           ,close_end_date
+           ,post_open
+           ,re_group
+                   
+        )VALUES(
+            (select max(seq) + 1 from boad_data)
+           ,#board_gubun#
+           ,#board_sjt#  
+           ,#board_contents#  
+           ,to_char(now(),'yyyy-mm-dd HH24:mi:ss')      
+           ,#user_id#    
+           ,#use_at#
+           ,0
+           ,#open_start_date#    
+           ,#close_end_date#
+           ,'g'
+           ,(select max(seq) + 1 from boad_data)
+        )
+    ]]>
+    </insert>
+    
+    <!-- 공지사항 상세 조회 -->
+    <select id="manageDAO.noticeUpdatePage" parameterClass="manageVO"  resultClass="java.util.HashMap">
+    <![CDATA[	SELECT * FROM boad_data WHERE board_gubun = #board_gubun# AND seq = (#seq#)::integer	]]>
+    </select>
+    
+    <!-- 공지사항 수정 -->
+    <update id="manageDAO.noticeUpdateStart" parameterClass="manageVO" >
+    <![CDATA[	]]>
+        UPDATE boad_data
+            SET				
+				<isNotEmpty property="board_sjt">board_sjt = #board_sjt#,</isNotEmpty>
+				<isNotEmpty property="board_contents">board_contents = #board_contents#,</isNotEmpty>
+				use_at = #use_at#,
+				<isNotEmpty property="open_start_date">open_start_date = #open_start_date#,</isNotEmpty>
+				<isNotEmpty property="close_end_date">close_end_date = #close_end_date#,</isNotEmpty>
+				updt_id = #user_id#,
+				udpate_date = to_char(now(),'yyyy-mm-dd HH24:mi:ss')
+            WHERE seq = (#seq#)::integer
+    </update>
+    
+    
+
+    
+    
+    
+    <!-- qna 글쓰기 입력  -->
+    <insert id="manageDAO.qnaInserteStart" parameterClass="manageVO">
+    <!-- <selectKey resultClass="java.lang.String" keyProperty="seq">
+        /* 일렬번호 생성 */
+        SELECT COALESCE(MAX(seq), 0) + 1 AS seq FROM boad_data 
+    </selectKey> -->
+<![CDATA[
+        INSERT INTO boad_data     /* 사용자접속 이력정보 */
+        (
+            seq
+           ,board_gubun
+           ,board_sjt  
+           ,board_contents  
+           ,regest_date   
+           ,regest_id
+           ,use_at
+           ,board_cnt
+           ,open_start_date
+           ,close_end_date
+           ,post_open
+           ,re_group
+           ,re_lev
+                   
+        )VALUES(
+]]>
+            <!-- (#seq#)::integer -->
+<![CDATA[  (select max(seq) + 1 from boad_data)
+           ,#board_gubun#
+           ,#board_sjt#  
+           ,#board_contents#  
+           ,to_char(now(),'yyyy-mm-dd HH24:mi:ss')      
+           ,#user_id#    
+           ,#use_at#
+           ,0
+           ,#open_start_date#    
+           ,#close_end_date#
+           ,'g'
+           ,(select max(seq) + 1 from boad_data)
+           ,1
+        )
+]]>
+    </insert>
+    
+    
+    
+    <!-- qna 댓글쓰기 입력  -->
+    <insert id="manageDAO.qna_reInserteStart" parameterClass="manageVO">
+    <![CDATA[
+        INSERT INTO boad_data    
+        (
+            seq
+           ,board_gubun
+           ,board_sjt  
+           ,board_contents  
+           ,regest_date   
+           ,regest_id
+           ,use_at
+           ,board_cnt
+           ,open_start_date
+           ,close_end_date
+           ,post_open
+           ,re_group
+           ,re_lev
+        )VALUES(
+            (select max(seq) + 1 from boad_data)
+           ,#board_gubun#
+           ,#board_sjt#  
+           ,#board_contents#  
+           ,to_char(now(),'yyyy-mm-dd HH24:mi:ss')      
+           ,#user_id#    
+           ,#use_at#
+           ,0
+           ,#open_start_date#    
+           ,#close_end_date#
+           ,'g'
+           ,(#seq#)::integer
+           ,#re_lev#
+        )
+        ]]>
+    </insert>
+    
+    
+    
+</sqlMap>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" Name="DREAM" validUntil="2042-07-20T13:22:08.568Z">
+    <md:EntityDescriptor entityID="SH_IDP">
+        <md:IDPSSODescriptor>
+            <md:KeyDescriptor use="encryption">
+                <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                    <ds:X509Data>
+                        <ds:X509Certificate>MIIDsTCCApmgAwIBAgIKRCSEnMibGeKf9TANBgkqhkiG9w0BAQsFADBCMQswCQYDVQQGEwJLUjEW
+MBQGA1UECgwNRHJlYW1TZWN1cml0eTEMMAoGA1UECwwDU1NPMQ0wCwYDVQQDDARST09UMB4XDTIx
+MTAyMTA1NDAxM1oXDTIyMTAyMTA1NDAxM1owTDELMAkGA1UEBhMCS1IxFjAUBgNVBAoMDURyZWFt
+U2VjdXJpdHkxDDAKBgNVBAsMA1NTTzEXMBUGA1UEAwwOU0hfSURQX0RFVl9FbmMwggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCkmh/pwOgaX/sNcBNcqf6EaEryOPy6r01cbSe0H4yyuJsi
+Hh3EQk+IwO5uFzxV8tkogginleaaqEdRPTV4HfxFM7RGDVil4gNWSJSjHlYZaHlbNhPfMRdcBqNm
+yHw3ztLwlWtexhqQ8UfgfuYzdnAy/hseKc/zDTL1MB44KWMfxY1aosl6FcPi3+7n/7bfgMUzXm7T
+SVlWKAGJieebsSzOtkyVnDLMDjcnbfzK3YmL/01peP6a8+cf/zeDqXXLhII/hYaM2PnOjeQVa1nL
+po0gSFMd7eWBiffBRh+UE2O6sV0zTsBGFc3x3xoTTh8zvYOJ8qogF7KJe8PKSV17ywV1AgMBAAGj
+gZ4wgZswagYDVR0jBGMwYYAUuYD5Dysqz/uU7XvjrD62Z7uNx5mhRqREMEIxCzAJBgNVBAYTAktS
+MRYwFAYDVQQKDA1EcmVhbVNlY3VyaXR5MQwwCgYDVQQLDANTU08xDTALBgNVBAMMBFJPT1SCAQEw
+HQYDVR0OBBYEFD1QIEmzRfPpt60KtzwyvsJ0yaC0MA4GA1UdDwEB/wQEAwIEMDANBgkqhkiG9w0B
+AQsFAAOCAQEAMtbnpAkBjuvHEbGWocBUI3qDzaNyitKhf6gRiTwF/G7g/5iT9552WJjmz25jbcu4
++DiYLFWZMVAktP6rJUF4qlrRIMmHOkBAJ5tnJKjNwNRy0oZcGewHDKIXV5bx4hHxX9wKG3APqGct
+AWrWHUYIRQUgwEJZO1MsZLsXVQ0x6OmBnZMCKsXTzk8CmKLJoWv53qmhofscZ4i2gc8p2Ay8SNxe
+vYl5sObU4koGWDDEDxn7/emEeY5GqCig2xbDs8pPQQL0oha2C3LxxXTmTMhhUVE7P3gTU6Uq0pXH
+uAsslAQvbvkZT6gnBwvoW8A6YfEu8XH0swnh7XND7MLyyyb0jA==</ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </md:KeyDescriptor>
+            <md:KeyDescriptor use="signing">
+                <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                    <ds:X509Data>
+                        <ds:X509Certificate>MIIDsTCCApmgAwIBAgIKMw2FlyQaD2gkFDANBgkqhkiG9w0BAQsFADBCMQswCQYDVQQGEwJLUjEW
+MBQGA1UECgwNRHJlYW1TZWN1cml0eTEMMAoGA1UECwwDU1NPMQ0wCwYDVQQDDARST09UMB4XDTIx
+MTAyMTA1NDAyNVoXDTIyMTAyMTA1NDAyNVowTDELMAkGA1UEBhMCS1IxFjAUBgNVBAoMDURyZWFt
+U2VjdXJpdHkxDDAKBgNVBAsMA1NTTzEXMBUGA1UEAwwOU0hfSURQX0RFVl9TaWcwggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCi+Y6ghr9JyqqVwESMuA0HPlxi8nBu632HMmIGkkpsP2Bh
+DJQmCk1mmBq9AttDCWyl2xAl/sv6xxeXPGcgWUDtThVBceORUefbGKZ2nA5E4TvReXaov8Tsd05H
+z+yuKVyfKGhx2PWlo2q38O8ELF5FpGHV6B72rGaaqIvwT9RjZzsqaTzUHSKDtegdpU0lcUUHbAGb
+TZJeVvAM14h0dqUx/OiX8yU5Xh92vMzyGf14OmSU28QCG0jjGSyf2gDDuytwKfKjU6VkGwrkXcIb
+BnqUtkbToAZN50onAkWpK5gJ0EczDV76IQTH6bFA/5SZ/H2kYoOx1cqckJuu9qP0mKhJAgMBAAGj
+gZ4wgZswagYDVR0jBGMwYYAUlbMNGQSMue+ifMhoIgenqKhlmxqhRqREMEIxCzAJBgNVBAYTAktS
+MRYwFAYDVQQKDA1EcmVhbVNlY3VyaXR5MQwwCgYDVQQLDANTU08xDTALBgNVBAMMBFJPT1SCAQEw
+HQYDVR0OBBYEFC3zCl++qaJIE23Zm32TMCV6n2fSMA4GA1UdDwEB/wQEAwIGwDANBgkqhkiG9w0B
+AQsFAAOCAQEAcs511VsgcKQv8/+T0X4h3a4c4mztjFcQ5rFOeKxk+XMFTKaRgseO85RRA0KJctlu
+iAzlSBOeAc+mF/eGokSLYOCsuMMIs3Fe2KCpNyX8l0pUUAswDsngZvY1plZ016gjbz8lX5CZ7LRP
+y3DyMaeCMbe9JbffSMCh8+sXoOX3/6VHjreI0ve2F2WEcduP4bW3AsWErks3K4MPZY9TAiuoYz6+
+to5jRL20Xu/w2piNDg8ivJvH5AR/trJc5US94LROIGAPW4jAuOHrpR8PVAvRsgafav5O+x5KU+Kd
+3BeOXuF8Pg7V8NPgYYgh6XlEe6pl4WHsQM1jjk+Ogdz4tmb0Hg==</ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </md:KeyDescriptor>
+            <md:SingleLogoutService Location="https://sso.i-sh.co.kr:8088/sso/Logout.jsp"/>
+            <md:SingleSignOnService Location="https://sso.i-sh.co.kr:8088/sso/Request.jsp"/>
+        </md:IDPSSODescriptor>
+    </md:EntityDescriptor>
+    <md:EntitiesDescriptor>
+        <md:EntityDescriptor entityID="SH_RESOURCE">
+            <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true">
+                <md:KeyDescriptor use="encryption">
+                    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                        <ds:X509Data>
+                            <ds:X509Certificate>MIIDszCCApugAwIBAgIKaEA4ZtFo3Gub2DANBgkqhkiG9w0BAQsFADBCMQswCQYDVQQGEwJLUjEW
+MBQGA1UECgwNRHJlYW1TZWN1cml0eTEMMAoGA1UECwwDU1NPMQ0wCwYDVQQDDARST09UMB4XDTIx
+MTAyMTA1NDExOVoXDTIyMTAyMTA1NDExOVowTjELMAkGA1UEBhMCS1IxFjAUBgNVBAoMDURyZWFt
+U2VjdXJpdHkxDDAKBgNVBAsMA1NTTzEZMBcGA1UEAwwQU0hfTE9HSU5fREVWX0VuYzCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAMNGIQwZGFky+bqxHGaeh1QTSVsXTD45rSxYxNYaPMVl
+OcZGQuu7Rfe1525rutL/+lOVfXzd/cuoZqCpoPh2AinlPs2nJhfyecP2pUskN05rh8W8Hw2vuPQa
+MzTmFH5E8TZfCUuhXWTBxGC45BNGgJ1Eg/v2borCEU62ATrcfrOvqpkB1ZwrU/5zz3M6HRsJkHay
+TKZ9J6aOC0N2Q1DvEpdmYiaJlcUJCCuY8zKIilrvChQitS7LSdTbAMO0APcKSRffL3L978ZEGFVm
+PBWfjgNkKQ+zkdt6iy5NST0vTaHVOnjw5UJifXl5t7DQvRdhig8utvLkdI11Dp1JdfGDX30CAwEA
+AaOBnjCBmzBqBgNVHSMEYzBhgBQ8jOp+fHa82Zvuz88nDP81Kpo9dqFGpEQwQjELMAkGA1UEBhMC
+S1IxFjAUBgNVBAoMDURyZWFtU2VjdXJpdHkxDDAKBgNVBAsMA1NTTzENMAsGA1UEAwwEUk9PVIIB
+ATAdBgNVHQ4EFgQUnGRhbbS/l+H27e0IUT2X5EELW7cwDgYDVR0PAQH/BAQDAgQwMA0GCSqGSIb3
+DQEBCwUAA4IBAQBo5fkXZkfk+LrRfb/JyZy+toz1NTOL54ph2abEwiaX3zXXmxMMObRLLSVHFDh6
+0Ad2BKWFbog83rtcQmQAmBGjazjzZZMi5jSf2UV1vDEGu7x4BRwYFgYW3OSKeNUbAT9GB/tyUfNy
+sqSSOwTuO+RwWZhdv66UHqC40nDDKmYICvp8ibTxYCieu6XWqBYAvGuQSQFqCXq2vPtNwib/Cmr+
+R9Awy3XIFUQqTFNRixEgZCxcP5jLtlAydFNCvoaWASqgkhodne6THpR1JzE/pHaT3APoyq1BZrml
+CEK5joNTHQjslRGMYiSzWSorY5KobrJ8xG4B6LSlsJd2UCuuxMD+</ds:X509Certificate>
+                        </ds:X509Data>
+                    </ds:KeyInfo>
+                </md:KeyDescriptor>
+                <md:KeyDescriptor use="signing">
+                    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                        <ds:X509Data>
+                            <ds:X509Certificate>MIIDszCCApugAwIBAgIKIi2Y9gbM4DYsnTANBgkqhkiG9w0BAQsFADBCMQswCQYDVQQGEwJLUjEW
+MBQGA1UECgwNRHJlYW1TZWN1cml0eTEMMAoGA1UECwwDU1NPMQ0wCwYDVQQDDARST09UMB4XDTIx
+MTAyMTA1NDEzM1oXDTIyMTAyMTA1NDEzM1owTjELMAkGA1UEBhMCS1IxFjAUBgNVBAoMDURyZWFt
+U2VjdXJpdHkxDDAKBgNVBAsMA1NTTzEZMBcGA1UEAwwQU0hfTE9HSU5fREVWX1NpZzCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAIXIzUtGSLb/W2KjbXUCSD9q0mrZHajqE8JLcx6fli0X
+DwmkNZkodN+yhoqRElWxUtrwxHGSnTQqq861GCX33ofcLfh1zuhHwUjddhKFNtT26l91al/7dwya
+76LDgylJGyLTCZoqyIBJ4NHxWqQCLkBJdudDBUCmT+n2yne8sSQkbAhzAfIIduYQXjVodejr1goI
+/bLiI3KLtyeArvmaqWhmluUbVouoIxKMsC1to2ztHf1rP3Q6Osil9UmFfM3/h8F7OfsUdIF5VU82
+UClKvyYQfi+RqygZSvkFpPjcsA64mGFR5jXSB55uZFLSh3MHjIoPLSbHOzX4XAqYix7ZNuECAwEA
+AaOBnjCBmzBqBgNVHSMEYzBhgBQx8yCBAxGjC4ZHYVOsi2TONKzOOqFGpEQwQjELMAkGA1UEBhMC
+S1IxFjAUBgNVBAoMDURyZWFtU2VjdXJpdHkxDDAKBgNVBAsMA1NTTzENMAsGA1UEAwwEUk9PVIIB
+ATAdBgNVHQ4EFgQUxPf0Q7M7rBJLaOL8R0UuTrCxVXUwDgYDVR0PAQH/BAQDAgbAMA0GCSqGSIb3
+DQEBCwUAA4IBAQAozWR4YGQra+FQcL+CU3yUCDDXdOkCsV71LYZcvavYzUiDN/tdMYuigW+HZXzc
+K+HpQqr5xjSy00iYuOAZqCBq9R9ErpbuVPop5ILfFaXgByqKJaDjn1fb62zCOAxtK1WAxwpjKSoO
+18RN9rw9nWGnw/DvThMz9T2p+EmMca49HFxylaYoojoxgnOjOZk0G8VpVvd5HIcR+7kJTRX9VZl7
+54/KUwj6wX4obK7Xv8fdt60vd4/3KVyb329Q4/ZSKl/uQFRaBe6k9yEMYoV8yStoGatjdLmIGBYO
+7gbHUNhm1yv3fJmCA5hr8uGnM4/nRPhVkqC2dP0Ya7H5io2rTGh4</ds:X509Certificate>
+                        </ds:X509Data>
+                    </ds:KeyInfo>
+                </md:KeyDescriptor>
+                <md:SingleLogoutService Location="https://landresource.i-sh.co.kr/sso/Logout.jsp"/>
+                <md:AssertionConsumerService Location="https://landresource.i-sh.co.kr/sso/Response.jsp" isDefault="true"/>
+            </md:SPSSODescriptor>
+        </md:EntityDescriptor>
+    </md:EntitiesDescriptor>
+</md:EntitiesDescriptor>

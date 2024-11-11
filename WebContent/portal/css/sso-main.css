@@ -1,0 +1,114 @@
+table tr td {
+	padding: 0px;
+	spacing: 0px;
+	text-align: left;
+	vertical-align: top;
+	border: 0px;
+}
+table#body-table{
+	width: 100%;
+}
+table#body-table td#menu {
+	min-width: 200px;
+	width: 200px;
+}
+div.site_logo {
+	height: 112px;
+	width: 100%;
+	border-top: 1px solid #b4b4b4;
+	border-bottom: 1px solid #b4b4b4;
+	background-color: #FFFFFF;
+	background-image: url("../images/logo_ds.png");
+	background-size: 150px 100px;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+table#body-table td#menu-margin {
+	min-width: 1px;
+	background-color: #b4b4b4;
+}
+table#body-table td#main {
+	min-width: 800px;
+}
+table#header-table {
+	min-width: 980px;
+	width: 100%;
+}
+table#header-table tr#header {
+	height: 54px;
+	background-color: #287BE4;
+}
+table#header-table tr#header-bottom {
+	height: 1px;
+	background-color: #165EB4;
+}
+table#header-table td#logo {
+	min-width: 700px;
+	vertical-align: middle;
+	padding-top: 5px;
+	padding-left: 15px;
+	color: #FFFFFF;
+	font-size: 24px;
+	font-weight: bold;
+	font-family: Calibri;
+}
+table#header-table td#photo {
+	width: 35px;
+	vertical-align: middle;
+	padding-top: 5px;
+}
+table#header-table td#name {
+	width: 60px;
+	text-align: left;
+	vertical-align: middle;
+}
+table#header-table td#seperate {
+	width: 1px;
+	background-color: #165EB4;
+}
+table#header-table td#logout {
+	width: 54px;
+	text-align: center;
+	vertical-align: middle;
+	padding-top: 5px;
+	cursor: pointer;
+}
+img#photo_img {
+	border-radius: 16px;
+}
+span#user_name {
+	color: #ffffff;
+}
+ul.menu li.menu-item span {
+	display: block;
+	padding: 10px 0px 8px 12px;
+	cursor: pointer;
+}
+ul.menu li.menu-item span:hover {
+	background-color: #f2f2f2;
+}
+ul.menu li.menu-item a {
+	color: #616161;
+	font-weight: bold;
+	text-decoration: none !important;
+}
+ul.menu li.on a {
+	color: #d31e25;
+	font-weight: bold;
+}
+ul.sub-menu li {
+	color: #616161;
+	font-weight: bold;
+	padding: 4px 0px 4px 28px;
+	cursor: pointer;
+}
+ul.sub-menu li:hover {
+	background-color: #f2f2f2;
+}
+img.menu-icon {
+	margin-top: -4px;
+	margin-right: 2px;
+	vertical-align: middle;
+	width: 16px;
+	height: 16px;
+}

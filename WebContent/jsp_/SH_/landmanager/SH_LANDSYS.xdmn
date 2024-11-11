@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<e:DomainDefinition xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:e="http://exerd.tomato.com/model" UUID="DDefinition_jH8YILHDEeqDLZRdSewBgw" productId="com.tomato.db.postgresql" version="2.5.9.20200603-1046">
+  <domain UUID="Domain_jH8YIbHDEeqDLZRdSewBgw" name="LANDSYS">
+    <domain UUID="Domain_jH8YIrHDEeqDLZRdSewBgw" name="번호" suggestedDataType="character varying(20)"/>
+    <domain UUID="Domain_jH8YI7HDEeqDLZRdSewBgw" name="코드" suggestedDataType="character varying(10)"/>
+    <domain UUID="Domain_jH8YJLHDEeqDLZRdSewBgw" name="코드명" suggestedDataType="character varying(100)"/>
+    <domain UUID="Domain_jH8YJbHDEeqDLZRdSewBgw" name="설명" suggestedDataType="text"/>
+    <domain UUID="Domain_jH8YJrHDEeqDLZRdSewBgw" name="기관코드" suggestedDataType="character varying(10)"/>
+    <domain UUID="Domain_jH8YJ7HDEeqDLZRdSewBgw" name="기관명" suggestedDataType="character varying(100)"/>
+    <domain UUID="Domain_jH8YKLHDEeqDLZRdSewBgw" name="부서코드" suggestedDataType="character varying(10)"/>
+    <domain UUID="Domain_jH8YKbHDEeqDLZRdSewBgw" name="부서명" suggestedDataType="character varying(100)"/>
+    <domain UUID="Domain_jH8YKrHDEeqDLZRdSewBgw" name="사용자ID" suggestedDataType="character varying(20)"/>
+    <domain UUID="Domain_jH8YK7HDEeqDLZRdSewBgw" name="이름" suggestedDataType="character varying(100)"/>
+    <domain UUID="Domain_jH8YLLHDEeqDLZRdSewBgw" name="패스워드" suggestedDataType="character varying(50)"/>
+    <domain UUID="Domain_jH8YLbHDEeqDLZRdSewBgw" name="전화번호" suggestedDataType="character varying(50)"/>
+    <domain UUID="Domain_jH8YLrHDEeqDLZRdSewBgw" name="날짜" suggestedDataType="date"/>
+    <domain UUID="Domain_jH8YL7HDEeqDLZRdSewBgw" name="일시" suggestedDataType="timestamp with time zone"/>
+    <domain UUID="Domain_jH8YMLHDEeqDLZRdSewBgw" name="웹주소" suggestedDataType="character varying(512)"/>
+    <domain UUID="Domain_jH8YMbHDEeqDLZRdSewBgw" name="IP주소" suggestedDataType="inet"/>
+    <domain UUID="Domain_jH8YMrHDEeqDLZRdSewBgw" name="사용여부" suggestedDataType="character(1)"/>
+    <domain UUID="Domain_jH8YM7HDEeqDLZRdSewBgw" name="파일명" suggestedDataType="character varying(256)"/>
+    <domain UUID="Domain_jH8YNLHDEeqDLZRdSewBgw" name="확장자" suggestedDataType="character(3)"/>
+    <domain UUID="Domain_jH8YNbHDEeqDLZRdSewBgw" name="순서" suggestedDataType="smallint"/>
+    <domain UUID="Domain_jH8YNrHDEeqDLZRdSewBgw" name="순번" suggestedDataType="integer"/>
+    <domain UUID="Domain_jH8YN7HDEeqDLZRdSewBgw" name="레벨" suggestedDataType="smallint"/>
+    <domain UUID="Domain_jH8YOLHDEeqDLZRdSewBgw" name="확대" suggestedDataType="smallint"/>
+    <domain UUID="Domain_jH8YObHDEeqDLZRdSewBgw" name="조회수" suggestedDataType="integer"/>
+  </domain>
+</e:DomainDefinition>

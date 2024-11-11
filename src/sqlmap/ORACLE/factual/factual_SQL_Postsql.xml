@@ -1,0 +1,1381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="factual">
+
+    <typeAlias alias="FactualVO" type="egovframework.zaol.factual.service.FactualVO" />
+    
+    <!-- 코드 조회 -->
+    <select id="factualDAO.factualcodeList" parameterClass="FactualVO" resultClass="java.util.HashMap">
+    <![CDATA[
+		SELECT type, code, name FROM public.ic_code ORDER BY type, code
+	]]> 
+	</select>
+	
+    <!-- 시군구 조회 -->
+    <select id="factualDAO.factualsigList" parameterClass="FactualVO" resultClass="java.util.HashMap">
+    <![CDATA[
+		SELECT sig_cd, sig_kor_nm FROM public.tl_scco_sig GROUP BY sig_cd, sig_kor_nm ORDER BY sig_cd
+	]]>  	
+    </select>
+    <!-- 읍면동 조회 -->
+    <select id="factualDAO.factualemdList" parameterClass="FactualVO" resultClass="java.util.HashMap">
+    <![CDATA[ 	]]>
+		SELECT emd_cd, emd_kor_nm FROM public.tl_scco_emd 
+		<isNotEmpty  property="sig">
+			WHERE emd_cd LIKE '' || #sig# || '%'  GROUP BY emd_cd, emd_kor_nm ORDER BY emd_cd
+	  	</isNotEmpty>
+    </select>
+    <!-- 리 조회 -->
+    <select id="factualDAO.factualliList" parameterClass="FactualVO" resultClass="java.util.HashMap">
+    <![CDATA[	]]> 
+		SELECT li_cd, li_kor_nm FROM public.tl_scco_li 
+		<isNotEmpty  property="emd">
+			<![CDATA[ WHERE li_cd LIKE '' || #emd# || '%' AND RIGHT(li_cd, 2) <> '00'  GROUP BY li_cd, li_kor_nm ORDER BY li_cd ]]>
+	 	</isNotEmpty>
+    </select>
+    
+    <!-- 실태조사 입력  -->
+    <insert id="factualDAO.factualInserteStart" parameterClass="FactualVO" >
+    	<selectKey resultClass="java.lang.String" keyProperty="gid">
+            /* 일렬번호 생성 */
+            SELECT COALESCE(MAX(gid), 0) + 1 AS gid FROM factual_survey 
+        </selectKey>
+        INSERT INTO factual_survey     
+        (
+            <isNotEmpty  property="lclas"> lclas, </isNotEmpty> 
+			<isNotEmpty  property="mlsfc"> mlsfc, </isNotEmpty>
+			<isNotEmpty  property="sclas"> sclas, </isNotEmpty>
+			ctp,
+			sig,
+			emd,
+			mt,
+			bon,
+			bu,
+			<isNotEmpty  property="prprty_mg"> prprty_mg, </isNotEmpty>
+			<isNotEmpty  property="jimok"> jimok, </isNotEmpty>
+			<isNotEmpty  property="n_jimok"> n_jimok, </isNotEmpty>
+			<isNotEmpty  property="qota"> qota, </isNotEmpty>
+			<isNotEmpty  property="acqs"> acqs, </isNotEmpty>
+			<isNotEmpty  property="acqdt"> acqdt, </isNotEmpty> 
+			<isNotEmpty  property="use"> use, </isNotEmpty>
+			<isNotEmpty  property="area"> area, </isNotEmpty>
+			<isNotEmpty  property="jiga"> jiga, </isNotEmpty>
+			<isNotEmpty  property="prsmppc"> prsmppc, </isNotEmpty>
+			<isNotEmpty  property="prpos"> prpos, </isNotEmpty>
+			<isNotEmpty  property="lmtt"> lmtt, </isNotEmpty>
+			<isNotEmpty  property="ubplfc"> ubplfc, </isNotEmpty>
+			<isNotEmpty  property="frm"> frm, </isNotEmpty>
+			<isNotEmpty  property="gfe"> gfe, </isNotEmpty>
+			<isNotEmpty  property="ro_side"> ro_side, </isNotEmpty>
+			<isNotEmpty  property="ctp_1"> ctp_1, </isNotEmpty>
+			<isNotEmpty  property="sig_1"> sig_1, </isNotEmpty>
+			<isNotEmpty  property="emd_1"> emd_1, </isNotEmpty>
+			<isNotEmpty  property="mt_1"> mt_1, </isNotEmpty>
+			<isNotEmpty  property="bon_1"> bon_1, </isNotEmpty>
+			<isNotEmpty  property="bu_1"> bu_1, </isNotEmpty>
+			<isNotEmpty  property="jimok_1"> jimok_1, </isNotEmpty>
+			<isNotEmpty  property="area_1"> area_1, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_1"> buld_yn_1, </isNotEmpty>
+			<isNotEmpty  property="ctp_2"> ctp_2, </isNotEmpty>
+			<isNotEmpty  property="sig_2"> sig_2, </isNotEmpty>
+			<isNotEmpty  property="emd_2"> emd_2, </isNotEmpty>
+			<isNotEmpty  property="mt_2"> mt_2, </isNotEmpty>
+			<isNotEmpty  property="bon_2"> bon_2, </isNotEmpty>
+			<isNotEmpty  property="bu_2"> bu_2, </isNotEmpty>
+			<isNotEmpty  property="jimok_2"> jimok_2, </isNotEmpty>
+			<isNotEmpty  property="area_2"> area_2, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_2"> buld_yn_2, </isNotEmpty>
+			<isNotEmpty  property="ctp_3"> ctp_3, </isNotEmpty>
+			<isNotEmpty  property="sig_3"> sig_3, </isNotEmpty>
+			<isNotEmpty  property="emd_3"> emd_3, </isNotEmpty>
+			<isNotEmpty  property="mt_3"> mt_3, </isNotEmpty>
+			<isNotEmpty  property="bon_3"> bon_3, </isNotEmpty>
+			<isNotEmpty  property="bu_3"> bu_3, </isNotEmpty>
+			<isNotEmpty  property="jimok_3"> jimok_3, </isNotEmpty>
+			<isNotEmpty  property="area_3"> area_3, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_3"> buld_yn_3, </isNotEmpty>
+			<isNotEmpty  property="ctp_4"> ctp_4, </isNotEmpty>
+			<isNotEmpty  property="sig_4"> sig_4, </isNotEmpty>
+			<isNotEmpty  property="emd_4"> emd_4, </isNotEmpty>
+			<isNotEmpty  property="mt_4"> mt_4, </isNotEmpty>
+			<isNotEmpty  property="bon_4"> bon_4, </isNotEmpty>
+			<isNotEmpty  property="bu_4"> bu_4, </isNotEmpty>
+			<isNotEmpty  property="jimok_4"> jimok_4, </isNotEmpty>
+			<isNotEmpty  property="area_4"> area_4, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_4"> buld_yn_4, </isNotEmpty>
+			<isNotEmpty  property="ctp_5"> ctp_5, </isNotEmpty>
+			<isNotEmpty  property="sig_5"> sig_5, </isNotEmpty>
+			<isNotEmpty  property="emd_5"> emd_5, </isNotEmpty>
+			<isNotEmpty  property="mt_5"> mt_5, </isNotEmpty>
+			<isNotEmpty  property="bon_5"> bon_5, </isNotEmpty>
+			<isNotEmpty  property="bu_5"> bu_5, </isNotEmpty>
+			<isNotEmpty  property="jimok_5"> jimok_5, </isNotEmpty>
+			<isNotEmpty  property="area_5"> area_5, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_5"> buld_yn_5, </isNotEmpty>			
+			<isNotEmpty  property="loan_nm"> loan_nm, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc"> loan_cttpc, </isNotEmpty>
+			<isNotEmpty  property="loan_area"> loan_area, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r"> loan_a_r, </isNotEmpty>
+			<isNotEmpty  property="loan_pd"> loan_pd, </isNotEmpty>
+			<isNotEmpty  property="loanmn"> loanmn, </isNotEmpty>
+			<isNotEmpty  property="loan_totar"> loan_totar, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r"> loan_t_r, </isNotEmpty>
+			<isNotEmpty  property="loan_use"> loan_use, </isNotEmpty>
+			<isNotEmpty  property="loan_pr"> loan_pr, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t"> loan_pr_t, </isNotEmpty>
+			<isNotEmpty  property="loan_etc"> loan_etc, </isNotEmpty>
+			<isNotEmpty  property="occp_nm"> occp_nm, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc"> occp_cttpc, </isNotEmpty>
+			<isNotEmpty  property="occp_area"> occp_area, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r"> occp_a_r, </isNotEmpty>
+			<isNotEmpty  property="occp_use"> occp_use, </isNotEmpty>
+			<isNotEmpty  property="occp_pr"> occp_pr, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t"> occp_pr_t, </isNotEmpty>
+			<isNotEmpty  property="occp_pd"> occp_pd, </isNotEmpty>
+			<isNotEmpty  property="occp_lo"> occp_lo, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t"> occp_lo_t, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp"> occp_cmp, </isNotEmpty>
+			<isNotEmpty  property="occp_etc"> occp_etc, </isNotEmpty>
+			<isNotEmpty  property="own_nm"> own_nm, </isNotEmpty>
+			<isNotEmpty  property="own_rgist"> own_rgist, </isNotEmpty>
+			<isNotEmpty  property="own_bild"> own_bild, </isNotEmpty>
+			<isNotEmpty  property="own_area"> own_area, </isNotEmpty>
+			<isNotEmpty  property="own_totar"> own_totar, </isNotEmpty>
+			<isNotEmpty  property="own_gr"> own_gr, </isNotEmpty>
+			<isNotEmpty  property="own_ugr"> own_ugr, </isNotEmpty>
+			<isNotEmpty  property="own_use"> own_use, </isNotEmpty>
+			<isNotEmpty  property="own_rf"> own_rf, </isNotEmpty>
+			<isNotEmpty  property="own_str"> own_str, </isNotEmpty>
+			<isNotEmpty  property="own_t_use"> own_t_use, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr"> own_dsstr, </isNotEmpty>
+			<isNotEmpty  property="loan_nm_1"> loan_nm_1, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc_1"> loan_cttpc_1, </isNotEmpty>
+			<isNotEmpty  property="loan_area_1"> loan_area_1, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r_1"> loan_a_r_1, </isNotEmpty>
+			<isNotEmpty  property="loan_pd_1"> loan_pd_1, </isNotEmpty>
+			<isNotEmpty  property="loanmn_1"> loanmn_1, </isNotEmpty>
+			<isNotEmpty  property="loan_totar_1"> loan_totar_1, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r_1"> loan_t_r_1, </isNotEmpty>
+			<isNotEmpty  property="loan_use_1"> loan_use_1, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_1"> loan_pr_1, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t_1"> loan_pr_t_1, </isNotEmpty>
+			<isNotEmpty  property="loan_etc_1"> loan_etc_1, </isNotEmpty>
+			<isNotEmpty  property="occp_nm_1"> occp_nm_1, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc_1"> occp_cttpc_1, </isNotEmpty>
+			<isNotEmpty  property="occp_area_1"> occp_area_1, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r_1"> occp_a_r_1, </isNotEmpty>
+			<isNotEmpty  property="occp_use_1"> occp_use_1, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_1"> occp_pr_1, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t_1"> occp_pr_t_1, </isNotEmpty>
+			<isNotEmpty  property="occp_pd_1"> occp_pd_1, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_1"> occp_lo_1, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t_1"> occp_lo_t_1, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp_1"> occp_cmp_1, </isNotEmpty>
+			<isNotEmpty  property="occp_etc_1"> occp_etc_1, </isNotEmpty>
+			<isNotEmpty  property="own_nm_1"> own_nm_1, </isNotEmpty>
+			<isNotEmpty  property="own_rgist_1"> own_rgist_1, </isNotEmpty>
+			<isNotEmpty  property="own_bild_1"> own_bild_1, </isNotEmpty>
+			<isNotEmpty  property="own_area_1"> own_area_1, </isNotEmpty>
+			<isNotEmpty  property="own_totar_1"> own_totar_1, </isNotEmpty>
+			<isNotEmpty  property="own_gr_1"> own_gr_1, </isNotEmpty>
+			<isNotEmpty  property="own_ugr_1"> own_ugr_1, </isNotEmpty>
+			<isNotEmpty  property="own_use_1"> own_use_1, </isNotEmpty>
+			<isNotEmpty  property="own_rf_1"> own_rf_1, </isNotEmpty>
+			<isNotEmpty  property="own_str_1"> own_str_1, </isNotEmpty>
+			<isNotEmpty  property="own_t_use_1"> own_t_use_1, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr_1"> own_dsstr_1, </isNotEmpty>
+			<isNotEmpty  property="loan_nm_2"> loan_nm_2, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc_2"> loan_cttpc_2, </isNotEmpty>
+			<isNotEmpty  property="loan_area_2"> loan_area_2, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r_2"> loan_a_r_2, </isNotEmpty>
+			<isNotEmpty  property="loan_pd_2"> loan_pd_2, </isNotEmpty>
+			<isNotEmpty  property="loanmn_2"> loanmn_2, </isNotEmpty>
+			<isNotEmpty  property="loan_totar_2"> loan_totar_2, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r_2"> loan_t_r_2, </isNotEmpty>
+			<isNotEmpty  property="loan_use_2"> loan_use_2, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_2"> loan_pr_2, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t_2"> loan_pr_t_2, </isNotEmpty>
+			<isNotEmpty  property="loan_etc_2"> loan_etc_2, </isNotEmpty>
+			<isNotEmpty  property="occp_nm_2"> occp_nm_2, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc_2"> occp_cttpc_2, </isNotEmpty>
+			<isNotEmpty  property="occp_area_2"> occp_area_2, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r_2"> occp_a_r_2, </isNotEmpty>
+			<isNotEmpty  property="occp_use_2"> occp_use_2, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_2"> occp_pr_2, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t_2"> occp_pr_t_2, </isNotEmpty>
+			<isNotEmpty  property="occp_pd_2"> occp_pd_2, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_2"> occp_lo_2, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t_2"> occp_lo_t_2, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp_2"> occp_cmp_2, </isNotEmpty>
+			<isNotEmpty  property="occp_etc_2"> occp_etc_2, </isNotEmpty>
+			<isNotEmpty  property="own_nm_2"> own_nm_2, </isNotEmpty>
+			<isNotEmpty  property="own_rgist_2"> own_rgist_2, </isNotEmpty>
+			<isNotEmpty  property="own_bild_2"> own_bild_2, </isNotEmpty>
+			<isNotEmpty  property="own_area_2"> own_area_2, </isNotEmpty>
+			<isNotEmpty  property="own_totar_2"> own_totar_2, </isNotEmpty>
+			<isNotEmpty  property="own_gr_2"> own_gr_2, </isNotEmpty>
+			<isNotEmpty  property="own_ugr_2"> own_ugr_2, </isNotEmpty>
+			<isNotEmpty  property="own_use_2"> own_use_2, </isNotEmpty>
+			<isNotEmpty  property="own_rf_2"> own_rf_2, </isNotEmpty>
+			<isNotEmpty  property="own_str_2"> own_str_2, </isNotEmpty>
+			<isNotEmpty  property="own_t_use_2"> own_t_use_2, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr_2"> own_dsstr_2, </isNotEmpty>
+			<isNotEmpty  property="loan_nm_3"> loan_nm_3, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc_3"> loan_cttpc_3, </isNotEmpty>
+			<isNotEmpty  property="loan_area_3"> loan_area_3, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r_3"> loan_a_r_3, </isNotEmpty>
+			<isNotEmpty  property="loan_pd_3"> loan_pd_3, </isNotEmpty>
+			<isNotEmpty  property="loanmn_3"> loanmn_3, </isNotEmpty>
+			<isNotEmpty  property="loan_totar_3"> loan_totar_3, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r_3"> loan_t_r_3, </isNotEmpty>
+			<isNotEmpty  property="loan_use_3"> loan_use_3, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_3"> loan_pr_3, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t_3"> loan_pr_t_3, </isNotEmpty>
+			<isNotEmpty  property="loan_etc_3"> loan_etc_3, </isNotEmpty>
+			<isNotEmpty  property="occp_nm_3"> occp_nm_3, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc_3"> occp_cttpc_3, </isNotEmpty>
+			<isNotEmpty  property="occp_area_3"> occp_area_3, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r_3"> occp_a_r_3, </isNotEmpty>
+			<isNotEmpty  property="occp_use_3"> occp_use_3, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_3"> occp_pr_3, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t_3"> occp_pr_t_3, </isNotEmpty>
+			<isNotEmpty  property="occp_pd_3"> occp_pd_3, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_3"> occp_lo_3, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t_3"> occp_lo_t_3, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp_3"> occp_cmp_3, </isNotEmpty>
+			<isNotEmpty  property="occp_etc_3"> occp_etc_3, </isNotEmpty>
+			<isNotEmpty  property="own_nm_3"> own_nm_3, </isNotEmpty>
+			<isNotEmpty  property="own_rgist_3"> own_rgist_3, </isNotEmpty>
+			<isNotEmpty  property="own_bild_3"> own_bild_3, </isNotEmpty>
+			<isNotEmpty  property="own_area_3"> own_area_3, </isNotEmpty>
+			<isNotEmpty  property="own_totar_3"> own_totar_3, </isNotEmpty>
+			<isNotEmpty  property="own_gr_3"> own_gr_3, </isNotEmpty>
+			<isNotEmpty  property="own_ugr_3"> own_ugr_3, </isNotEmpty>
+			<isNotEmpty  property="own_use_3"> own_use_3, </isNotEmpty>
+			<isNotEmpty  property="own_rf_3"> own_rf_3, </isNotEmpty>
+			<isNotEmpty  property="own_str_3"> own_str_3, </isNotEmpty>
+			<isNotEmpty  property="own_t_use_3"> own_t_use_3, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr_3"> own_dsstr_3, </isNotEmpty>
+			<isNotEmpty  property="loan_nm_4"> loan_nm_4, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc_4"> loan_cttpc_4, </isNotEmpty>
+			<isNotEmpty  property="loan_area_4"> loan_area_4, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r_4"> loan_a_r_4, </isNotEmpty>
+			<isNotEmpty  property="loan_pd_4"> loan_pd_4, </isNotEmpty>
+			<isNotEmpty  property="loanmn_4"> loanmn_4, </isNotEmpty>
+			<isNotEmpty  property="loan_totar_4"> loan_totar_4, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r_4"> loan_t_r_4, </isNotEmpty>
+			<isNotEmpty  property="loan_use_4"> loan_use_4, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_4"> loan_pr_4, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t_4"> loan_pr_t_4, </isNotEmpty>
+			<isNotEmpty  property="loan_etc_4"> loan_etc_4, </isNotEmpty>
+			<isNotEmpty  property="occp_nm_4"> occp_nm_4, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc_4"> occp_cttpc_4, </isNotEmpty>
+			<isNotEmpty  property="occp_area_4"> occp_area_4, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r_4"> occp_a_r_4, </isNotEmpty>
+			<isNotEmpty  property="occp_use_4"> occp_use_4, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_4"> occp_pr_4, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t_4"> occp_pr_t_4, </isNotEmpty>
+			<isNotEmpty  property="occp_pd_4"> occp_pd_4, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_4"> occp_lo_4, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t_4"> occp_lo_t_4, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp_4"> occp_cmp_4, </isNotEmpty>
+			<isNotEmpty  property="occp_etc_4"> occp_etc_4, </isNotEmpty>
+			<isNotEmpty  property="own_nm_4"> own_nm_4, </isNotEmpty>
+			<isNotEmpty  property="own_rgist_4"> own_rgist_4, </isNotEmpty>
+			<isNotEmpty  property="own_bild_4"> own_bild_4, </isNotEmpty>
+			<isNotEmpty  property="own_area_4"> own_area_4, </isNotEmpty>
+			<isNotEmpty  property="own_totar_4"> own_totar_4, </isNotEmpty>
+			<isNotEmpty  property="own_gr_4"> own_gr_4, </isNotEmpty>
+			<isNotEmpty  property="own_ugr_4"> own_ugr_4, </isNotEmpty>
+			<isNotEmpty  property="own_use_4"> own_use_4, </isNotEmpty>
+			<isNotEmpty  property="own_rf_4"> own_rf_4, </isNotEmpty>
+			<isNotEmpty  property="own_str_4"> own_str_4, </isNotEmpty>
+			<isNotEmpty  property="own_t_use_4"> own_t_use_4, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr_4"> own_dsstr_4, </isNotEmpty>			
+			<isNotEmpty  property="futu"> futu, </isNotEmpty>
+			<isNotEmpty  property="futu_con"> futu_con, </isNotEmpty>
+			<isNotEmpty  property="sttus_ph"> sttus_ph, </isNotEmpty>
+			<isNotEmpty  property="flight_ph"> flight_ph, </isNotEmpty>
+			<isNotEmpty  property="cbnd_ph"> cbnd_ph, </isNotEmpty>
+			li,
+			<isNotEmpty  property="li_1"> li_1, </isNotEmpty>
+			<isNotEmpty  property="li_2"> li_2, </isNotEmpty>
+			<isNotEmpty  property="li_3"> li_3, </isNotEmpty>
+			<isNotEmpty  property="li_4"> li_4, </isNotEmpty>
+			<isNotEmpty  property="li_5"> li_5, </isNotEmpty>
+			<isNotEmpty  property="ic_area"> ic_area, </isNotEmpty>
+			<isNotEmpty  property="ic_prsmppc"> ic_prsmppc, </isNotEmpty>
+			<isNotEmpty  property="ic_per"> ic_per, </isNotEmpty>
+			regest_date,
+			regest_id,
+			use_at,
+			pnu,
+			gid
+        )VALUES(      
+           	<isNotEmpty  property="lclas"> #lclas#, </isNotEmpty>
+			<isNotEmpty  property="mlsfc"> #mlsfc#, </isNotEmpty>
+			<isNotEmpty  property="sclas"> #sclas#, </isNotEmpty>
+			LEFT(#sig#,2),
+			#sig#,
+			#emd#,
+			#mt#,
+			#bon#,
+			#bu#,
+			<isNotEmpty  property="prprty_mg"> #prprty_mg#, </isNotEmpty>
+			<isNotEmpty  property="jimok"> #jimok#, </isNotEmpty>
+			<isNotEmpty  property="n_jimok"> #n_jimok#, </isNotEmpty>
+			<isNotEmpty  property="qota"> #qota#, </isNotEmpty>
+			<isNotEmpty  property="acqs"> #acqs#, </isNotEmpty>
+			<isNotEmpty  property="acqdt"> to_date(#acqdt#, 'YYYY/MM/DD'), </isNotEmpty> 
+			<isNotEmpty  property="use"> #use#, </isNotEmpty>
+			<isNotEmpty  property="area"> (#area#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="jiga"> (#jiga#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="prsmppc"> (#prsmppc#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="prpos"> #prpos#, </isNotEmpty>
+			<isNotEmpty  property="lmtt"> #lmtt#, </isNotEmpty>
+			<isNotEmpty  property="ubplfc"> #ubplfc#, </isNotEmpty>
+			<isNotEmpty  property="frm"> #frm#, </isNotEmpty>
+			<isNotEmpty  property="gfe"> #gfe#, </isNotEmpty>
+			<isNotEmpty  property="ro_side"> #ro_side#, </isNotEmpty>
+			<isNotEmpty  property="ctp_1"> LEFT(#sig_1#,2), </isNotEmpty>
+			<isNotEmpty  property="sig_1"> #sig_1#, </isNotEmpty>
+			<isNotEmpty  property="emd_1"> #emd_1#, </isNotEmpty>
+			<isNotEmpty  property="mt_1"> #mt_1#, </isNotEmpty>
+			<isNotEmpty  property="bon_1"> #bon_1#, </isNotEmpty>
+			<isNotEmpty  property="bu_1"> #bu_1#, </isNotEmpty>
+			<isNotEmpty  property="jimok_1"> #jimok_1#, </isNotEmpty>
+			<isNotEmpty  property="area_1"> (#area_1#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_1"> #buld_yn_1#, </isNotEmpty>			
+			<isNotEmpty  property="ctp_2"> LEFT(#sig_2#,2), </isNotEmpty>
+			<isNotEmpty  property="sig_2"> #sig_2#, </isNotEmpty>
+			<isNotEmpty  property="emd_2"> #emd_2#, </isNotEmpty>
+			<isNotEmpty  property="mt_2"> #mt_2#, </isNotEmpty>
+			<isNotEmpty  property="bon_2"> #bon_2#, </isNotEmpty>
+			<isNotEmpty  property="bu_2"> #bu_2#, </isNotEmpty>
+			<isNotEmpty  property="jimok_2"> #jimok_2#, </isNotEmpty>
+			<isNotEmpty  property="area_2"> (#area_2#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_2"> #buld_yn_2#, </isNotEmpty>
+			<isNotEmpty  property="ctp_3"> LEFT(#sig_3#,2), </isNotEmpty>
+			<isNotEmpty  property="sig_3"> #sig_3#, </isNotEmpty>
+			<isNotEmpty  property="emd_3"> #emd_3#, </isNotEmpty>
+			<isNotEmpty  property="mt_3"> #mt_3#, </isNotEmpty>
+			<isNotEmpty  property="bon_3"> #bon_3#, </isNotEmpty>
+			<isNotEmpty  property="bu_3"> #bu_3#, </isNotEmpty>
+			<isNotEmpty  property="jimok_3"> #jimok_3#, </isNotEmpty>
+			<isNotEmpty  property="area_3"> (#area_3#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_3"> #buld_yn_3#, </isNotEmpty>
+			<isNotEmpty  property="ctp_4"> LEFT(#sig_4#,2), </isNotEmpty>
+			<isNotEmpty  property="sig_4"> #sig_4#, </isNotEmpty>
+			<isNotEmpty  property="emd_4"> #emd_4#, </isNotEmpty>
+			<isNotEmpty  property="mt_4"> #mt_4#, </isNotEmpty>
+			<isNotEmpty  property="bon_4"> #bon_4#, </isNotEmpty>
+			<isNotEmpty  property="bu_4"> #bu_4#, </isNotEmpty>
+			<isNotEmpty  property="jimok_4"> #jimok_4#, </isNotEmpty>
+			<isNotEmpty  property="area_4"> (#area_4#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_4"> #buld_yn_4#, </isNotEmpty>
+			<isNotEmpty  property="ctp_5"> LEFT(#sig_5#,2), </isNotEmpty>
+			<isNotEmpty  property="sig_5"> #sig_5#, </isNotEmpty>
+			<isNotEmpty  property="emd_5"> #emd_5#, </isNotEmpty>
+			<isNotEmpty  property="mt_5"> #mt_5#, </isNotEmpty>
+			<isNotEmpty  property="bon_5"> #bon_5#, </isNotEmpty>
+			<isNotEmpty  property="bu_5"> #bu_5#, </isNotEmpty>
+			<isNotEmpty  property="jimok_5"> #jimok_5#, </isNotEmpty>
+			<isNotEmpty  property="area_5"> (#area_5#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="buld_yn_5"> #buld_yn_5#, </isNotEmpty>			
+			<isNotEmpty  property="loan_nm"> #loan_nm#, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc"> #loan_cttpc#, </isNotEmpty>
+			<isNotEmpty  property="loan_area"> (#loan_area#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r"> (#loan_a_r#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_pd"> #loan_pd#, </isNotEmpty>
+			<isNotEmpty  property="loanmn"> (#loanmn#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_totar"> (#loan_totar#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r"> (#loan_t_r#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_use"> #loan_use#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr"> #loan_pr#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t"> #loan_pr_t#, </isNotEmpty>
+			<isNotEmpty  property="loan_etc"> #loan_etc#, </isNotEmpty>
+			<isNotEmpty  property="occp_nm"> #occp_nm#, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc"> #occp_cttpc#, </isNotEmpty>
+			<isNotEmpty  property="occp_area"> (#occp_area#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r"> (#occp_a_r#)::integer, </isNotEmpty>
+			<isNotEmpty  property="occp_use"> #occp_use#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr"> #occp_pr#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t"> #occp_pr_t#, </isNotEmpty>
+			<isNotEmpty  property="occp_pd"> #occp_pd#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo"> #occp_lo#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t"> #occp_lo_t#, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp"> #occp_cmp#, </isNotEmpty>
+			<isNotEmpty  property="occp_etc"> #occp_etc#, </isNotEmpty>
+			<isNotEmpty  property="own_nm"> #own_nm#, </isNotEmpty>
+			<isNotEmpty  property="own_rgist"> #own_rgist#, </isNotEmpty>
+			<isNotEmpty  property="own_bild"> #own_bild#, </isNotEmpty>
+			<isNotEmpty  property="own_area"> (#own_area#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_totar"> (#own_totar#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_gr"> (#own_gr#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_ugr"> (#own_ugr#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_use"> #own_use#, </isNotEmpty>
+			<isNotEmpty  property="own_rf"> #own_rf#, </isNotEmpty>
+			<isNotEmpty  property="own_str"> #own_str#, </isNotEmpty>
+			<isNotEmpty  property="own_t_use"> #own_t_use#, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr"> #own_dsstr#, </isNotEmpty>
+			<isNotEmpty  property="loan_nm_1"> #loan_nm_1#, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc_1"> #loan_cttpc_1#, </isNotEmpty>
+			<isNotEmpty  property="loan_area_1"> (#loan_area_1#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r_1"> (#loan_a_r_1#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_pd_1"> #loan_pd_1#, </isNotEmpty>
+			<isNotEmpty  property="loanmn_1"> (#loanmn_1#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_totar_1"> (#loan_totar_1#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r_1"> (#loan_t_r_1#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_use_1"> #loan_use_1#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_1"> #loan_pr_1#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t_1"> #loan_pr_t_1#, </isNotEmpty>
+			<isNotEmpty  property="loan_etc_1"> #loan_etc_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_nm_1"> #occp_nm_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc_1"> #occp_cttpc_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_area_1"> (#occp_area_1#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r_1"> (#occp_a_r_1#)::integer, </isNotEmpty>
+			<isNotEmpty  property="occp_use_1"> #occp_use_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_1"> #occp_pr_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t_1"> #occp_pr_t_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_pd_1"> #occp_pd_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_1"> #occp_lo_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t_1"> #occp_lo_t_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp_1"> #occp_cmp_1#, </isNotEmpty>
+			<isNotEmpty  property="occp_etc_1"> #occp_etc_1#, </isNotEmpty>
+			<isNotEmpty  property="own_nm_1"> #own_nm_1#, </isNotEmpty>
+			<isNotEmpty  property="own_rgist_1"> #own_rgist_1#, </isNotEmpty>
+			<isNotEmpty  property="own_bild_1"> #own_bild_1#, </isNotEmpty>
+			<isNotEmpty  property="own_area_1"> (#own_area_1#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_totar_1"> (#own_totar_1#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_gr_1"> (#own_gr_1#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_ugr_1"> (#own_ugr_1#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_use_1"> #own_use_1#, </isNotEmpty>
+			<isNotEmpty  property="own_rf_1"> #own_rf_1#, </isNotEmpty>
+			<isNotEmpty  property="own_str_1"> #own_str_1#, </isNotEmpty>
+			<isNotEmpty  property="own_t_use_1"> #own_t_use_1#, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr_1"> #own_dsstr_1#, </isNotEmpty>
+			<isNotEmpty  property="loan_nm_2"> #loan_nm_2#, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc_2"> #loan_cttpc_2#, </isNotEmpty>
+			<isNotEmpty  property="loan_area_2"> (#loan_area_2#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r_2"> (#loan_a_r_2#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_pd_2"> #loan_pd_2#, </isNotEmpty>
+			<isNotEmpty  property="loanmn_2"> (#loanmn_2#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_totar_2"> (#loan_totar_2#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r_2"> (#loan_t_r_2#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_use_2"> #loan_use_2#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_2"> #loan_pr_2#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t_2"> #loan_pr_t_2#, </isNotEmpty>
+			<isNotEmpty  property="loan_etc_2"> #loan_etc_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_nm_2"> #occp_nm_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc_2"> #occp_cttpc_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_area_2"> (#occp_area_2#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r_2"> (#occp_a_r_2#)::integer, </isNotEmpty>
+			<isNotEmpty  property="occp_use_2"> #occp_use_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_2"> #occp_pr_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t_2"> #occp_pr_t_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_pd_2"> #occp_pd_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_2"> #occp_lo_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t_2"> #occp_lo_t_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp_2"> #occp_cmp_2#, </isNotEmpty>
+			<isNotEmpty  property="occp_etc_2"> #occp_etc_2#, </isNotEmpty>
+			<isNotEmpty  property="own_nm_2"> #own_nm_2#, </isNotEmpty>
+			<isNotEmpty  property="own_rgist_2"> #own_rgist_2#, </isNotEmpty>
+			<isNotEmpty  property="own_bild_2"> #own_bild_2#, </isNotEmpty>
+			<isNotEmpty  property="own_area_2"> (#own_area_2#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_totar_2"> (#own_totar_2#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_gr_2"> (#own_gr_2#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_ugr_2"> (#own_ugr_2#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_use_2"> #own_use_2#, </isNotEmpty>
+			<isNotEmpty  property="own_rf_2"> #own_rf_2#, </isNotEmpty>
+			<isNotEmpty  property="own_str_2"> #own_str_2#, </isNotEmpty>
+			<isNotEmpty  property="own_t_use_2"> #own_t_use_2#, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr_2"> #own_dsstr_2#, </isNotEmpty>
+			<isNotEmpty  property="loan_nm_3"> #loan_nm_3#, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc_3"> #loan_cttpc_3#, </isNotEmpty>
+			<isNotEmpty  property="loan_area_3"> (#loan_area_3#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r_3"> (#loan_a_r_3#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_pd_3"> #loan_pd_3#, </isNotEmpty>
+			<isNotEmpty  property="loanmn_3"> (#loanmn_3#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_totar_3"> (#loan_totar_3#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r_3"> (#loan_t_r_3#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_use_3"> #loan_use_3#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_3"> #loan_pr_3#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t_3"> #loan_pr_t_3#, </isNotEmpty>
+			<isNotEmpty  property="loan_etc_3"> #loan_etc_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_nm_3"> #occp_nm_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc_3"> #occp_cttpc_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_area_3"> (#occp_area_3#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r_3"> (#occp_a_r_3#)::integer, </isNotEmpty>
+			<isNotEmpty  property="occp_use_3"> #occp_use_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_3"> #occp_pr_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t_3"> #occp_pr_t_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_pd_3"> #occp_pd_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_3"> #occp_lo_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t_3"> #occp_lo_t_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp_3"> #occp_cmp_3#, </isNotEmpty>
+			<isNotEmpty  property="occp_etc_3"> #occp_etc_3#, </isNotEmpty>
+			<isNotEmpty  property="own_nm_3"> #own_nm_3#, </isNotEmpty>
+			<isNotEmpty  property="own_rgist_3"> #own_rgist_3#, </isNotEmpty>
+			<isNotEmpty  property="own_bild_3"> #own_bild_3#, </isNotEmpty>
+			<isNotEmpty  property="own_area_3"> (#own_area_3#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_totar_3"> (#own_totar_3#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_gr_3"> (#own_gr_3#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_ugr_3"> (#own_ugr_3#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_use_3"> #own_use_3#, </isNotEmpty>
+			<isNotEmpty  property="own_rf_3"> #own_rf_3#, </isNotEmpty>
+			<isNotEmpty  property="own_str_3"> #own_str_3#, </isNotEmpty>
+			<isNotEmpty  property="own_t_use_3"> #own_t_use_3#, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr_3"> #own_dsstr_3#, </isNotEmpty>
+			<isNotEmpty  property="loan_nm_4"> #loan_nm_4#, </isNotEmpty>
+			<isNotEmpty  property="loan_cttpc_4"> #loan_cttpc_4#, </isNotEmpty>
+			<isNotEmpty  property="loan_area_4"> (#loan_area_4#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_a_r_4"> (#loan_a_r_4#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_pd_4"> #loan_pd_4#, </isNotEmpty>
+			<isNotEmpty  property="loanmn_4"> (#loanmn_4#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_totar_4"> (#loan_totar_4#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="loan_t_r_4"> (#loan_t_r_4#)::integer, </isNotEmpty>
+			<isNotEmpty  property="loan_use_4"> #loan_use_4#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_4"> #loan_pr_4#, </isNotEmpty>
+			<isNotEmpty  property="loan_pr_t_4"> #loan_pr_t_4#, </isNotEmpty>
+			<isNotEmpty  property="loan_etc_4"> #loan_etc_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_nm_4"> #occp_nm_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_cttpc_4"> #occp_cttpc_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_area_4"> (#occp_area_4#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="occp_a_r_4"> (#occp_a_r_4#)::integer, </isNotEmpty>
+			<isNotEmpty  property="occp_use_4"> #occp_use_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_4"> #occp_pr_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_pr_t_4"> #occp_pr_t_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_pd_4"> #occp_pd_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_4"> #occp_lo_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_lo_t_4"> #occp_lo_t_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_cmp_4"> #occp_cmp_4#, </isNotEmpty>
+			<isNotEmpty  property="occp_etc_4"> #occp_etc_4#, </isNotEmpty>
+			<isNotEmpty  property="own_nm_4"> #own_nm_4#, </isNotEmpty>
+			<isNotEmpty  property="own_rgist_4"> #own_rgist_4#, </isNotEmpty>
+			<isNotEmpty  property="own_bild_4"> #own_bild_4#, </isNotEmpty>
+			<isNotEmpty  property="own_area_4"> (#own_area_4#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_totar_4"> (#own_totar_4#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="own_gr_4"> (#own_gr_4#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_ugr_4"> (#own_ugr_4#)::integer, </isNotEmpty>
+			<isNotEmpty  property="own_use_4"> #own_use_4#, </isNotEmpty>
+			<isNotEmpty  property="own_rf_4"> #own_rf_4#, </isNotEmpty>
+			<isNotEmpty  property="own_str_4"> #own_str_4#, </isNotEmpty>
+			<isNotEmpty  property="own_t_use_4"> #own_t_use_4#, </isNotEmpty>
+			<isNotEmpty  property="own_dsstr_4"> #own_dsstr_4#, </isNotEmpty>
+			<isNotEmpty  property="futu"> #futu#, </isNotEmpty>
+			<isNotEmpty  property="futu_con"> #futu_con#, </isNotEmpty>
+			<isNotEmpty  property="sttus_ph"> #sttus_ph#, </isNotEmpty>
+			<isNotEmpty  property="flight_ph"> #flight_ph#, </isNotEmpty>
+			<isNotEmpty  property="cbnd_ph"> #cbnd_ph#, </isNotEmpty>
+			#li#,
+			<isNotEmpty  property="li_1"> #li_1#, </isNotEmpty>
+			<isNotEmpty  property="li_2"> #li_2#, </isNotEmpty>
+			<isNotEmpty  property="li_3"> #li_3#, </isNotEmpty>
+			<isNotEmpty  property="li_4"> #li_4#, </isNotEmpty>
+			<isNotEmpty  property="li_5"> #li_5#, </isNotEmpty>
+			<isNotEmpty  property="ic_area"> (#ic_area#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="ic_prsmppc"> (#ic_prsmppc#)::double precision, </isNotEmpty>
+			<isNotEmpty  property="ic_per"> (#ic_per#)::double precision, </isNotEmpty>
+			to_char(now(),'yyyy/mm/dd HH24:mi:ss'),      
+           	#regest_id#,    
+           	#use_at#,
+           	#pnu#,
+           	(#gid#)::integer
+        )
+    </insert>
+    
+    <!-- 첨부파일 insert -->
+	<insert id="factualDAO.insert_File" parameterClass="java.util.HashMap">
+		<selectKey resultClass="java.lang.String" keyProperty="gid">
+            /* 일렬번호 생성 */
+            SELECT COALESCE( MAX(gid),0 ) + 1 AS gid FROM in_file 
+        </selectKey>
+	<![CDATA[
+		INSERT INTO in_file
+		(
+			table_type,
+			row_gid,
+			files_order,
+			files_org_name,
+			files_sav_name,
+			files_size,
+			files_path,
+			files_type,
+			files_down_co,
+			gid
+		) ]]>
+		VALUES (
+			#TABLE_TYPE#,
+			#TABLE_ROW_GID#,
+			(#order#)::integer,
+			#originalFileName#,
+			#uploadFileName#,
+			(#fileSize#)::double precision,
+			#filePath#,
+			#fileExtension#,
+			0,
+			(#gid#)::integer
+		)
+	
+	</insert>
+	
+    <!-- MAX GID값 -->
+    <select id="factualDAO.MaxFileGID" parameterClass="FactualVO" resultClass="int">
+    	SELECT MAX(gid) FROM factual_survey
+    </select>
+    
+    <!-- 실태조사 조회  -->
+    <select id="factualDAO.factualListPage" parameterClass="FactualVO"  resultClass="FactualVO">
+    <![CDATA[  ]]>
+           select A1.* from (
+               	select 
+               		(ROW_NUMBER() OVER()) AS no , 
+               		A.pnu, 
+               		(select sig_kor_nm from tl_scco_sig B where A.sig = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd,
+               		(select li_kor_nm from tl_scco_li B where A.li = B.li_cd group by B.li_cd, B.li_kor_nm) AS li,
+               		A.bon, A.bu, A.use_at, A.gid,
+               		CASE
+						WHEN A.sttus_ph = 'Y' THEN '유'
+						WHEN A.sttus_ph = 'N' THEN '무'
+					ELSE '무' END AS sttus_ph
+		
+               	from 
+               		(select * from factual_survey where use_at = 'Y' 
+               		<isNotEmpty  property="sig"> and sig = #sig# </isNotEmpty>
+               		<isNotEmpty  property="emd"> and emd = #emd# </isNotEmpty>
+               		<isNotEmpty  property="li"> and li = #li# </isNotEmpty>
+               		order by regest_date desc ) A
+               		           
+			)  A1
+          WHERE use_at = 'Y' and no BETWEEN #firstIndex# AND #lastIndex#
+    </select>
+    <select id="factualDAO.factualListPageCnt" parameterClass="FactualVO" resultClass="int">
+	    select count(*) as CNT from factual_survey WHERE use_at = 'Y'
+	    <isNotEmpty  property="sig"> and sig = #sig# </isNotEmpty>
+    	<isNotEmpty  property="emd"> and emd = #emd# </isNotEmpty>
+    	<isNotEmpty  property="li"> and li = #li# </isNotEmpty>
+	</select>
+	
+	<!-- 실태조사 상세 조회 -->
+    <select id="factualDAO.factualselectData" parameterClass="FactualVO"  resultClass="FactualVO">
+    <![CDATA[	select * from factual_survey where gid = (#gid#)::integer	]]>
+    </select>
+    <!-- 실태조사 첨부파일 조회 -->
+    <select id="factualDAO.factualdata" parameterClass="FactualVO" resultClass="java.util.HashMap">
+    <![CDATA[ 	]]>
+		SELECT * FROM in_file 
+		<isNotEmpty  property="row_gid"> WHERE row_gid = #row_gid# order by files_order </isNotEmpty>
+		<isNotEmpty  property="gid"> WHERE gid = (#gid#)::integer order by files_order </isNotEmpty>
+		
+    </select>
+    
+    <!-- 실태조사 수정 -->
+    <update id="factualDAO.factualupdate" parameterClass="FactualVO" >
+    <![CDATA[	]]>
+        UPDATE factual_survey
+            SET
+				lclas = #lclas#,
+				mlsfc = #mlsfc#,
+				sclas= #sclas#,
+				ctp = LEFT(#sig#,2),
+				sig = #sig#,
+				emd = #emd#,
+				mt = #mt#,
+				bon = #bon#,
+				bu = #bu#,
+				prprty_mg = #prprty_mg#,
+				jimok = #jimok#,
+				n_jimok = #n_jimok#,
+				qota = #qota#,
+				acqs = #acqs#,				
+				<isNotEmpty property="acqdt">acqdt = to_date(#acqdt#, 'YYYY/MM/DD'),</isNotEmpty>
+				<isEmpty property="acqdt">acqdt = null, </isEmpty>				 
+				 use = #use#,
+				<isNotEmpty property="area">area = (#area#)::double precision,</isNotEmpty>
+				<isEmpty property="area">area = null, </isEmpty>				
+				<isNotEmpty property="jiga">jiga = (#jiga#)::double precision,</isNotEmpty>
+				<isEmpty property="jiga">jiga = null, </isEmpty>
+				<isNotEmpty property="prsmppc">prsmppc = (#prsmppc#)::double precision,</isNotEmpty>
+				<isEmpty property="prsmppc">prsmppc = null, </isEmpty>
+				 prpos = #prpos#,
+				 lmtt = #lmtt#,
+				 ubplfc = #ubplfc#,
+				 frm = #frm#,
+				 gfe = #gfe#,
+				 ro_side = #ro_side#,
+				 ctp_1 = LEFT(#sig_1#,2),
+				 sig_1 = #sig_1#,
+				 emd_1 = #emd_1#,
+				 mt_1 = #mt_1#,
+				 bon_1 = #bon_1#,
+				 bu_1 = #bu_1#,
+				 jimok_1 = #jimok_1#,
+				 <isNotEmpty property="area_1">area_1 = (#area_1#)::double precision,</isNotEmpty>
+				<isEmpty property="area_1">area_1 = null, </isEmpty>				 
+				 buld_yn_1 = #buld_yn_1#,
+				 ctp_2 = LEFT(#sig_2#,2),
+				 sig_2 = #sig_2#,
+				 emd_2 = #emd_2#,
+				 mt_2 = #mt_2#,
+				 bon_2 = #bon_2#,
+				 bu_2 = #bu_2#,
+				 jimok_2 = #jimok_2#,
+				 <isNotEmpty property="area_2">area_2 = (#area_2#)::double precision,</isNotEmpty>
+				<isEmpty property="area_2">area_2 = null, </isEmpty>
+				 buld_yn_2 = #buld_yn_2#,
+				 ctp_3 = LEFT(#sig_3#,2),
+				 sig_3 = #sig_3#,
+				 emd_3 = #emd_3#,
+				 mt_3 = #mt_3#,
+				 bon_3 = #bon_3#,
+				 bu_3 = #bu_3#,
+				 jimok_3 = #jimok_3#,
+				 <isNotEmpty property="area_3">area_3 = (#area_3#)::double precision,</isNotEmpty>
+				<isEmpty property="area_3">area_3 = null, </isEmpty>				 
+				 buld_yn_3 = #buld_yn_3#,
+				 ctp_4 = LEFT(#sig_4#,2),
+				 sig_4 = #sig_4#,
+				 emd_4 = #emd_4#,
+				 mt_4 = #mt_4#,
+				 bon_4 = #bon_4#,
+				 bu_4 = #bu_4#,
+				 jimok_4 = #jimok_4#,
+				 <isNotEmpty property="area_4">area_4 = (#area_4#)::double precision,</isNotEmpty>
+				<isEmpty property="area_4">area_4 = null, </isEmpty>				 
+				 buld_yn_4 = #buld_yn_4#,
+				 ctp_5 = LEFT(#sig_5#,2),
+				 sig_5 = #sig_5#,
+				 emd_5 = #emd_5#,
+				 mt_5 = #mt_5#,
+				 bon_5 = #bon_5#,
+				 bu_5 = #bu_5#,
+				 jimok_5 = #jimok_5#,
+				 <isNotEmpty property="area_5">area_5 = (#area_5#)::double precision,</isNotEmpty>
+				<isEmpty property="area_5">area_5 = null, </isEmpty>
+				 buld_yn_5 = #buld_yn_5#,
+				 loan_nm = #loan_nm#,
+				 loan_cttpc = #loan_cttpc#,
+				 <isNotEmpty property="loan_area">loan_area = (#loan_area#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_area">loan_area = null, </isEmpty>
+				 <isNotEmpty property="loan_a_r">loan_a_r = (#loan_a_r#)::integer,</isNotEmpty>
+				<isEmpty property="loan_a_r">loan_a_r = null, </isEmpty>
+				 
+				 loan_pd = #loan_pd#,
+				 <isNotEmpty property="loanmn">loanmn = (#loanmn#)::double precision,</isNotEmpty>
+				<isEmpty property="loanmn">loanmn = null, </isEmpty>
+				<isNotEmpty property="loan_totar">loan_totar = (#loan_totar#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_totar">loan_totar = null, </isEmpty>
+				<isNotEmpty property="loan_t_r">loan_t_r = (#loan_t_r#)::integer,</isNotEmpty>
+				<isEmpty property="loan_t_r">loan_t_r = null, </isEmpty>
+				 loan_use = #loan_use#,
+				 loan_pr = #loan_pr#,
+				 loan_pr_t = #loan_pr_t#,
+				 loan_etc = #loan_etc#,
+				 occp_nm = #occp_nm#,
+				 occp_cttpc = #occp_cttpc#,
+				 <isNotEmpty property="occp_area">occp_area = (#occp_area#)::double precision,</isNotEmpty>
+				<isEmpty property="occp_area">occp_area = null, </isEmpty>
+				<isNotEmpty property="occp_a_r">occp_a_r = (#occp_a_r#)::integer,</isNotEmpty>
+				<isEmpty property="occp_a_r">occp_a_r = null, </isEmpty>				 
+				 occp_use = #occp_use#,
+				 occp_pr = #occp_pr#,
+				 occp_pr_t = #occp_pr_t#,
+				 occp_pd = #occp_pd#,
+				 occp_lo = #occp_lo#,
+				 occp_lo_t = #occp_lo_t#,
+				 occp_cmp = #occp_cmp#,
+				 occp_etc = #occp_etc#,
+				 own_nm = #own_nm#,
+				 own_rgist = #own_rgist#,
+				 own_bild = #own_bild#,
+				 <isNotEmpty property="own_area">own_area = (#own_area#)::double precision,</isNotEmpty>
+				<isEmpty property="own_area">own_area = null, </isEmpty>
+				<isNotEmpty property="own_totar">own_totar = (#own_totar#)::double precision,</isNotEmpty>
+				<isEmpty property="own_totar">own_totar = null, </isEmpty>
+				<isNotEmpty property="own_gr">own_gr = (#own_gr#)::integer,</isNotEmpty>
+				<isEmpty property="own_gr">own_gr = null, </isEmpty>
+				 <isNotEmpty property="own_ugr">own_ugr = (#own_ugr#)::integer,</isNotEmpty>
+				<isEmpty property="own_ugr">own_ugr = null, </isEmpty>
+				 own_use = #own_use#,
+				 own_rf = #own_rf#,
+				 own_str = #own_str#,
+				 own_t_use = #own_t_use#,
+				 own_dsstr = #own_dsstr#,
+				  loan_nm_1 = #loan_nm_1#,
+				  loan_cttpc_1 = #loan_cttpc_1#,
+				  <isNotEmpty property="loan_area_1">loan_area_1 = (#loan_area_1#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_area_1">loan_area_1 = null, </isEmpty>
+				<isNotEmpty property="loan_a_r_1">loan_a_r_1 = (#loan_a_r_1#)::integer,</isNotEmpty>
+				<isEmpty property="loan_a_r_1">loan_a_r_1 = null, </isEmpty>
+				  loan_pd_1 = #loan_pd_1#,
+				  <isNotEmpty property="loanmn_1">loanmn_1 = (#loanmn_1#)::double precision,</isNotEmpty>
+				<isEmpty property="loanmn_1">loanmn_1 = null, </isEmpty>
+				<isNotEmpty property="loan_totar_1">loan_totar_1 = (#loan_totar_1#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_totar_1">loan_totar_1 = null, </isEmpty>
+				<isNotEmpty property="loan_t_r_1">loan_t_r_1 = (#loan_t_r_1#)::integer,</isNotEmpty>
+				<isEmpty property="loan_t_r_1">loan_t_r_1 = null, </isEmpty>
+				  loan_use_1 = #loan_use_1#,
+				  loan_pr_1 = #loan_pr_1#,
+				  loan_pr_t_1 = #loan_pr_t_1#,
+				  loan_etc_1 = #loan_etc_1#,
+				  occp_nm_1 = #occp_nm_1#,
+				  occp_cttpc_1 = #occp_cttpc_1#,
+				  <isNotEmpty property="occp_area_1">occp_area_1 = (#occp_area_1#)::double precision,</isNotEmpty>
+				<isEmpty property="occp_area_1">occp_area_1 = null, </isEmpty>
+				<isNotEmpty property="occp_a_r_1">occp_a_r_1 = (#occp_a_r_1#)::integer,</isNotEmpty>
+				<isEmpty property="occp_a_r_1">occp_a_r_1 = null, </isEmpty>
+				  occp_use_1 = #occp_use_1#,
+				  occp_pr_1 = #occp_pr_1#,
+				  occp_pr_t_1 = #occp_pr_t_1#,
+				  occp_pd_1 = #occp_pd_1#,
+				  occp_lo_1 = #occp_lo_1#,
+				  occp_lo_t_1 = #occp_lo_t_1#,
+				  occp_cmp_1 = #occp_cmp_1#,
+				  occp_etc_1 = #occp_etc_1#,
+				  own_nm_1 = #own_nm_1#,
+				  own_rgist_1 = #own_rgist_1#,
+				  own_bild_1 = #own_bild_1#,
+				  <isNotEmpty property="own_area_1">own_area_1 = (#own_area_1#)::double precision,</isNotEmpty>
+				<isEmpty property="own_area_1">own_area_1 = null, </isEmpty>
+				<isNotEmpty property="own_totar_1">own_totar_1 = (#own_totar_1#)::double precision,</isNotEmpty>
+				<isEmpty property="own_totar_1">own_totar_1 = null, </isEmpty>
+				<isNotEmpty property="own_gr_1">own_gr_1 = (#own_gr_1#)::integer,</isNotEmpty>
+				<isEmpty property="own_gr_1">own_gr_1 = null, </isEmpty>
+				<isNotEmpty property="own_ugr_1">own_ugr_1 = (#own_ugr_1#)::integer,</isNotEmpty>
+				<isEmpty property="own_ugr_1">own_ugr_1 = null, </isEmpty>
+				  own_use_1 = #own_use_1#,
+				  own_rf_1 = #own_rf_1#,
+				  own_str_1 = #own_str_1#,
+				  own_t_use_1 = #own_t_use_1#,
+				  own_dsstr_1 = #own_dsstr_1#,
+				  loan_nm_2 = #loan_nm_2#,
+				  loan_cttpc_2 = #loan_cttpc_2#,
+				  <isNotEmpty property="loan_area_2">loan_area_2 = (#loan_area_2#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_area_2">loan_area_2 = null, </isEmpty>
+				<isNotEmpty property="loan_a_r_2">loan_a_r_2 = (#loan_a_r_2#)::integer,</isNotEmpty>
+				<isEmpty property="loan_a_r_2">loan_a_r_2 = null, </isEmpty>
+				  loan_pd_2 = #loan_pd_2#,
+				  <isNotEmpty property="loanmn_2">loanmn_2 = (#loanmn_2#)::double precision,</isNotEmpty>
+				<isEmpty property="loanmn_2">loanmn_2 = null, </isEmpty>
+				<isNotEmpty property="loan_totar_2">loan_totar_2 = (#loan_totar_2#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_totar_2">loan_totar_2 = null, </isEmpty>
+				<isNotEmpty property="loan_t_r_2">loan_t_r_2 = (#loan_t_r_2#)::integer,</isNotEmpty>
+				<isEmpty property="loan_t_r_2">loan_t_r_2 = null, </isEmpty>
+				  loan_use_2 = #loan_use_2#,
+				  loan_pr_2 = #loan_pr_2#,
+				  loan_pr_t_2 = #loan_pr_t_2#,
+				  loan_etc_2 = #loan_etc_2#,
+				  occp_nm_2 = #occp_nm_2#,
+				  occp_cttpc_2 = #occp_cttpc_2#,
+				  <isNotEmpty property="occp_area_2">occp_area_2 = (#occp_area_2#)::double precision,</isNotEmpty>
+				<isEmpty property="occp_area_2">occp_area_2 = null, </isEmpty>
+				<isNotEmpty property="occp_a_r_2">occp_a_r_2 = (#occp_a_r_2#)::integer,</isNotEmpty>
+				<isEmpty property="occp_a_r_2">occp_a_r_2 = null, </isEmpty>
+				  occp_use_2 = #occp_use_2#,
+				  occp_pr_2 = #occp_pr_2#,
+				  occp_pr_t_2 = #occp_pr_t_2#,
+				  occp_pd_2 = #occp_pd_2#,
+				  occp_lo_2 = #occp_lo_2#,
+				  occp_lo_t_2 = #occp_lo_t_2#,
+				  occp_cmp_2 = #occp_cmp_2#,
+				  occp_etc_2 = #occp_etc_2#,
+				  own_nm_2 = #own_nm_2#,
+				  own_rgist_2 = #own_rgist_2#,
+				  own_bild_2 = #own_bild_2#,
+				  <isNotEmpty property="own_area_2">own_area_2 = (#own_area_2#)::double precision,</isNotEmpty>
+				<isEmpty property="own_area_2">own_area_2 = null, </isEmpty>
+				<isNotEmpty property="own_totar_2">own_totar_2 = (#own_totar_2#)::double precision,</isNotEmpty>
+				<isEmpty property="own_totar_2">own_totar_2 = null, </isEmpty>
+				<isNotEmpty property="own_gr_2">own_gr_2 = (#own_gr_2#)::integer,</isNotEmpty>
+				<isEmpty property="own_gr_2">own_gr_2 = null, </isEmpty>
+				<isNotEmpty property="own_ugr_2">own_ugr_2 = (#own_ugr_2#)::integer,</isNotEmpty>
+				<isEmpty property="own_ugr_2">own_ugr_2 = null, </isEmpty>
+				  own_use_2 = #own_use_2#,
+				  own_rf_2 = #own_rf_2#,
+				  own_str_2 = #own_str_2#,
+				  own_t_use_2 = #own_t_use_2#,
+				  own_dsstr_2 = #own_dsstr_2#,
+				  loan_nm_3 = #loan_nm_3#,
+				  loan_cttpc_3 = #loan_cttpc_3#,
+				  <isNotEmpty property="loan_area_3">loan_area_3 = (#loan_area_3#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_area_3">loan_area_3 = null, </isEmpty>
+				<isNotEmpty property="loan_a_r_3">loan_a_r_3 = (#loan_a_r_3#)::integer,</isNotEmpty>
+				<isEmpty property="loan_a_r_3">loan_a_r_3 = null, </isEmpty>
+				  loan_pd_3 = #loan_pd_3#,
+				  <isNotEmpty property="loanmn_3">loanmn_3 = (#loanmn_3#)::double precision,</isNotEmpty>
+				<isEmpty property="loanmn_3">loanmn_3 = null, </isEmpty>
+				<isNotEmpty property="loan_totar_3">loan_totar_3 = (#loan_totar_3#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_totar_3">loan_totar_3 = null, </isEmpty>
+				<isNotEmpty property="loan_t_r_3">loan_t_r_3 = (#loan_t_r_3#)::integer,</isNotEmpty>
+				<isEmpty property="loan_t_r_3">loan_t_r_3 = null, </isEmpty>
+				  loan_use_3 = #loan_use_3#,
+				  loan_pr_3 = #loan_pr_3#,
+				  loan_pr_t_3 = #loan_pr_t_3#,
+				  loan_etc_3 = #loan_etc_3#,
+				  occp_nm_3 = #occp_nm_3#,
+				  occp_cttpc_3 = #occp_cttpc_3#,
+				  <isNotEmpty property="occp_area_3">occp_area_3 = (#occp_area_3#)::double precision,</isNotEmpty>
+				<isEmpty property="occp_area_3">occp_area_3 = null, </isEmpty>
+				<isNotEmpty property="occp_a_r_3">occp_a_r_3 = (#occp_a_r_3#)::integer,</isNotEmpty>
+				<isEmpty property="occp_a_r_3">occp_a_r_3 = null, </isEmpty>
+				  occp_use_3 = #occp_use_3#,
+				  occp_pr_3 = #occp_pr_3#,
+				  occp_pr_t_3 = #occp_pr_t_3#,
+				  occp_pd_3 = #occp_pd_3#,
+				  occp_lo_3 = #occp_lo_3#,
+				  occp_lo_t_3 = #occp_lo_t_3#,
+				  occp_cmp_3 = #occp_cmp_3#,
+				  occp_etc_3 = #occp_etc_3#,
+				  own_nm_3 = #own_nm_3#,
+				  own_rgist_3 = #own_rgist_3#,
+				  own_bild_3 = #own_bild_3#,
+				  <isNotEmpty property="own_area_3">own_area_3 = (#own_area_3#)::double precision,</isNotEmpty>
+				<isEmpty property="own_area_3">own_area_3 = null, </isEmpty>
+				<isNotEmpty property="own_totar_3">own_totar_3 = (#own_totar_3#)::double precision,</isNotEmpty>
+				<isEmpty property="own_totar_3">own_totar_3 = null, </isEmpty>
+				<isNotEmpty property="own_gr_3">own_gr_3 = (#own_gr_3#)::integer,</isNotEmpty>
+				<isEmpty property="own_gr_3">own_gr_3 = null, </isEmpty>
+				<isNotEmpty property="own_ugr_3">own_ugr_3 = (#own_ugr_3#)::integer,</isNotEmpty>
+				<isEmpty property="own_ugr_3">own_ugr_3 = null, </isEmpty>
+				  own_use_3 = #own_use_3#,
+				  own_rf_3 = #own_rf_3#,
+				  own_str_3 = #own_str_3#,
+				  own_t_use_3 = #own_t_use_3#,
+				  own_dsstr_3 = #own_dsstr_3#,
+				  loan_nm_4 = #loan_nm_4#,
+				  loan_cttpc_4 = #loan_cttpc_4#,
+				  <isNotEmpty property="loan_area_4">loan_area_4 = (#loan_area_4#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_area_4">loan_area_4 = null, </isEmpty>
+				<isNotEmpty property="loan_a_r_4">loan_a_r_4 = (#loan_a_r_4#)::integer,</isNotEmpty>
+				<isEmpty property="loan_a_r_4">loan_a_r_4 = null, </isEmpty>
+				  loan_pd_4 = #loan_pd_4#,
+				  <isNotEmpty property="loanmn_4">loanmn_4 = (#loanmn_4#)::double precision,</isNotEmpty>
+				<isEmpty property="loanmn_4">loanmn_4 = null, </isEmpty>
+				<isNotEmpty property="loan_totar_4">loan_totar_4 = (#loan_totar_4#)::double precision,</isNotEmpty>
+				<isEmpty property="loan_totar_4">loan_totar_4 = null, </isEmpty>
+				<isNotEmpty property="loan_t_r_4">loan_t_r_4 = (#loan_t_r_4#)::integer,</isNotEmpty>
+				<isEmpty property="loan_t_r_4">loan_t_r_4 = null, </isEmpty>
+				  loan_use_4 = #loan_use_4#,
+				  loan_pr_4 = #loan_pr_4#,
+				  loan_pr_t_4 = #loan_pr_t_4#,
+				  loan_etc_4 = #loan_etc_4#,
+				  occp_nm_4 = #occp_nm_4#,
+				  occp_cttpc_4 = #occp_cttpc_4#,
+				  <isNotEmpty property="occp_area_4">occp_area_4 = (#occp_area_4#)::double precision,</isNotEmpty>
+				<isEmpty property="occp_area_4">occp_area_4 = null, </isEmpty>
+				<isNotEmpty property="occp_a_r_4">occp_a_r_4 = (#occp_a_r_4#)::integer,</isNotEmpty>
+				<isEmpty property="occp_a_r_4">occp_a_r_4 = null, </isEmpty>
+				  occp_use_4 = #occp_use_4#,
+				  occp_pr_4 = #occp_pr_4#,
+				  occp_pr_t_4 = #occp_pr_t_4#,
+				  occp_pd_4 = #occp_pd_4#,
+				  occp_lo_4 = #occp_lo_4#,
+				  occp_lo_t_4 = #occp_lo_t_4#,
+				  occp_cmp_4 = #occp_cmp_4#,
+				  occp_etc_4 = #occp_etc_4#,
+				  own_nm_4 = #own_nm_4#,
+				  own_rgist_4 = #own_rgist_4#,
+				  own_bild_4 = #own_bild_4#,
+				  <isNotEmpty property="own_area_4">own_area_4 = (#own_area_4#)::double precision,</isNotEmpty>
+				<isEmpty property="own_area_4">own_area_4 = null, </isEmpty>
+				<isNotEmpty property="own_totar_4">own_totar_4 = (#own_totar_4#)::double precision,</isNotEmpty>
+				<isEmpty property="own_totar_4">own_totar_4 = null, </isEmpty>
+				<isNotEmpty property="own_gr_4">own_gr_4 = (#own_gr_4#)::integer,</isNotEmpty>
+				<isEmpty property="own_gr_4">own_gr_4 = null, </isEmpty>
+				<isNotEmpty property="own_ugr_4">own_ugr_4 = (#own_ugr_4#)::integer,</isNotEmpty>
+				<isEmpty property="own_ugr_4">own_ugr_4 = null, </isEmpty>
+				  own_use_4 = #own_use_4#,
+				  own_rf_4 = #own_rf_4#,
+				  own_str_4 = #own_str_4#,
+				  own_t_use_4 = #own_t_use_4#,
+				  own_dsstr_4 = #own_dsstr_4#,
+				 futu = #futu#,
+				 futu_con = #futu_con#,
+				 sttus_ph = #sttus_ph#,
+				 flight_ph = #flight_ph#,
+				 cbnd_ph = #cbnd_ph#,
+				li = #li#,
+				 li_1 = #li_1#,
+				 li_2 = #li_2#,
+				 li_3 = #li_3#,
+				 li_4 = #li_4#,
+				 li_5 = #li_5#,
+				 <isNotEmpty property="ic_area">ic_area = (#ic_area#)::double precision,</isNotEmpty>
+				<isEmpty property="ic_area">ic_area = null, </isEmpty>
+				<isNotEmpty property="ic_prsmppc">ic_prsmppc = (#ic_prsmppc#)::double precision,</isNotEmpty>
+				<isEmpty property="ic_prsmppc">ic_prsmppc = null, </isEmpty>
+				<isNotEmpty property="ic_per">ic_per = (#ic_per#)::double precision,</isNotEmpty>
+				<isEmpty property="ic_per">ic_per = null, </isEmpty>
+				 				 
+				udpate_date = to_char(now(),'yyyy/mm/dd HH24:mi:ss'),      
+	           	updt_id = #updt_id#, 
+	           	pnu = #pnu#
+	           	
+            WHERE gid = (#gid#)::integer
+    </update>
+    
+    <!-- 첨부파일 삭제 -->
+	<delete id="factualDAO.deleteFile">
+		DELETE FROM in_file
+		WHERE
+		<dynamic prepend="gid IN">
+			<iterate open="(" close=")" conjunction=",">
+				(#[]#)::integer
+			</iterate>
+		</dynamic>
+	</delete>
+	
+	<!-- 실태조사 삭제(비활성) -->
+	<update id="factualDAO.deletefactualData" parameterClass="FactualVO">
+	<![CDATA[
+		UPDATE
+			factual_survey
+		SET 
+			use_at = 'N'
+		WHERE gid = (#gid#)::integer
+	]]>
+	</update>
+	
+	<!-- 실태조사 검색  -->
+    <select id="factualDAO.factualSearchList" parameterClass="FactualVO"  resultClass="java.util.HashMap" remapResults="true">
+    <![CDATA[  ]]>
+           select A1.* from (
+               	select 
+               		(ROW_NUMBER() OVER()) AS no , gid,
+               		A.pnu, 
+               		(select name from ic_code B where B.type = 'LCLAS' and A.lclas = B.code) AS lclas,
+               		(select name from ic_code B where B.type = 'MLSFC' and A.mlsfc = B.code) AS mlsfc,
+               		(select name from ic_code B where B.type = 'SCLAS' and A.sclas = B.code) AS sclas,
+               		CASE
+						WHEN A.ctp = '28' THEN '인천광역시'
+						WHEN A.ctp = '11' THEN '서울특별시'
+						WHEN A.ctp = '41' THEN '경기도'
+					ELSE '' END AS ctp,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd,
+               		(select li_kor_nm from tl_scco_li B where A.li = B.li_cd group by B.li_cd, B.li_kor_nm) AS li,
+               		CASE
+						WHEN A.mt = '1' THEN '토지'
+						WHEN A.mt = '0' THEN '임야'
+					ELSE '' END AS mt,
+               		A.bon, A.bu, A.prprty_mg,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok = B.code) AS jimok,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.n_jimok = B.code) AS n_jimok,
+               		A.qota, A.acqs, A.acqdt, A.use, A.area, A.jiga, A.prsmppc, A.prpos, A.lmtt, A.ubplfc,
+               		(select name from ic_code B where B.type = 'FRM' and A.frm = B.code) AS frm,
+               		(select name from ic_code B where B.type = 'GFE' and A.gfe = B.code) AS gfe,
+               		A.ro_side, A.ic_per, A.ic_area, A.ic_prsmppc,
+               		
+               		/* 일단의 토지 */
+               		CASE
+						WHEN A.ctp_1 = '28' THEN '인천광역시'
+						WHEN A.ctp_1 = '11' THEN '서울특별시'
+						WHEN A.ctp_1 = '41' THEN '경기도'
+					ELSE '' END AS ctp_1,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_1 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_1,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_1 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_1,
+               		(select li_kor_nm from tl_scco_li B where A.li_1 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_1,
+               		CASE
+						WHEN A.mt_1 = '1' THEN '토지'
+						WHEN A.mt_1 = '0' THEN '임야'
+					ELSE '' END AS mt_1,
+               		A.bon_1, A.bu_1,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_1 = B.code) AS jimok_1,
+               		A.area_1, 
+               		(select name from ic_code B where B.type = 'YN' and A.buld_yn_1 = B.code) AS buld_yn_1,
+               		CASE
+						WHEN A.ctp_2 = '28' THEN '인천광역시'
+						WHEN A.ctp_2 = '11' THEN '서울특별시'
+						WHEN A.ctp_2 = '41' THEN '경기도'
+					ELSE '' END AS ctp_2,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_2 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_2,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_2 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_2,
+               		(select li_kor_nm from tl_scco_li B where A.li_2 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_2,
+               		CASE
+						WHEN A.mt_2 = '1' THEN '토지'
+						WHEN A.mt_2 = '0' THEN '임야'
+					ELSE '' END AS mt_2,
+               		A.bon_2, A.bu_2,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_2 = B.code) AS jimok_2,
+               		A.area_2,
+					(select name from ic_code B where B.type = 'YN' and A.buld_yn_2 = B.code) AS buld_yn_2,
+               		CASE
+						WHEN A.ctp_3 = '28' THEN '인천광역시'
+						WHEN A.ctp_3 = '11' THEN '서울특별시'
+						WHEN A.ctp_3 = '41' THEN '경기도'
+					ELSE '' END AS ctp_3,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_3 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_3,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_3 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_3,
+               		(select li_kor_nm from tl_scco_li B where A.li_3 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_3,
+               		CASE
+						WHEN A.mt_3 = '1' THEN '토지'
+						WHEN A.mt_3 = '0' THEN '임야'
+					ELSE '' END AS mt_3,
+               		A.bon_3, A.bu_3,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_3 = B.code) AS jimok_3,
+               		A.area_3, 
+               		(select name from ic_code B where B.type = 'YN' and A.buld_yn_3 = B.code) AS buld_yn_3,
+               		CASE
+						WHEN A.ctp_4 = '28' THEN '인천광역시'
+						WHEN A.ctp_4 = '11' THEN '서울특별시'
+						WHEN A.ctp_4 = '41' THEN '경기도'
+					ELSE '' END AS ctp_4,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_4 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_4,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_4 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_4,
+               		(select li_kor_nm from tl_scco_li B where A.li_4 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_4,
+               		CASE
+						WHEN A.mt_4 = '1' THEN '토지'
+						WHEN A.mt_4 = '0' THEN '임야'
+					ELSE '' END AS mt_4,
+               		A.bon_4, A.bu_4,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_4 = B.code) AS jimok_4,
+               		A.area_4, 
+               		(select name from ic_code B where B.type = 'YN' and A.buld_yn_4 = B.code) AS buld_yn_4,
+               		CASE
+						WHEN A.ctp_5 = '28' THEN '인천광역시'
+						WHEN A.ctp_5 = '11' THEN '서울특별시'
+						WHEN A.ctp_5 = '41' THEN '경기도'
+					ELSE '' END AS ctp_5,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_5 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_5,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_5 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_5,
+               		(select li_kor_nm from tl_scco_li B where A.li_5 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_5,
+               		CASE
+						WHEN A.mt_5 = '1' THEN '토지'
+						WHEN A.mt_5 = '0' THEN '임야'
+					ELSE '' END AS mt_5,
+               		A.bon_5, A.bu_5,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_5 = B.code) AS jimok_5,
+               		A.area_5, 
+               		(select name from ic_code B where B.type = 'YN' and A.buld_yn_5 = B.code) AS buld_yn_5,
+               		
+               		/* 대부(사용허가)현황 */
+               		A.loan_nm, A.loan_cttpc, A.loan_area, A.loan_a_r, A.loan_pd, A.loanmn, A.loan_totar, A.loan_t_r, A.loan_use,
+               		(select name from ic_code B where B.type = 'YN' and A.loan_pr = B.code) AS loan_pr,
+               		A.loan_pr_t, A.loan_etc,
+               		A.loan_nm_1, A.loan_cttpc_1, A.loan_area_1, A.loan_a_r_1, A.loan_pd_1, A.loanmn_1, A.loan_totar_1, A.loan_t_r_1, A.loan_use_1,
+               		(select name from ic_code B where B.type = 'YN' and A.loan_pr_1 = B.code) AS loan_pr_1,
+               		A.loan_pr_t_1, A.loan_etc_1,
+               		A.loan_nm_2, A.loan_cttpc_2, A.loan_area_2, A.loan_a_r_2, A.loan_pd_2, A.loanmn_2, A.loan_totar_2, A.loan_t_r_2, A.loan_use_2,
+               		(select name from ic_code B where B.type = 'YN' and A.loan_pr_2 = B.code) AS loan_pr_2,
+               		A.loan_pr_t_2, A.loan_etc_2,
+               		A.loan_nm_3, A.loan_cttpc_3, A.loan_area_3, A.loan_a_r_3, A.loan_pd_3, A.loanmn_3, A.loan_totar_3, A.loan_t_r_3, A.loan_use_3,
+               		(select name from ic_code B where B.type = 'YN' and A.loan_pr_3 = B.code) AS loan_pr_3,
+               		A.loan_pr_t_3, A.loan_etc_3,
+               		A.loan_nm_4, A.loan_cttpc_4, A.loan_area_4, A.loan_a_r_4, A.loan_pd_4, A.loanmn_4, A.loan_totar_4, A.loan_t_r_4, A.loan_use_4,
+               		(select name from ic_code B where B.type = 'YN' and A.loan_pr_4 = B.code) AS loan_pr_4,
+               		A.loan_pr_t_4, A.loan_etc_4,
+               		
+               		/* 무단점유(사용)현황 */
+               		A.occp_nm, A.occp_cttpc, A.occp_area, A.occp_a_r, A.occp_use,
+               		(select name from ic_code B where B.type = 'YN' and A.occp_pr = B.code) AS occp_pr,
+					A.occp_pr_t, A.occp_pd,
+					(select name from ic_code B where B.type = 'YN' and A.occp_lo = B.code) AS occp_lo,
+					A.occp_lo_t, A.occp_cmp, A.occp_etc,					
+					A.occp_nm_1, A.occp_cttpc_1, A.occp_area_1, A.occp_a_r_1, A.occp_use_1,
+               		(select name from ic_code B where B.type = 'YN' and A.occp_pr_1 = B.code) AS occp_pr_1,
+					A.occp_pr_t_1, A.occp_pd_1,
+					(select name from ic_code B where B.type = 'YN' and A.occp_lo_1 = B.code) AS occp_lo_1,
+					A.occp_lo_t_1, A.occp_cmp_1, A.occp_etc_1,
+					A.occp_nm_2, A.occp_cttpc_2, A.occp_area_2, A.occp_a_r_2, A.occp_use_2,
+               		(select name from ic_code B where B.type = 'YN' and A.occp_pr_2 = B.code) AS occp_pr_2,
+					A.occp_pr_t_2, A.occp_pd_2,
+					(select name from ic_code B where B.type = 'YN' and A.occp_lo_2 = B.code) AS occp_lo_2,
+					A.occp_lo_t_2, A.occp_cmp_2, A.occp_etc_2,
+					A.occp_nm_3, A.occp_cttpc_3, A.occp_area_3, A.occp_a_r_3, A.occp_use_3,
+               		(select name from ic_code B where B.type = 'YN' and A.occp_pr_3 = B.code) AS occp_pr_3,
+					A.occp_pr_t_3, A.occp_pd_3,
+					(select name from ic_code B where B.type = 'YN' and A.occp_lo_3 = B.code) AS occp_lo_3,
+					A.occp_lo_t_3, A.occp_cmp_3, A.occp_etc_3,
+               		A.occp_nm_4, A.occp_cttpc_4, A.occp_area_4, A.occp_a_r_4, A.occp_use_4,
+               		(select name from ic_code B where B.type = 'YN' and A.occp_pr_4 = B.code) AS occp_pr_4,
+					A.occp_pr_t_4, A.occp_pd_4,
+					(select name from ic_code B where B.type = 'YN' and A.occp_lo_4 = B.code) AS occp_lo_4,
+					A.occp_lo_t_4, A.occp_cmp_4, A.occp_etc_4,
+               		
+               		/* 건출물 등 현황 */
+               		A.own_nm,
+               		(select name from ic_code B where B.type = 'YN' and A.own_rgist = B.code) AS own_rgist,
+               		A.own_bild, A.own_area, A.own_totar, A.own_gr, A.own_ugr, A.own_use, A.own_rf, A.own_str, A.own_t_use,
+               		(select name from ic_code B where B.type = 'DSSTR' and A.own_dsstr = B.code) AS own_dsstr,
+               		A.own_nm_1,
+               		(select name from ic_code B where B.type = 'YN' and A.own_rgist_1 = B.code) AS own_rgist_1,
+               		A.own_bild_1, A.own_area_1, A.own_totar_1, A.own_gr_1, A.own_ugr_1, A.own_use_1, A.own_rf_1, A.own_str_1, A.own_t_use_1,
+               		(select name from ic_code B where B.type = 'DSSTR' and A.own_dsstr_1 = B.code) AS own_dsstr_1,
+               		A.own_nm_2,
+               		(select name from ic_code B where B.type = 'YN' and A.own_rgist_2 = B.code) AS own_rgist_2,
+               		A.own_bild_2, A.own_area_2, A.own_totar_2, A.own_gr_2, A.own_ugr_2, A.own_use_2, A.own_rf_2, A.own_str_2, A.own_t_use_2,
+               		(select name from ic_code B where B.type = 'DSSTR' and A.own_dsstr_2 = B.code) AS own_dsstr_2,
+               		A.own_nm_3,
+               		(select name from ic_code B where B.type = 'YN' and A.own_rgist_3 = B.code) AS own_rgist_3,
+               		A.own_bild_3, A.own_area_3, A.own_totar_3, A.own_gr_3, A.own_ugr_3, A.own_use_3, A.own_rf_3, A.own_str_3, A.own_t_use_3,
+               		(select name from ic_code B where B.type = 'DSSTR' and A.own_dsstr_3 = B.code) AS own_dsstr_3,
+               		A.own_nm_4,
+               		(select name from ic_code B where B.type = 'YN' and A.own_rgist_4 = B.code) AS own_rgist_4,
+               		A.own_bild_4, A.own_area_4, A.own_totar_4, A.own_gr_4, A.own_ugr_4, A.own_use_4, A.own_rf_4, A.own_str_4, A.own_t_use_4,
+               		(select name from ic_code B where B.type = 'DSSTR' and A.own_dsstr_4 = B.code) AS own_dsstr_4,
+               		
+               		A.futu, A.futu_con
+               	from 
+               		(select * from factual_survey where use_at = 'Y' 
+               		<isNotEmpty  property="sig"> and sig = #sig# </isNotEmpty>
+               		<isNotEmpty  property="emd"> and emd = #emd# </isNotEmpty>
+               		<isNotEmpty  property="li"> and li = #li# </isNotEmpty>
+               		order by regest_date desc ) A
+               		           
+			)  A1
+          WHERE 1=1
+    </select>
+    <select id="factualDAO.factualSearchList_doc" parameterClass="FactualVO"  resultClass="java.util.HashMap" remapResults="true">
+    <![CDATA[  ]]>
+           select A1.* from (
+               	select 
+               		(ROW_NUMBER() OVER()) AS no , A.gid,
+               		A.pnu, A.lclas, A.mlsfc, A.sclas,
+               		CASE
+						WHEN A.ctp = '28' THEN '인천광역시'
+						WHEN A.ctp = '11' THEN '서울특별시'
+						WHEN A.ctp = '41' THEN '경기도'
+					ELSE '' END AS ctp,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd,
+               		(select li_kor_nm from tl_scco_li B where A.li = B.li_cd group by B.li_cd, B.li_kor_nm) AS li,
+               		CASE
+						WHEN A.mt = '1' THEN '토지'
+						WHEN A.mt = '0' THEN '임야'
+					ELSE '' END AS mt,
+               		A.bon, A.bu, A.prprty_mg, 
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok = B.code) AS jimok,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.n_jimok = B.code) AS n_jimok,                		
+               		A.qota, A.acqs, A.acqdt, A.use, A.area, A.jiga, A.prsmppc, A.prpos, A.lmtt, A.ubplfc,
+               		A.frm, A.gfe, A.ro_side, A.ic_per, A.ic_area, A.ic_prsmppc,
+               		
+               		/* 일단의 토지 */
+               		CASE
+						WHEN A.ctp_1 = '28' THEN '인천광역시'
+						WHEN A.ctp_1 = '11' THEN '서울특별시'
+						WHEN A.ctp_1 = '41' THEN '경기도'
+					ELSE '' END AS ctp_1,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_1 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_1,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_1 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_1,
+               		(select li_kor_nm from tl_scco_li B where A.li_1 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_1,
+               		CASE
+						WHEN A.mt_1 = '1' THEN '토지'
+						WHEN A.mt_1 = '0' THEN '임야'
+					ELSE '' END AS mt_1,
+               		A.bon_1, A.bu_1,
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_1 = B.code) AS jimok_1, 
+               		A.area_1, A.buld_yn_1,
+               		CASE
+						WHEN A.ctp_2 = '28' THEN '인천광역시'
+						WHEN A.ctp_2 = '11' THEN '서울특별시'
+						WHEN A.ctp_2 = '41' THEN '경기도'
+					ELSE '' END AS ctp_2,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_2 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_2,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_2 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_2,
+               		(select li_kor_nm from tl_scco_li B where A.li_2 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_2,
+               		CASE
+						WHEN A.mt_2 = '1' THEN '토지'
+						WHEN A.mt_2 = '0' THEN '임야'
+					ELSE '' END AS mt_2,
+               		A.bon_2, A.bu_2, 
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_2 = B.code) AS jimok_2, 
+               		A.area_2, A.buld_yn_2,
+               		CASE
+						WHEN A.ctp_3 = '28' THEN '인천광역시'
+						WHEN A.ctp_3 = '11' THEN '서울특별시'
+						WHEN A.ctp_3 = '41' THEN '경기도'
+					ELSE '' END AS ctp_3,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_3 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_3,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_3 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_3,
+               		(select li_kor_nm from tl_scco_li B where A.li_3 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_3,
+               		CASE
+						WHEN A.mt_3 = '1' THEN '토지'
+						WHEN A.mt_3 = '0' THEN '임야'
+					ELSE '' END AS mt_3,
+               		A.bon_3, A.bu_3, 
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_3 = B.code) AS jimok_3, 
+               		A.area_3, A.buld_yn_3,
+               		CASE
+						WHEN A.ctp_4 = '28' THEN '인천광역시'
+						WHEN A.ctp_4 = '11' THEN '서울특별시'
+						WHEN A.ctp_4 = '41' THEN '경기도'
+					ELSE '' END AS ctp_4,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_4 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_4,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_4 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_4,
+               		(select li_kor_nm from tl_scco_li B where A.li_4 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_4,
+               		CASE
+						WHEN A.mt_4 = '1' THEN '토지'
+						WHEN A.mt_4 = '0' THEN '임야'
+					ELSE '' END AS mt_4,
+               		A.bon_4, A.bu_4, 
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_4 = B.code) AS jimok_4, 
+               		A.area_4, A.buld_yn_4,
+               		CASE
+						WHEN A.ctp_5 = '28' THEN '인천광역시'
+						WHEN A.ctp_5 = '11' THEN '서울특별시'
+						WHEN A.ctp_5 = '41' THEN '경기도'
+					ELSE '' END AS ctp_5,
+               		(select sig_kor_nm from tl_scco_sig B where A.sig_5 = B.sig_cd group by B.sig_cd, B.sig_kor_nm) AS sig_5,
+               		(select emd_kor_nm from tl_scco_emd B where A.emd_5 = B.emd_cd group by B.emd_cd, B.emd_kor_nm) AS emd_5,
+               		(select li_kor_nm from tl_scco_li B where A.li_5 = B.li_cd group by B.li_cd, B.li_kor_nm) AS li_5,
+               		CASE
+						WHEN A.mt_5 = '1' THEN '토지'
+						WHEN A.mt_5 = '0' THEN '임야'
+					ELSE '' END AS mt_5,
+               		A.bon_5, A.bu_5, 
+               		(select name from ic_code B where B.type = 'JIMOK' and A.jimok_5 = B.code) AS jimok_5, 
+               		A.area_5, A.buld_yn_5,
+               		
+               		/* 대부(사용허가)현황 */
+               		A.loan_nm, A.loan_cttpc, A.loan_area, A.loan_a_r, A.loan_pd, A.loanmn, A.loan_totar, A.loan_t_r, A.loan_use, A.loan_pr,
+               		A.loan_pr_t, A.loan_etc, A.loan_nm_1, A.loan_cttpc_1, A.loan_area_1, A.loan_a_r_1, A.loan_pd_1, A.loanmn_1, A.loan_totar_1, 
+               		A.loan_t_r_1, A.loan_use_1, A.loan_pr_1,
+               		A.loan_pr_t_1, A.loan_etc_1, A.loan_nm_2, A.loan_cttpc_2, A.loan_area_2, A.loan_a_r_2, A.loan_pd_2, A.loanmn_2, A.loan_totar_2, 
+               		A.loan_t_r_2, A.loan_use_2, A.loan_pr_2,
+               		A.loan_pr_t_2, A.loan_etc_2,
+               		A.loan_nm_3, A.loan_cttpc_3, A.loan_area_3, A.loan_a_r_3, A.loan_pd_3, A.loanmn_3, A.loan_totar_3, A.loan_t_r_3, A.loan_use_3, A.loan_pr_3,
+               		A.loan_pr_t_3, A.loan_etc_3,
+               		A.loan_nm_4, A.loan_cttpc_4, A.loan_area_4, A.loan_a_r_4, A.loan_pd_4, A.loanmn_4, A.loan_totar_4, A.loan_t_r_4, A.loan_use_4, A.loan_pr_4,
+               		A.loan_pr_t_4, A.loan_etc_4,
+               		
+               		/* 무단점유(사용)현황 */
+               		A.occp_nm, A.occp_cttpc, A.occp_area, A.occp_a_r, A.occp_use, A.occp_pr,
+					A.occp_pr_t, A.occp_pd, A.occp_lo,
+					A.occp_lo_t, A.occp_cmp, A.occp_etc,					
+					A.occp_nm_1, A.occp_cttpc_1, A.occp_area_1, A.occp_a_r_1, A.occp_use_1, A.occp_pr_1,
+					A.occp_pr_t_1, A.occp_pd_1, A.occp_lo_1,
+					A.occp_lo_t_1, A.occp_cmp_1, A.occp_etc_1,
+					A.occp_nm_2, A.occp_cttpc_2, A.occp_area_2, A.occp_a_r_2, A.occp_use_2, A.occp_pr_2,
+					A.occp_pr_t_2, A.occp_pd_2, A.occp_lo_2,
+					A.occp_lo_t_2, A.occp_cmp_2, A.occp_etc_2,
+					A.occp_nm_3, A.occp_cttpc_3, A.occp_area_3, A.occp_a_r_3, A.occp_use_3, A.occp_pr_3,
+					A.occp_pr_t_3, A.occp_pd_3, A.occp_lo_3,
+					A.occp_lo_t_3, A.occp_cmp_3, A.occp_etc_3,
+               		A.occp_nm_4, A.occp_cttpc_4, A.occp_area_4, A.occp_a_r_4, A.occp_use_4, A.occp_pr_4,
+					A.occp_pr_t_4, A.occp_pd_4, A.occp_lo_4,
+					A.occp_lo_t_4, A.occp_cmp_4, A.occp_etc_4,
+               		
+               		/* 건출물 등 현황 */
+               		A.own_nm, A.own_rgist,
+               		A.own_bild, A.own_area, A.own_totar, A.own_gr, A.own_ugr, A.own_use, A.own_rf, A.own_str, A.own_t_use, A.own_dsstr,
+               		A.own_nm_1, A.own_rgist_1,
+               		A.own_bild_1, A.own_area_1, A.own_totar_1, A.own_gr_1, A.own_ugr_1, A.own_use_1, A.own_rf_1, A.own_str_1, A.own_t_use_1, A.own_dsstr_1,
+               		A.own_nm_2, A.own_rgist_2,
+               		A.own_bild_2, A.own_area_2, A.own_totar_2, A.own_gr_2, A.own_ugr_2, A.own_use_2, A.own_rf_2, A.own_str_2, A.own_t_use_2, A.own_dsstr_2,
+               		A.own_nm_3, A.own_rgist_3,
+               		A.own_bild_3, A.own_area_3, A.own_totar_3, A.own_gr_3, A.own_ugr_3, A.own_use_3, A.own_rf_3, A.own_str_3, A.own_t_use_3, A.own_dsstr_3,
+               		A.own_nm_4, A.own_rgist_4,
+               		A.own_bild_4, A.own_area_4, A.own_totar_4, A.own_gr_4, A.own_ugr_4, A.own_use_4, A.own_rf_4, A.own_str_4, A.own_t_use_4, A.own_dsstr_4,
+               		
+               		A.futu, A.futu_con
+               	from 
+               		(select * from factual_survey where use_at = 'Y' and gid = (#gid#)::integer ) A
+               		           
+			)  A1
+          WHERE 1=1
+    </select>
+	
+	
+	
+</sqlMap>

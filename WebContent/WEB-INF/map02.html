@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sh</title>
+
+    <link rel="stylesheet" type="text/css" href="css/common/map/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/common/map/common.css" />
+</head>
+
+<body>
+
+<header>
+    <img class="logo" src="../resources/img/map/logo.svg" alt="SH서울주택도시공사 로고" />
+    <nav>
+        <ul>
+            <li class="hover" onclick="">
+                <img src="../resources/img/map/icNav01.svg" alt="지도 아이콘" />
+                <span>지도</span>
+            </li>
+            <li>
+                <img src="../resources/img/map/icNav02.svg" alt="게시판 아이콘" />
+                <span>
+                    게시판
+                </span>
+            </li>
+            <li>
+                <img src="../resources/img/map/icNav03.svg" alt="관리자 아이콘" />
+                <span>
+                    관리자
+                </span>
+            </li>
+            <li>
+                <img src="../resources/img/map/icNav04.svg" alt="MYPAGE 아이콘" />
+                <span>
+                    MYPAGE
+                </span>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div class="mainWrap">
+    <aside class="left">
+        <ul class="leftMenu">
+            <li>
+                <span>업무연계</span>
+            </li>
+            <li class="hover">
+                <span>속성검색</span>
+                <ul class="subMenu">
+                    <li class="hover">택지지구</li>
+                    <li>임대주택</li>
+                    <li>자산대장</li>
+                </ul>
+            </li>
+            <li>
+                <span>토지/건물<br/>검색</span>
+            </li>
+            <li class="hover">
+                <span>대상지<br/>탐색</span>
+            </li>
+            <li>
+                <span>입지분석</span>
+            </li>
+            <li>
+                <span>패턴분석</span>
+            </li>
+            <li>
+                <span>공간분석</span>
+            </li>
+            <li>
+                <span>개발행위<br/>제한</span>
+            </li>
+            <li>
+                <span>MyData</span>
+            </li>
+        </ul>
+
+
+        <div class="leftPanner">
+            <div class="areaSearch">
+                <h2 class="tit">택지지구</h2>
+                <h3 class="tit">행정구역</h3>
+                <div class="selectWrap">
+                    <div class="disFlex">
+                        <label for="cate1">· 시도</label>
+                        <select name="cate1" id="cate1">
+                            <option value="">전체 선택</option>
+                            <option value="">전체 선택2</option>
+                            <option value="">전체 선택3</option>
+                            <option value="">전체 선택4</option>
+                        </select>
+                    </div>
+                    <div class="disFlex">
+                        <label for="cate1">· 시군구</label>
+                        <select name="cate1" id="cate1">
+                            <option value="">전체 선택</option>
+                            <option value="">전체 선택2</option>
+                            <option value="">전체 선택3</option>
+                            <option value="">전체 선택4</option>
+                        </select>
+                    </div>
+                    <div class="disFlex">
+                        <label for="cate1">· 읍면동</label>
+                        <select name="cate1" id="cate1">
+                            <option value="">전체 선택</option>
+                            <option value="">전체 선택2</option>
+                            <option value="">전체 선택3</option>
+                            <option value="">전체 선택4</option>
+                        </select>
+                    </div>
+                </div>
+                
+
+                <h3 class="tit">토지면적</h3>
+                <div class="disFlex">
+                    <input type="num" />
+                    ~
+                    <input type="num" />
+                </div>
+
+                
+                <h3 class="tit">선도사업 대상지 여부</h3>
+                <div class="disFlex radioWrap">
+                    <input type="radio" id="Y" name="YNAll" value="" checked>
+                    <label for="Y">O(38)</label>
+
+                    <input type="radio" id="X" name="YNAll" value="" >
+                    <label for="X">X</label>
+
+                    <input type="radio" id="All" name="YNAll" value="" >
+                    <label for="All">All</label>
+                </div>
+
+
+                <h3 class="tit">권역</h3>
+                <div class="radioWrap">
+                    <div class="disFlex">
+                        <input type="checkbox" id="area0"  name="area" checked>
+                        <label for="area0">도심권</label>
+        
+                        <input type="checkbox" id="area1"  name="area">
+                        <label for="area1">동남권</label>
+        
+                        <input type="checkbox" id="area2"  name="area">
+                        <label for="area2">동북권</label>
+                    </div>
+
+                    <div class="disFlex">
+                        <input type="checkbox" id="area3"  name="area" checked>
+                        <label for="area3">도심권</label>
+
+                        <input type="checkbox" id="area4"  name="area">
+                        <label for="area4">동남권</label>
+
+                        <input type="checkbox" id="area5"  name="area">
+                        <label for="area5">동북권</label>
+                    </div>
+
+                    <p class="moreBtn">
+                        더보기
+                        <img src="../resources/img/map/btnSelectArrow.svg" alt="열기 버튼"/>
+                    </p>
+                </div>
+                <button type="button" class="primaryBG">검색</button>
+            </div>
+
+            <div class="breakLine"></div>
+
+            <div class="newDevSearch">
+                <form class="searchTxtInput">
+                    <label>
+                        <input type="text" title="신규개발 가용지명 검색" placeholder="신규개발 가용지명 검색" maxlength="14" />
+                        <button type="submit">
+                            <img src="../resources/img/map/IcSearch.svg" alt="검색"/>
+                        </button>
+                    </label>
+                </form>
+                
+                <div class="ListWrap">
+                    <div class="ListWrap">
+                        <div class="tit disFlex">
+                            <h3>검색결과</h3>
+                            <h4 class="dataNum"><span>3,934</span>건</h4>
+                        </div>
+                        <table class="TablethGray lineHidden">
+                            <caption>신규개발 가용지명 결과값</caption>
+                            <colgroup>
+                                <col width="10%">
+                                <col width="40%">
+                                <col width="50%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th colspan="2"  scope="col">대상지명/소유자</th>
+                                    <th scope="col">주소</th>
+                                </tr>
+                            </thead>
+                            <tobdy>
+                                <tr>
+                                    <td class="center">1</td>
+                                    <td>신당동 기동대부지 서..</td>
+                                    <td>중구 신당동 193..</td>
+                                </tr>
+                                <tr>
+                                    <td class="center">1</td>
+                                    <td>신당동 기동대부지 서..</td>
+                                    <td>중구 신당동 193..</td>
+                                </tr>
+                                <tr>
+                                    <td class="center">1</td>
+                                    <td>신당동 기동대부지 서..</td>
+                                    <td>중구 신당동 193..</td>
+                                </tr>
+                                <tr>
+                                    <td class="center">1</td>
+                                    <td>신당동 기동대부지 서..</td>
+                                    <td>중구 신당동 193..</td>
+                                </tr>
+                                <tr>
+                                    <td class="center">1</td>
+                                    <td>신당동 기동대부지 서..</td>
+                                    <td>중구 신당동 193..</td>
+                                </tr>
+                            </tobdy>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- ///newDevSearch -->
+        </div>
+        <!-- ///leftPanner 택지지구 영역 -->
+         
+
+        <div class="depth2Panner">
+            <div class="HideBtn">
+                <img src="../resources/img/map/btnSelectArrow.svg" alt="접기" />
+                <!-- <img class="open" src="../resources/img/map/btnSelectArrow.svg" alt="열기" /> -->
+            </div>
+            <div class="depthWrap">
+                <h2 class="tit">분석지표 설정</h2>
+                <h3 class="tit">거리 기준 설정 (단위:m)</h3>
+
+                <form class="searchTxtInput">
+                    <label for="num1">· 거리1</label>
+                    <input type="num" title="거리1" id="num1" maxlength="6" />
+                </form>
+
+                <form class="searchTxtInput">
+                    <label for="num2">· 거리2</label>
+                    <input type="num" title="거리1" id="num2" maxlength="6" />
+                </form>
+
+                <form class="searchTxtInput">
+                    <label for="num3">· 거리3</label>
+                    <input type="num" title="거리1" id="num3" maxlength="6" />
+                </form>
+
+                <div class="disFlex smBtnWrap">                    
+                    <button type="button" class="primaryLine">
+                        초기값
+                    </button>
+                    <button type="button" class="primaryBG">
+                        설정값 저장
+                    </button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <div class="mapArea">
+            <img src="../resources/img/map/testMap.png" style="object-fit: cover;">
+        </div>
+
+
+
+        <div class="mapTopBtn">
+            <button type="button" class="primaryLine">
+                <img src="../resources/img/map/icDataBtn.svg" alt="데이터추출 아이콘">
+                데이터 추출
+            </button>
+
+            <div class="BtnWrapSM">
+                <button type="button" class="hover">일반</button>
+                <button type="button">위성</button>
+                <button type="button">흑백지도</button>
+                <button type="button">지적도</button>
+                <button type="button">로드뷰</button>
+            </div>
+
+            <button type="button" class="primaryBG">
+                <img src="../resources/img/map/btnLayer24.svg" alt="레이어보기" />
+            </button>            
+        </div>
+        <!-- //mapTopBtn -->
+
+
+
+        <div class="mapBTBtn">
+            <div>
+                <button type="button"><img src="../resources/img/map/btnMapBT01.svg" alt="확대" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT02.svg" alt="축소" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT03.svg" alt="새로고침" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT04.svg" alt="정보보기" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT05.svg" alt="크게 보기" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT06.svg" alt="" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT07.svg" alt="" /></button>
+                <button type="button"><img src="../resources/img/map/btnMapBT08.svg" alt="" /></button>
+            </div>
+            <div class="txtNotice">
+                <p>본 지도서비스는 법적 효력이 없으며, 참고 자료로만 활용 가능합니다.</p>
+                <p>도시연구원/황종아/Tel.02-3410-8504/Copyright ⓒ 2018 서울주택공사 All Rights Reserved.</p>
+            </div>
+
+        </div>
+        <!-- //mapBTBtn -->
+    </main>
+
+    <aside class="right">
+        <div class="rightHideBtn">
+            <!-- <img src="../resources/img/map/btnSelectArrow.svg" alt="접기" /> -->
+            <img class="off" src="../resources/img/map/btnSelectArrow.svg" alt="열기" />
+        </div>
+        
+    </aside>
+</div>
+
+
+
+    
+</body>
+</html>
