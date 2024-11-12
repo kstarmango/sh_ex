@@ -17,123 +17,110 @@ function analLayer(contextPath, exportKey, data) {
     
         layerOnOffBtn.addEventListener('click', () => layerOnOff(layer));
 
-        if(exportKey && layerDownloadBtn){
+        if(exportKey && layerDownloadBtn){WebContent/resources/js/analysis/analLayer.js
             layerDownloadBtn.addEventListener('click',() => executeDownload(exportKey, resultTit));
         } 
 
         $('#map-analyResult').show();
-
-        const html = `
-            <div id="analysisResult" style="overflow-x: hidden; overflow-y: hidden; max-height:300px">
-              
-			</div>`;
-
-        $('#map-analyResult').append(html);
-
-        showResultTest(data);
-
     } catch (error) {
         console.log(error);        
     }
 }
 
+// var selectedResultMenu = 'buld';
+// function showResultTest(data) {
+//   try {
 
+//     function selectedData(type) {
+// 			return data[type];
+// 		}
 
-var selectedResultMenu = 'buld';
+//     let buldList = [];
+//     let landList = [];
 
-function showResultTest(data) {
-    try {
+//     function statisticsData(type) {
+//         const statistics = data.statistics?.find(ele => ele.gubun === type);
+//         return statistics || { [type]: null };
+//     }
+//     // 통계		fmly_co : 가구수	ground_floor : 지상층수	hg : 높이	hshld : 세대수		undgrnd : 지하층 개수
+  
+//     for (let i = 0; i < selectedData('buld').length; i++) {
+//       let itemArr = selectedData('buld')[i].totalCount === 1 ? [selectedData('buld')[i].items.item] : selectedData('buld')[i].items.item;
+//       itemArr.map((ele) => {
+//         ele.pnu = selectedData('buld')[i].pnu;
+//         return ele;
+//       });
+//       buldList.push(...itemArr);
+//     }
 
-        function selectedData(type) {
-			return data[type];
-		}
+//     for (let i = 0; i < selectedData('land').length; i++) {
+//       let itemArr = selectedData('land')[i].field;
+//       landList.push(...itemArr);
+//     }
 
-        let buldList = [];
-        let landList = [];
+//     const selectedAreaStyle = {
+//         fill: true,
+//         backgroundColor: 'rgba(75, 192, 192, 0.2)',
+//         borderColor: 'RGB(75, 192, 192)',
+//         pointBackgroundColor: 'RGB(75, 192, 192)',
+//         pointBorderColor: '#fff',
+//         pointHoverBackgroundColor: '#fff',
+//         pointHoverBorderColor: 'RGB(75, 192, 192)',
+//     }
 
-        function statisticsData(type) {
-            const statistics = data.statistics?.find(ele => ele.gubun === type);
-            return statistics || { [type]: null };
-        }
-        // 통계		fmly_co : 가구수	ground_floor : 지상층수	hg : 높이	hshld : 세대수		undgrnd : 지하층 개수
+//     const seoulAreaStyle = {
+//         fill: true,
+//         backgroundColor: 'rgba(54, 162, 235, 0.2)',
+//         borderColor: 'rgb(54, 162, 235)',
+//         pointBackgroundColor: 'rgb(54, 162, 235)',
+//         pointBorderColor: '#fff',
+//         pointHoverBackgroundColor: '#fff',
+//         pointHoverBorderColor: 'rgb(54, 162, 235)',
+//     }
+
+//     const chartData = {
+//         labels: [
+//             '가구 수 (0.1가구)', 
+//             '세대수 (0.1세대)', 
+//             '토지면적 (100㎡)', 
+//             '개별공시지가 (100만원/㎡)', 
+//             '공동주택가격 (천만원)', 
+//             '개별주택가격 (천만원)'
+//         ],
+//         datasets: [
+//             {
+//                 label: '선택지역 지역 평균',
+//                 data: [
+//                     normalizeValueTest(Number(buldList.reduce((acc,cur) => acc + Number(cur.fmlyCnt || 0), 0) / buldList.length), '가구수'),
+//                     normalizeValueTest(Number(buldList.reduce((acc,cur) => acc + Number(cur.hhldCnt || 0), 0) / buldList.length), '세대수'),
+//                     normalizeValueTest(Number(+(landList.map(ele => Number(ele.lndpclAr || 0)).reduce((acc,cur) => +acc.toFixed(1) + cur, 0)/landList.length).toFixed(2)), '면적'),
+//                     normalizeValueTest(Number(selectedData('landPrice')[selectedData('landPrice').length - 1].avg || 0), '공시지가'),
+//                     normalizeValueTest(Number(selectedData('apartPrice')[selectedData('apartPrice').length - 1].avg || 0), '가격'),
+//                     normalizeValueTest(Number(selectedData('indvdPrice')[selectedData('indvdPrice').length - 1].avg || 0), '가격')
+//                 ],
+//                 ...selectedAreaStyle
+//             },
+//             {
+//                 label: '서울시 평균',
+//                 data: [
+//                     normalizeValueTest(Number(statisticsData('건축물대장')['fmly_co_sid_avg'] || 0), '가구수'),
+//                     normalizeValueTest(Number(statisticsData('건축물대장')['hshld_co_sid_avg'] || 0), '세대수'),
+//                     normalizeValueTest(Number(statisticsData('토지대장')['lndpcl_ar_sid_avg'] || 0), '면적'),
+//                     normalizeValueTest(Number(statisticsData('개별공시지가')['sid_avg'] || 0), '공시지가'),
+//                     normalizeValueTest(Number(statisticsData('공동주택가격')['sid_avg'] || 0), '가격'),
+//                     normalizeValueTest(Number(statisticsData('개별주택가격')['sid_avg'] || 0), '가격')
+//                 ],
+//                 ...seoulAreaStyle
+//             },
+//         ],
+//     };
+
+//     drawChartTest(chartData, 'radar');
       
-        for (let i = 0; i < selectedData('buld').length; i++) {
-          let itemArr = selectedData('buld')[i].totalCount === 1 ? [selectedData('buld')[i].items.item] : selectedData('buld')[i].items.item;
-          itemArr.map((ele) => {
-            ele.pnu = selectedData('buld')[i].pnu;
-            return ele;
-          });
-          buldList.push(...itemArr);
-        }
-
-        for (let i = 0; i < selectedData('land').length; i++) {
-          let itemArr = selectedData('land')[i].field;
-          landList.push(...itemArr);
-        }
-
-        const selectedAreaStyle = {
-            fill: true,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'RGB(75, 192, 192)',
-            pointBackgroundColor: 'RGB(75, 192, 192)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'RGB(75, 192, 192)',
-        }
-
-        const seoulAreaStyle = {
-            fill: true,
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgb(54, 162, 235)',
-            pointBackgroundColor: 'rgb(54, 162, 235)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgb(54, 162, 235)',
-        }
-
-        const chartData = {
-            labels: [
-                '가구 수 (0.1가구)', 
-                '세대수 (0.1세대)', 
-                '토지면적 (100㎡)', 
-                '개별공시지가 (100만원/㎡)', 
-                '공동주택가격 (천만원)', 
-                '개별주택가격 (천만원)'
-            ],
-            datasets: [
-                {
-                    label: '선택지역 지역 평균',
-                    data: [
-                        normalizeValueTest(Number(buldList.reduce((acc,cur) => acc + Number(cur.fmlyCnt || 0), 0) / buldList.length), '가구수'),
-                        normalizeValueTest(Number(buldList.reduce((acc,cur) => acc + Number(cur.hhldCnt || 0), 0) / buldList.length), '세대수'),
-                        normalizeValueTest(Number(+(landList.map(ele => Number(ele.lndpclAr || 0)).reduce((acc,cur) => +acc.toFixed(1) + cur, 0)/landList.length).toFixed(2)), '면적'),
-                        normalizeValueTest(Number(selectedData('landPrice')[selectedData('landPrice').length - 1].avg || 0), '공시지가'),
-                        normalizeValueTest(Number(selectedData('apartPrice')[selectedData('apartPrice').length - 1].avg || 0), '가격'),
-                        normalizeValueTest(Number(selectedData('indvdPrice')[selectedData('indvdPrice').length - 1].avg || 0), '가격')
-                    ],
-                    ...selectedAreaStyle
-                },
-                {
-                    label: '서울시 평균',
-                    data: [
-                        normalizeValueTest(Number(statisticsData('건축물대장')['fmly_co_sid_avg'] || 0), '가구수'),
-                        normalizeValueTest(Number(statisticsData('건축물대장')['hshld_co_sid_avg'] || 0), '세대수'),
-                        normalizeValueTest(Number(statisticsData('토지대장')['lndpcl_ar_sid_avg'] || 0), '면적'),
-                        normalizeValueTest(Number(statisticsData('개별공시지가')['sid_avg'] || 0), '공시지가'),
-                        normalizeValueTest(Number(statisticsData('공동주택가격')['sid_avg'] || 0), '가격'),
-                        normalizeValueTest(Number(statisticsData('개별주택가격')['sid_avg'] || 0), '가격')
-                    ],
-                    ...seoulAreaStyle
-                },
-            ],
-        };
-
-        drawChartTest(chartData, 'radar');
-        
-    } catch (error) {
-        console.log(error)
-    }
-}
+//   } catch (error) {
+//       console.log(error)
+//   }
+// }
 
 function normalizeValueTest(value, type) {
 	switch(type) {
@@ -230,7 +217,6 @@ function drawChartTest(chartData, chartType) {
 }
 
 function executeDownload(key, path) {
-
     $('#load').show();
     const xhr = new XMLHttpRequest();
     const url = "/web/analysis/cmmn/shpDownload.do";

@@ -1,8 +1,9 @@
 // legend item 추가 및 legend show
 // items = [{color: '', name: ''}, {color: '', name: ''}, ...];
 function showLegend(items, option){
-	$('.analLegendModal').show();
-	const listEl = $('.legendList');
+	opener.$('.analLegendModal').show();
+	const listEl = opener.$('.legendList');
+	listEl.empty();
 	
 	for(let item of items){			
 		const li = document.createElement('li');
