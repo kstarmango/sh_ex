@@ -85,7 +85,10 @@
             </li>
         </ul>
 
-        <div id="map-analyResult" style="overflow: auto; display: none;"></div>
+        <div class="analLegendModal" style="overflow: auto;display: none;">
+            <h1 class="header">범례</h1>
+            <ul class="legendList"></ul>
+        </div>
     </div>
     <!-- END 분석결과 레이어 -->
 </div>

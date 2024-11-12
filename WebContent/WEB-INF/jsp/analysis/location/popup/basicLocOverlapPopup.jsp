@@ -6,6 +6,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script  src="<c:url value='/resources/js/analysis/analLayer.js'/>"></script>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 
 <!DOCTYPE html>
@@ -19,7 +20,7 @@
 	// 시작 탭 메뉴 - 공통
 	var selectedResultMenu = 'land';
 	// 응답결과 Obj - 공통
-	var resultDataObj = '${resultData}';
+	var resultDataStr = ${resultData};
 	<%
 		// 각 파라미터 개별적으로 받기
 		String inputLyrIdList = request.getParameter("inputLyrIdList");
@@ -30,18 +31,20 @@
   };
 
   $(document).ready(function() {
-
     // 분석 결과 존재 여부 체크 - 공통
-    if(resultDataObj.result == 'false') { 
+    if(!resultDataStr) { 
       alert('분석 결과가 존재하지 않습니다. 조건을 변경해주세요.');
       window.close();
       return;
     }
-    
+
+    opener.doAfterAnalysis();
+    xhrResponse();
   	console.log('분석 파라미터:', analysisParams);
   	// analysisParams.inputLyrIdList 등으로 접근 가능
+
   	try {
-  		const resultData = deepDecode(resultDataObj);
+  		const resultData = deepDecode(resultDataStr);
   		switchSelectTab();
   		displayResult(resultData.data);
   	} catch (e) {
@@ -49,6 +52,7 @@
   	}
 	});
     
+	// parsing resultData - 공통
 	// 응답결과 깊은 복사 - 공통
 	function deepDecode(obj) {
   	if (typeof obj === 'string') {
@@ -74,6 +78,23 @@
     
     return obj;
 	}
+
+  // 분석 결과 ��각화 on off 및 다운로드 처리
+  function xhrResponse() {
+    const originalXHR = window.XMLHttpRequest;
+    window.XMLHttpRequest = function() {
+      const xhr = new originalXHR();
+      const send = xhr.send;
+      xhr.send = function() {
+        xhr.onload = function() {
+          var exportKey = xhr.getResponseHeader('export_key');
+          analLayer(opener.contextPath, exportKey);
+        };
+        return send.apply(this, arguments);
+      };
+      return xhr;
+    };
+  }
     
 	/* 데이터 전달시 예외 처리 - 공통
 	window.onload = function() {
@@ -94,6 +115,7 @@
   /* 지도 시각화, 테이블, 리스트, 차트, 범례 데이터 생성 - 개별 */
   function displayResult(data) {
  		try {
+      
  			//! 초기화!!
  			$('#SH_AnalysisResult_Chart').empty();
       let featuresLg = 0;
@@ -151,36 +173,39 @@
           opener.geoMap.addLayer(vectorLayer);
   			
           Table(data, opener.overlayLyrs, styleColors);
-          /* analLayer(contextPath, exportKey); */
-          /*  resultLegend(styleColors); */
+          resultLegend(styleColors, opener.lyrKorNmList); 
         }
       }
 
     } catch (e) {
-      debugger;
   		console.log(e);
   	}
+  }
+
+  /* 분석 결과 범례 생성 - 개별 */
+  function resultLegend(styles, lyrKorNmList) {
+    const legend = Object.entries(styles).map(([key, value]) => {
+      const index = lyrKorNmList.lyrIdArr.indexOf(key);
+
+      if (index !== -1) {
+        return { color: value.stroke, name: lyrKorNmList.lyrNmArr[index] };
+      }
+    });
+    
+    if (legend.length > 0) showLegend(legend);
   }
   
   /* 탭 선택시, 이벤트 - 공통 */
   function switchSelectTab() {
-    $("#SH_SearchList_tab li a").on('click', function(e){
-  	  selectedUl.removeClass('selected');
-	    $(e.target).parent().addClass('selected');
-	
-  	  const selectedUl = $("#SH_SearchList_tab li").find(".selected");
-  	  const type = selectedUl.data('toggle');
-	  
-      // 각 타입 기본 컨테이너 필요시 전처리 - 개별
-      /* if (type == 'table') {	
-      	
-        } else if (type == 'chart') {
-  		
-        } else if (type == 'list') {
-         	
-        }
-      }) */
-    })
+   // 각 타입 기본 컨테이너 필요시에 전처리 과정 추가- 개별
+    $("#SH_SearchList_tab").on("click", "li a", function(e) {
+        $("#SH_SearchList_tab li").removeClass('active'); 
+        $(this).parent().addClass('active');
+
+        const targetTab = $(this).data('toggle');
+        $(".tab-pane").removeClass('active');
+        $("#" + targetTab).addClass('active');
+    });
   }
   
   // 테이블 시각화 - 개별
@@ -346,9 +371,9 @@
 			</div>
 
 			<ul class="nav nav-tabs" id="SH_SearchList_tab">
-				<li><a data-toggle="tab-01" onClick="switchSelectTab()">(분석서비스 명칭) 차트</a></li>
-				<li class="active"><a data-toggle="tab-02" onClick="switchSelectTab()">표</a></li>
-				<li><a data-toggle="tab-03" onClick="switchSelectTab()">리스트</a></li>
+				<li><a data-toggle="SH_AnalysisResult_Chart">(분석서비스 명칭) 차트</a></li>
+				<li class="active"><a data-toggle="SH_AnalysisResult_Table" >표</a></li>
+				<li><a data-toggle="SH_AnalysisResult_List">리스트</a></li>
 				<!-- <li><a data-toggle="tab-04" href="#SH_SearchList_gb"></a></li>    -->
 			</ul>
 

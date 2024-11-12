@@ -3921,7 +3921,7 @@ input[type=checkbox], input[type=radio] {
 /* 분석 범례 모달 start */ 
 .analLegendModal {
     display : none;
-    position: absolute;
+    /* position: absolute;
     bottom: 10.5rem;
     right: 7rem;
     padding: 1.2rem;
@@ -3929,7 +3929,7 @@ input[type=checkbox], input[type=radio] {
     border-radius: 4px;
     box-shadow: 0px 0px 12px 0 rgba(0, 0, 0, 0.08);
     z-index: 1;
-    max-height: 50rem;
+    max-height: 50rem; */
     overflow: auto;
     transition: all 0.5s linear;
 }

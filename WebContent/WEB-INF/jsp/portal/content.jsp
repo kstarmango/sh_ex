@@ -199,24 +199,17 @@ function showTooltip(a){
     </div>
     <!--// Alert Pop-up -->
 
-	<!-- analysis legend -->
-	<div class="analLegendModal">
-		<h1 class="header">범례</h1>
-		<ul class="legendList"></ul>
-	</div> 
-	<!-- End analysis legend -->
-
 	<!-- 마이맵 팝업 UI -->
 	<div class="mapPopup" id="myMap-mini" style="display: none; position:absolute;z-index: 2; left:20%;">
 	    <!---Title -->
-        <div class="head" id='convert_title'>
-            <h2>마이맵</h2>
-            <div class="disFlex">
-                <img class="closeBtn" id="myMap-mini-min" onClick="fn_modal_min('myMap-mini');" src="${pageContext.request.contextPath}/resources/img/map/btnPopHeadMin.svg" alt="숨기기">
-                <img class="closeBtn" id="myMap-mini-max" onClick="fn_modal_max('myMap-mini');" src="${pageContext.request.contextPath}/resources/img/map/btnPopHeadMax.svg" alt="크게 보기">
-                <img class="closeBtn" id="myMap-mini-close" onClick="fn_modal_onOff('myMap-mini');" src="${pageContext.request.contextPath}/resources/img/map/icClose24.svg" alt="닫기">
-            </div>
-        </div>
+      <div class="head" id='convert_title'>
+          <h2>마이맵</h2>
+          <div class="disFlex">
+              <img class="closeBtn" id="myMap-mini-min" onClick="fn_modal_min('myMap-mini');" src="${pageContext.request.contextPath}/resources/img/map/btnPopHeadMin.svg" alt="숨기기">
+              <img class="closeBtn" id="myMap-mini-max" onClick="fn_modal_max('myMap-mini');" src="${pageContext.request.contextPath}/resources/img/map/btnPopHeadMax.svg" alt="크게 보기">
+              <img class="closeBtn" id="myMap-mini-close" onClick="fn_modal_onOff('myMap-mini');" src="${pageContext.request.contextPath}/resources/img/map/icClose24.svg" alt="닫기">
+          </div>
+      </div>
 		<!-- End-Title -->
 		
 		 <!--정보 Panel-Content -->

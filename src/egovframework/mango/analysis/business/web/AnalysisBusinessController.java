@@ -95,7 +95,7 @@ public class AnalysisBusinessController extends BaseController {
 
 	@RequestMapping(value = { RequestMappingConstants.WEB_ANAL_SIMILAR_BIZ }, method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public String similarBiz(HttpServletRequest request, HttpServletResponse response,
+	public void similarBiz(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "inputFeature", required = false) String inputFeature,
 			@RequestParam(value = "analyType", required = false) String analyType,
 			@RequestParam(value = "buffer", required = false) Double buffer,
@@ -188,14 +188,13 @@ public class AnalysisBusinessController extends BaseController {
 			// System.out.println(e);
 		}
 		out.println(obj.toString());
-		model.addAttribute("resultData", obj);
-		return "analysis/spatial/similarPopup.part";
+
 	}
 
 //	관련사업 입지 분석
 	@RequestMapping(value = { RequestMappingConstants.WEB_ANAL_RELATED_BIZ }, method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public String relatedBiz(HttpServletRequest request, HttpServletResponse response,
+	public void relatedBiz(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "inputLyr", required = false) String inputLyr,
 			@RequestParam(value = "analyArea", required = false) String analyArea,
 			@RequestParam(value = "overlayLyrs", required = false) String overlayLyrs, ModelMap model)
@@ -233,10 +232,6 @@ public class AnalysisBusinessController extends BaseController {
 			// System.out.println(e);
 		}
 		out.println(obj.toString());
-
-		model.addAttribute("resultData", obj);
-
-		return "analysis/location/popup/relatedBizPopup.part";
 	}
 
 	// 반경거리 중첩 분석
@@ -250,7 +245,7 @@ public class AnalysisBusinessController extends BaseController {
 	 * type : multiring, intersect
 	 */
 	@RequestMapping(value = { RequestMappingConstants.WEB_ANAL_BUFFER_BIZ }, method = { RequestMethod.POST })
-	public String buffer(HttpServletRequest request, HttpServletResponse response,
+	public void buffer(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "inputSchema", required = false) String inputSchema,
 			@RequestParam(value = "inputFeatures", required = true) String inputFeatures,
 			@RequestParam(value = "distance", required = false) String distance,
@@ -261,8 +256,8 @@ public class AnalysisBusinessController extends BaseController {
 			@RequestParam(value = "dissolve", required = false) String dissolve,
 			@RequestParam(value = "sggCd", required = true) String sggCd,
 			@RequestParam(value = "type", required = false) String analysisType,
-			@RequestParam(value = "targetListStr", required = false) String targetListStr,
-			ModelMap model) throws NullPointerException, Exception {
+			@RequestParam(value = "targetListStr", required = false) String targetListStr)
+			throws NullPointerException, Exception {
 
 		boolean boutsideOnly = true;
 		boolean bdissolve = false;
@@ -313,7 +308,8 @@ public class AnalysisBusinessController extends BaseController {
 				logger.debug(e);
 			}
 
-			resultList = analyBizService.getBufferIntersectFeatures(exportId, inputSchema, inputFeatures, targetList, sggCd);
+			resultList = analyBizService.getBufferIntersectFeatures(exportId, inputSchema, inputFeatures, targetList,
+					sggCd);
 		}
 
 		response.setContentType("application/json");
@@ -324,9 +320,6 @@ public class AnalysisBusinessController extends BaseController {
 
 		PrintWriter out = response.getWriter();
 		out.println(obj.toString());
-		model.addAttribute("resultData", obj);
-
-		return "analysis/spatial/spatialDistancePopup.part";
 
 	}
 
@@ -340,7 +333,7 @@ public class AnalysisBusinessController extends BaseController {
 	 * intersect
 	 */
 	@RequestMapping(value = { RequestMappingConstants.WEB_ANAL_NETWORK_BIZ }, method = { RequestMethod.POST })
-	public String network(HttpServletRequest request, HttpServletResponse response,
+	public void network(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "inputSchema", required = false) String inputSchema,
 			@RequestParam(value = "inputFeatures", required = true) String inputFeatures,
 			@RequestParam(value = "distance", required = false) String distance,
@@ -351,8 +344,7 @@ public class AnalysisBusinessController extends BaseController {
 			@RequestParam(value = "dissolve", required = false) String dissolve,
 			@RequestParam(value = "sggCd", required = false) String sggCd,
 			@RequestParam(value = "type", required = false) String analysisType,
-			@RequestParam(value = "targetListStr", required = false) String targetListStr,
-			ModelMap model)
+			@RequestParam(value = "targetListStr", required = false) String targetListStr)
 			throws NullPointerException, Exception {
 
 		boolean boutsideOnly = true;
@@ -417,8 +409,7 @@ public class AnalysisBusinessController extends BaseController {
 
 		PrintWriter out = response.getWriter();
 		out.println(obj.toString());
-		model.addAttribute("resultData", obj);
 
-		return "analysis/location/popup/networkPopup.part";
 	}
+
 }

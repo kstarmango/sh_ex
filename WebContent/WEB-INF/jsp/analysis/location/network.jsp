@@ -644,6 +644,31 @@ import="egovframework.mango.config.SHResource"%>
 				showLegend(legendItemList)
 			}
 
+			function getColor(category){
+				const colors = ['#b2182b', '#d6604d', '#f4a582', '#9FC93C', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac'];
+				let fillColor = colors[0];
+				
+				if (category === '교통') {
+        		// fillColor = colors[0];
+        } else if (category === '문화') {
+            fillColor = colors[0];
+        } else if (category === '편의') {
+            fillColor = colors[1];
+        } else if (category === '휴식') {
+            fillColor = colors[2];
+        } else if (category === '교육') {
+            fillColor = colors[3];
+        } else if (category === '의료') {
+            fillColor = colors[4];
+        } else if (category === '복지') {
+            fillColor = colors[5];
+        } else if (category === '행정') {
+            fillColor = colors[6];
+        }
+				
+				return fillColor;
+			}
+
 			function createPointCategory(title) {
 				let category = '';
 

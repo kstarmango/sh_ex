@@ -15,6 +15,8 @@
   var shexPath = "<%=SHResource.getValue("sh.server.schema")%>://<%=SHResource.getValue("sh.server.url")%>";
   let btns = document.querySelectorAll(".faq__question");
   var componentData = [];
+  var overlayLyrs = [];
+  var lyrKorNmList = [];
 
   $(document).ready(function() {
     $('#sub_content').show();
@@ -54,8 +56,6 @@
 
     doRenderSearchComp(componentData);
   }
-
-  var overlayLyrs = [];
 
   function onClickAnalysis() {
     doBeforeAnalysis();
@@ -101,100 +101,13 @@
       form.appendChild(hiddenField);
     });
 
+    // 테이블 컬럼 한글명 set
+    lyrKorNmList = getLayerKorNmItem(); 
+
     document.body.appendChild(form);
     window.open("", "SearchWindow", "toolbar=no, width=1100, height=720, directories=no, status=no, scrollbars=yes, resizable=yes");
     form.submit();
     document.body.removeChild(form);
-  }
-
-  // 차트만 view
-  function displayResult(data) {
-    try {
-
-      let featuresLg = 0;
-      const jsonString = res.trim().replace(/\r?\n|\r/g, '');
-      const jsonData = JSON.parse(jsonString);
-      const data = jsonData.data;
-      let isNullResult = true;
-
-      const inputLyrIdList = $('#output_select li').map(function() {
-        return $(this).attr('value').split('.')[1];
-      }).get();
-
-      inputLyrIdList.forEach((id) => {
-        if (JSON.parse(data[id]).features.length > 0) isNullResult = false;
-      });
-
-      if (isNullResult) {
-        alert('분석 결과가 존재하지 않습니다. 조건을 변경해주세요');
-        return;
-      }
-
-      const vectorSource = new ol.source.Vector();
-      var layerList = [];
-
-      if (data) {
-        const styleColors = {};
-
-        Object.keys(data).forEach((key, idx) => {
-          const parseData = JSON.parse(data[key]);
-          if (parseData.features.length) {
-            featuresLg = parseData.features.length;
-            const reader = new ol.format.GeoJSON();
-
-            const features = reader.readFeatures(parseData, {
-              dataProjection: 'EPSG:4326',
-              featureProjection: 'EPSG:3857'
-            });
-
-            features.forEach((feature, fIdx) => {
-              feature.set("layer_nm_style", key);
-            });
-
-            let [fillColor, strokeColor] = randomColor(0.4);
-            styleColors[key] = { fill: fillColor, stroke: strokeColor };
-
-            vectorSource.addFeatures(features);
-          }
-        });
-
-        if (featuresLg === 0) {
-          alert('중첩 레이어가 존재하지 않습니다. 다시 선택해주세요.');
-        } else {
-          var vectorLayer = new ol.layer.Vector({
-            title: 'analysis',
-            serviceNm: '기본입지분석(중첩)',
-            source: vectorSource,
-          });
-
-          vectorLayer.setStyle(createBasicLocLayerStyle(vectorLayer, 'layer_nm_style', styleColors));
-
-          geoMap.getView().fit(vectorSource.getExtent(), geoMap.getSize());
-          var exportKey = xhr.getResponseHeader('export_key');
-          geoMap.addLayer(vectorLayer);
-
-          analLayer(contextPath, exportKey);
-          Table(data, overlayLyrs, styleColors);
-          resultLegend(styleColors);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      alert('분석 결과 표시 중 오류가 발생했습니다.');
-      doAfterAnalysis();
-    }
-  }
-
-  function resultLegend(styles) {
-    const lyrKorNmList = getLayerKorNmItem();
-    const legend = Object.entries(styles).map(([key, value]) => {
-      const index = lyrKorNmList.lyrIdArr.indexOf(key);
-      if (index !== -1) {
-        return { color: value.stroke, name: lyrKorNmList.lyrNmArr[index] };
-      }
-    });
-
-    if (legend.length > 0) showLegend(legend);
   }
 
 </script>
